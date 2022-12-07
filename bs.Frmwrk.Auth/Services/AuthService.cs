@@ -4,6 +4,7 @@ using bs.Frmwrk.Base;
 using bs.Frmwrk.Base.Exceptions;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Models.Auth;
+using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Locale;
@@ -23,14 +24,12 @@ namespace bs.Frmwrk.Auth.Services
     {
         protected readonly IAuthRepository authRepository;
         private readonly ITokenService tokenService;
-        private readonly ISecurityService securityService;
 
         public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork,
-            IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork)
+            IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork, securityService)
         {
             this.authRepository = authRepository;
             this.tokenService = tokenService;
-            this.securityService = securityService;
         }
 
         public virtual async Task<IApiResponseViewModel<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
@@ -160,7 +159,7 @@ namespace bs.Frmwrk.Auth.Services
                 user.RefreshTokenExpire = response.Value.RefreshTokenExpire;
 
                 return response;
-            }, T("Errore durante il rinnovo del token."));
+            }, "Errore durante il rinnovo del token.");
         }
 
         private bool CheckHashedPassword(IUserModel user, string clearPassword)

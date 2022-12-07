@@ -2,6 +2,7 @@
 {
     public interface ITokenJWTDto
     {
-        string Token { get; }
+        string Token { get; set; }
+        DateTime ExpireAt { get; set; }
     }
 }

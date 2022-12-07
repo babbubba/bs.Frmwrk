@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using bs.Data.Interfaces;
 using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using Microsoft.Extensions.Logging;
 
@@ -13,14 +15,16 @@ namespace bs.Frmwrk.Base
         protected readonly ILogger logger;
         protected readonly IMapper mapper;
         protected readonly IUnitOfWork unitOfWork;
+        protected readonly ISecurityService securityService;
         private readonly ITranslateService translateService;
 
-        public BsService(ILogger logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork)
+        public BsService(ILogger logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork, ISecurityService securityService)
         {
             this.logger = logger;
             this.translateService = translateService;
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
+            this.securityService = securityService;
         }
 
         /// <summary>
@@ -55,6 +59,14 @@ namespace bs.Frmwrk.Base
             {
                 // try executing the operation method
                 response = await function.Invoke(response).ConfigureAwait(false);
+            }
+            catch (BsException bex)
+            {
+                await unitOfWork.RollbackAsync();
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + bex.GetBaseException().Message;
+                response.ErrorCode = bex.ErrorCode;
+                response.Success = false;
+                logger.LogError(bex, response.ErrorMessage);
             }
             catch (Exception ex)
             {
@@ -101,6 +113,14 @@ namespace bs.Frmwrk.Base
                 response = await function.Invoke(response);//.ConfigureAwait(false);
                 await unitOfWork.CommitAsync();
             }
+            catch (BsException bex)
+            {
+                await unitOfWork.RollbackAsync();
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + bex.GetBaseException().Message;
+                response.ErrorCode = bex.ErrorCode;
+                response.Success = false;
+                logger.LogError(bex, response.ErrorMessage);
+            }
             catch (Exception ex)
             {
                 await unitOfWork.RollbackAsync();
@@ -126,8 +146,6 @@ namespace bs.Frmwrk.Base
         /// </exception>
         public async Task<IApiResponseViewModel<TResponse>> ExecuteTransactionAsync<TResponse>(Func<IApiResponseViewModel<TResponse>, Task<IApiResponseViewModel<TResponse>>> function, string genericErrorMessage)
         {
-            unitOfWork.BeginTransaction();
-
             IApiResponseViewModel<TResponse>? response = default;
             if (response == null)
             {
@@ -141,8 +159,17 @@ namespace bs.Frmwrk.Base
 
             try
             {
+                unitOfWork.BeginTransaction();
                 response = await function.Invoke(response);
                 await unitOfWork.CommitAsync();
+            }
+            catch (BsException bex)
+            {
+                await unitOfWork.RollbackAsync();
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + bex.GetBaseException().Message;
+                response.ErrorCode = bex.ErrorCode;
+                response.Success = false;
+                logger.LogError(bex, response.ErrorMessage);
             }
             catch (Exception ex)
             {
