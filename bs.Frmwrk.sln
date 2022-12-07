@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.ViewModel", "bs.F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bs.Frmwrk.Dtos", "bs.Frmwrk.Dtos\bs.Frmwrk.Dtos.csproj", "{6EBD5FF4-2314-4705-9BDD-965AD30800EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bs.Frmwrk.Security", "bs.Frmwrk.Security\bs.Frmwrk.Security.csproj", "{33F1C1DB-F228-411D-86D4-28DB31213B9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{6EBD5FF4-2314-4705-9BDD-965AD30800EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EBD5FF4-2314-4705-9BDD-965AD30800EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EBD5FF4-2314-4705-9BDD-965AD30800EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33F1C1DB-F228-411D-86D4-28DB31213B9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33F1C1DB-F228-411D-86D4-28DB31213B9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33F1C1DB-F228-411D-86D4-28DB31213B9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33F1C1DB-F228-411D-86D4-28DB31213B9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
