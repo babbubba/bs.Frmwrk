@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\bs.Frmwrk.Base\bs.Frmwrk.Base.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.Shared\bs.Frmwrk.Shared.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.ViewModel\bs.Frmwrk.ViewModel.csproj" />
   </ItemGroup>
 
 </Project>

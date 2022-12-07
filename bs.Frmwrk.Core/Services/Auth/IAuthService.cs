@@ -5,6 +5,7 @@ using bs.Frmwrk.Core.ViewModels.Auth;
 
 namespace bs.Frmwrk.Core.Services.Auth
 {
+
     public interface IAuthService
     {
         /// <summary>
@@ -16,7 +17,7 @@ namespace bs.Frmwrk.Core.Services.Auth
         Task<IApiResponseViewModel<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp);
 
         /// <summary>
-        /// Keeps alive the user setting last ping to current date time (UTC)
+        /// Keeps alive the user setting last ping to current date time (UTC).
         /// </summary>
         /// <param name="user">The user.</param>
         /// <returns></returns>

@@ -8,11 +8,14 @@ namespace bs.Frmwrk.Core.Models.Auth
 {
     public interface IUserModel
     {
-        public Guid Id { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string PasswordHash { get; set; }
-        public bool Enabled { get; set; }
-        public DateTime? LastLogin { get; set; }
+         Guid Id { get; set; }
+         string UserName { get; set; }
+         string Email { get; set; }
+         string PasswordHash { get; set; }
+         bool Enabled { get; set; }
+         DateTime? LastLogin { get; set; }
+        string? RefreshToken { get; set; }
+        DateTime? RefreshTokenExpire { get; set; }
+        string? LastIp { get; set; }
     }
 }

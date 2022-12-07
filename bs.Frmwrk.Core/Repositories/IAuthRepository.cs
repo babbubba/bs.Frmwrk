@@ -10,5 +10,6 @@ namespace bs.Frmwrk.Core.Repositories
     public interface IAuthRepository
     {
         Task<IUserModel> GetUserByUserNameAsync(string userName);
+        Task<IUserModel> GetUserByIdAsync(Guid userId);
     }
 }
