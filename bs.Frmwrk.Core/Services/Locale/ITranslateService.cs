@@ -9,8 +9,10 @@ namespace bs.Frmwrk.Core.Services.Locale
     /// <summary>
     /// The service for translate messages
     /// </summary>
-    public interface ITranslateService
+       public interface ITranslateService
     {
+        //TODO: Ricorda di registrare nel bootstrap questo servizio per le traduzioni
+
         /// <summary>
         /// Translates the specified text.
         /// </summary>

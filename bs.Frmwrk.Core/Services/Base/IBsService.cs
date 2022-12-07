@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Core.Services.Base
 {
-    public interface IBaseService
+    public interface IBsService
     {
         Task<IApiPagedResponseViewModel<TResponse>> ExecuteDatatableAsync<TResponse>(Func<IApiPagedResponseViewModel<TResponse>, Task<IApiPagedResponseViewModel<TResponse>>> function, string genericErrorMessage);
         Task<IApiResponseViewModel> ExecuteTransactionAsync(Func<IApiResponseViewModel, Task<IApiResponseViewModel>> function, string genericErrorMessage);

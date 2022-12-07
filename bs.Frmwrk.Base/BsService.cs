@@ -8,14 +8,14 @@ using Microsoft.Extensions.Logging;
 
 namespace bs.Frmwrk.Base
 {
-    public abstract class BaseService : IBaseService
+    public abstract class BsService : IBsService
     {
         protected readonly ILogger logger;
         protected readonly IMapper mapper;
         protected readonly IUnitOfWork unitOfWork;
         private readonly ITranslateService translateService;
 
-        public BaseService(ILogger logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork)
+        public BsService(ILogger logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork)
         {
             this.logger = logger;
             this.translateService = translateService;

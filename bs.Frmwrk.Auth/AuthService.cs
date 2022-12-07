@@ -19,7 +19,7 @@ using bs.Frmwrk.Core.Services.Security;
 
 namespace bs.Frmwrk.Auth
 {
-    public class AuthService : BaseService, IAuthService
+    public class AuthService : BsService, IAuthService
     {
         protected readonly IAuthRepository authRepository;
         private readonly ITokenService tokenService;
