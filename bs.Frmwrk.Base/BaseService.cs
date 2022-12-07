@@ -1,22 +1,19 @@
-﻿using bs.Frmwrk.Core.Services.Locale;
-using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
 using bs.Data.Interfaces;
-using AutoMapper;
-using bs.Frmwrk.Core.ViewModels.Api;
-using bs.Data;
 using bs.Frmwrk.Base.Exceptions;
 using bs.Frmwrk.Core.Services.Base;
+using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.ViewModels.Api;
+using Microsoft.Extensions.Logging;
 
 namespace bs.Frmwrk.Base
 {
-
-
     public abstract class BaseService : IBaseService
     {
         protected readonly ILogger logger;
-        private readonly ITranslateService translateService;
         protected readonly IMapper mapper;
         protected readonly IUnitOfWork unitOfWork;
+        private readonly ITranslateService translateService;
 
         public BaseService(ILogger logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork)
         {
@@ -24,6 +21,51 @@ namespace bs.Frmwrk.Base
             this.translateService = translateService;
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
+        }
+
+        /// <summary>
+        /// Executes the datatable asynchronous.
+        /// </summary>
+        /// <typeparam name="TResponse">The type of the response.</typeparam>
+        /// <param name="function">The function.</param>
+        /// <param name="genericErrorMessage">The generic error message.</param>
+        /// <returns></returns>
+        /// <exception cref="bs.Frmwrk.Base.Exceptions.BsException">
+        /// 2212071652
+        /// or
+        /// 2212071653
+        /// </exception>
+        public async Task<IApiPagedResponseViewModel<TResponse>> ExecuteDatatableAsync<TResponse>(
+         Func<IApiPagedResponseViewModel<TResponse>, Task<IApiPagedResponseViewModel<TResponse>>> function,
+         string genericErrorMessage)
+        {
+            IApiPagedResponseViewModel<TResponse>? response = default;
+
+            if (response == null)
+            {
+                throw new BsException(2212071652, translateService.Translate("Impossibile costruire l'oggetto ApiResponse"));
+            }
+
+            if (function == null)
+            {
+                throw new BsException(2212071653, translateService.Translate("Impossibile eseguire l'azione. La funzione non è valida."));
+            }
+
+            try
+            {
+                // try executing the operation method
+                response = await function.Invoke(response).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await unitOfWork.RollbackAsync();
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + ex.GetBaseException().Message;
+                response.Success = false;
+                logger.LogError(ex, response.ErrorMessage);
+            }
+
+            // return the response
+            return response;
         }
 
         /// <summary>
@@ -110,51 +152,6 @@ namespace bs.Frmwrk.Base
                 logger.LogError(ex, response.ErrorMessage);
             }
 
-            return response;
-        }
-
-        /// <summary>
-        /// Executes the datatable asynchronous.
-        /// </summary>
-        /// <typeparam name="TResponse">The type of the response.</typeparam>
-        /// <param name="function">The function.</param>
-        /// <param name="genericErrorMessage">The generic error message.</param>
-        /// <returns></returns>
-        /// <exception cref="bs.Frmwrk.Base.Exceptions.BsException">
-        /// 2212071652
-        /// or
-        /// 2212071653
-        /// </exception>
-        public async Task<IApiPagedResponseViewModel<TResponse>> ExecuteDatatableAsync<TResponse>(
-         Func<IApiPagedResponseViewModel<TResponse>, Task<IApiPagedResponseViewModel<TResponse>>> function,
-         string genericErrorMessage)
-        {
-            IApiPagedResponseViewModel<TResponse>? response = default;
-
-            if (response == null)
-            {
-                throw new BsException(2212071652, translateService.Translate("Impossibile costruire l'oggetto ApiResponse"));
-            }
-
-            if (function == null)
-            {
-                throw new BsException(2212071653, translateService.Translate("Impossibile eseguire l'azione. La funzione non è valida."));
-            }
-
-            try
-            {
-                // try executing the operation method
-                response = await function.Invoke(response).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + ex.GetBaseException().Message;
-                response.Success = false;
-                logger.LogError(ex, response.ErrorMessage);
-            }
-
-            // return the response
             return response;
         }
 
