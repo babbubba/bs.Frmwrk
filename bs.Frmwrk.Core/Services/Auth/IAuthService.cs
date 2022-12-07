@@ -5,7 +5,6 @@ using bs.Frmwrk.Core.ViewModels.Auth;
 
 namespace bs.Frmwrk.Core.Services.Auth
 {
-
     public interface IAuthService
     {
         /// <summary>
@@ -37,6 +36,5 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="currentUser">The current user.</param>
         /// <returns></returns>
         Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser);
-
     }
 }

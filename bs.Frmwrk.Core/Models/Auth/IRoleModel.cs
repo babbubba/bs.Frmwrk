@@ -12,6 +12,7 @@
         /// The identifier.
         /// </value>
         public Guid Id { get; set; }
+
         /// <summary>
         /// Gets or sets the code.
         /// </summary>
@@ -19,6 +20,7 @@
         /// The code.
         /// </value>
         public string Code { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
@@ -26,6 +28,7 @@
         /// The name.
         /// </value>
         public string Name { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="IRoleModel"/> is enabled.
         /// </summary>

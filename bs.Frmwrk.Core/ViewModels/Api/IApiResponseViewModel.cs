@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.ViewModels.Api
+﻿namespace bs.Frmwrk.Core.ViewModels.Api
 {
     /// <summary>
     /// The base API Response (without data)

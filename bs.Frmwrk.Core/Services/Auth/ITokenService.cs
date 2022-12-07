@@ -11,22 +11,26 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="token">The token.</param>
         /// <returns></returns>
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
+
         /// <summary>
         /// Generates the refresh token.
         /// </summary>
         /// <returns></returns>
         string GenerateRefreshToken();
+
         /// <summary>
         /// Generates the access token.
         /// </summary>
         /// <param name="claims">The claims.</param>
         /// <returns></returns>
         ITokenJWTDto GenerateAccessToken(IEnumerable<Claim> claims);
+
         /// <summary>
         /// Generates the refresh token expire date.
         /// </summary>
         /// <returns></returns>
         DateTime GenerateRefreshTokenExpireDate();
+
         /// <summary>
         /// Generates the access token expire date.
         /// </summary>

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Shared
+﻿namespace bs.Frmwrk.Shared
 {
     public static class GuidExtension
     {

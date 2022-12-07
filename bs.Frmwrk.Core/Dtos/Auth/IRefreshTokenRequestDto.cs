@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.Dtos.Auth
+﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
     /// Used to rquest to refresh the token
@@ -18,6 +12,7 @@ namespace bs.Frmwrk.Core.Dtos.Auth
         /// The access token.
         /// </value>
         string AccessToken { get; set; }
+
         /// <summary>
         /// Gets or sets the refresh token.
         /// </summary>

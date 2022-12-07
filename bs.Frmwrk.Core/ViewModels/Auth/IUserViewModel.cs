@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.ViewModels.Auth
+﻿namespace bs.Frmwrk.Core.ViewModels.Auth
 {
-    public  interface IUserViewModel
+    public interface IUserViewModel
     {
         public string UserName { get; set; }
         public string Email { get; set; }

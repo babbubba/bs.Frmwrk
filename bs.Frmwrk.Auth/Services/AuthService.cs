@@ -7,17 +7,17 @@ using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Auth;
+using bs.Frmwrk.Shared;
+using bs.Frmwrk.ViewModel;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using bs.Frmwrk.Shared;
-using bs.Frmwrk.ViewModel;
-using bs.Frmwrk.Core.Services.Security;
 
-namespace bs.Frmwrk.Auth
+namespace bs.Frmwrk.Auth.Services
 {
     public class AuthService : BsService, IAuthService
     {
@@ -82,22 +82,23 @@ namespace bs.Frmwrk.Auth
             }, "Errore in autenticazione.");
         }
 
-        public async virtual Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
+        public virtual async Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
         {
-            return await ExecuteTransactionAsync<string>(async(response)=> {
+            return await ExecuteTransactionAsync<string>(async (response) =>
+            {
                 var model = mapper.Map<IUserModel>(createUserDto);
 
                 // Map the roles
-                if(createUserDto.RolesIds != null && model is IRoledUser roledUser)
+                if (createUserDto.RolesIds != null && model is IRoledUser roledUser)
                 {
                     foreach (var roleId in createUserDto.RolesIds)
                     {
                         roledUser.Roles.Add(await authRepository.GetRoleByIdAsync(roleId.ToGuid()));
                     }
                 }
-                
+
                 bool isValidPassword = await securityService.CheckPasswordValidity(createUserDto.Password, out string passwordCheckingError);
-                if(!isValidPassword)
+                if (!isValidPassword)
                 {
                     response.Success = false;
                     response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError);
@@ -110,15 +111,13 @@ namespace bs.Frmwrk.Auth
                 await authRepository.CreateUserAsync(model);
                 response.Value = model.Id.ToString();
                 return response;
-            },"Errore creando l'utente");
-           
+            }, "Errore creando l'utente");
         }
 
-        public async virtual Task<IApiResponseViewModel> KeepAliveAsync(IKeepedAliveUser user)
+        public virtual async Task<IApiResponseViewModel> KeepAliveAsync(IKeepedAliveUser user)
         {
             return await ExecuteTransactionAsync(async (response) =>
             {
-
                 if (user is not null)
                 {
                     user.LastPing = DateTime.UtcNow;
@@ -128,7 +127,7 @@ namespace bs.Frmwrk.Auth
             }, "Errore aggiornando lo stato dell'utente");
         }
 
-        public async virtual Task<IApiResponseViewModel<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest)
+        public virtual async Task<IApiResponseViewModel<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest)
         {
             return await ExecuteTransactionAsync<IRefreshTokenViewModel>(async (response) =>
             {
@@ -206,7 +205,7 @@ namespace bs.Frmwrk.Auth
             return tokenService.GenerateAccessToken(claims);
         }
 
-        private  string HashPassword(string clearPassword)
+        private string HashPassword(string clearPassword)
         {
             //byte[] salt;
             //new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
@@ -222,6 +221,5 @@ namespace bs.Frmwrk.Auth
             string passwordHash = Convert.ToBase64String(hashBytes);
             return passwordHash;
         }
-
     }
 }
