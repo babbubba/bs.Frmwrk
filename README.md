@@ -1,5 +1,19 @@
 # bs.Frmwrk
-Base framework for NET CORE 6 WEB API applications
+Base framework for NET CORE 6 WEB API applications.
+
+The purpose of this object is to manage most of the common part of developments needed by a new web api project.
+
+It manages Authentication, Exception Handling, Security, Data Access, Model Mappings, etc...
+
+It use different thirdy part components like: nHibernate and Automapper.
+
+## Getting started
+
+To use the framework in your entry point class (usually the program.cs file or the startup.cs file) you must to bootstrap the framework using the ServiceProvider extension function like this:
+
+```
+services.BootstrapFrmwrk();
+```
 
 ## Dependency Injection
 
