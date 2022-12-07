@@ -11,6 +11,6 @@
         /// <value>
         /// The roles.
         /// </value>
-        public IEnumerable<IRoleModel> Roles { get; set; }
+        public ICollection<IRoleModel> Roles { get; set; }
     }
 }

@@ -82,6 +82,38 @@ namespace bs.Frmwrk.Auth
             }, "Errore in autenticazione.");
         }
 
+        public async virtual Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
+        {
+            return await ExecuteTransactionAsync<string>(async(response)=> {
+                var model = mapper.Map<IUserModel>(createUserDto);
+
+                // Map the roles
+                if(createUserDto.RolesIds != null && model is IRoledUser roledUser)
+                {
+                    foreach (var roleId in createUserDto.RolesIds)
+                    {
+                        roledUser.Roles.Add(await authRepository.GetRoleByIdAsync(roleId.ToGuid()));
+                    }
+                }
+                
+                bool isValidPassword = await securityService.CheckPasswordValidity(createUserDto.Password, out string passwordCheckingError);
+                if(!isValidPassword)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError);
+                    response.ErrorCode = 2212042300;
+                    return response;
+                }
+
+                model.PasswordHash = HashPassword(createUserDto.Password);
+
+                await authRepository.CreateUserAsync(model);
+                response.Value = model.Id.ToString();
+                return response;
+            },"Errore creando l'utente");
+           
+        }
+
         public async virtual Task<IApiResponseViewModel> KeepAliveAsync(IKeepedAliveUser user)
         {
             return await ExecuteTransactionAsync(async (response) =>
@@ -172,6 +204,23 @@ namespace bs.Frmwrk.Auth
             }
 
             return tokenService.GenerateAccessToken(claims);
+        }
+
+        private  string HashPassword(string clearPassword)
+        {
+            //byte[] salt;
+            //new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
+
+            var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);
+            byte[] hash = pbkdf2.GetBytes(20);
+
+            byte[] hashBytes = new byte[36];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 20);
+
+            string passwordHash = Convert.ToBase64String(hashBytes);
+            return passwordHash;
         }
 
     }

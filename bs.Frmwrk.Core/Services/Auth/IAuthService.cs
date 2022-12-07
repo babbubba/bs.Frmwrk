@@ -29,5 +29,14 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="refreshTokenDto">The refresh token dto.</param>
         /// <returns></returns>
         Task<IApiResponseViewModel<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest);
+
+        /// <summary>
+        /// Creates the user asynchronous and return the new created user's id.
+        /// </summary>
+        /// <param name="createUserDto">The create user dto.</param>
+        /// <param name="currentUser">The current user.</param>
+        /// <returns></returns>
+        Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser);
+
     }
 }

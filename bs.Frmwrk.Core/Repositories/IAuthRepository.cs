@@ -11,5 +11,7 @@ namespace bs.Frmwrk.Core.Repositories
     {
         Task<IUserModel> GetUserByUserNameAsync(string userName);
         Task<IUserModel> GetUserByIdAsync(Guid userId);
+        Task<IRoleModel> GetRoleByIdAsync(Guid roleId);
+        Task CreateUserAsync(IUserModel userModel);
     }
 }
