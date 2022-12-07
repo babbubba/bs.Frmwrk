@@ -1,8 +1,8 @@
 ﻿using bs.Frmwrk.Core.ViewModels.Auth;
 
-namespace bs.Frmwrk.ViewModel
+namespace bs.Frmwrk.ViewModel.Auth
 {
-    public class RefreshTokenViewModel : IRefreshTokenViewModel
+    public class RefreshTokenViewModels : IRefreshTokenViewModel
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }

@@ -149,7 +149,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorCode = 202020001;
                     return response;
                 }
-                response.Value = new RefreshTokenViewModel
+                response.Value = new RefreshTokenViewModels
                 {
                     AccessToken = tokenService.GenerateAccessToken(principal.Claims).Token,
                     RefreshToken = tokenService.GenerateRefreshToken(),
