@@ -2,8 +2,8 @@
 {
     public interface ISecurityService
     {
-        Task TrackLoginFail(string username, string clientIp);
+        Task TrackLoginFailAsync(string username, string clientIp);
 
-        Task<bool> CheckPasswordValidity(string password, out string errorMessage);
+        bool CheckPasswordValidity(string password, out string? errorMessage);
     }
 }

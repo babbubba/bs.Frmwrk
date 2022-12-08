@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using bs.Data.Interfaces;
+using bs.Frmwrk.Auth.ViewModel;
 using bs.Frmwrk.Base;
 using bs.Frmwrk.Base.Exceptions;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Models.Auth;
-using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Locale;
@@ -12,7 +12,6 @@ using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Auth;
 using bs.Frmwrk.Shared;
-using bs.Frmwrk.ViewModel;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -42,7 +41,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.Success = false;
                     response.ErrorMessage = T("Accesso fallito");
                     logger.LogWarning($"Autentication error user: '{authRequest.UserName}' not found (IP: {clientIp ?? "*"})");
-                    await securityService.TrackLoginFail(authRequest.UserName, clientIp);
+                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     response.ErrorCode = 2212072057;
                     return response;
                 }
@@ -52,7 +51,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorMessage = T("Accesso fallito");
                     response.ErrorCode = 2212072057;
                     logger.LogWarning($"Autentication error for user: {authRequest.UserName} (IP: {clientIp ?? "*"})");
-                    await securityService.TrackLoginFail(authRequest.UserName, clientIp);
+                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     return response;
                 }
 
@@ -62,7 +61,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorMessage = T("Utente disabilitato");
                     response.ErrorCode = 2212072144;
                     logger.LogWarning($"Autentication blocked for disabled user: {authRequest.UserName} (IP: {clientIp ?? "*"})");
-                    await securityService.TrackLoginFail(authRequest.UserName, clientIp);
+                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     return response;
                 }
 

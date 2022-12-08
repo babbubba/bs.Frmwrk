@@ -1,6 +1,6 @@
 ﻿using bs.Frmwrk.Core.ViewModels.Auth;
 
-namespace bs.Frmwrk.ViewModel.Auth
+namespace bs.Frmwrk.Auth.ViewModel
 {
     public class RefreshTokenViewModels : IRefreshTokenViewModel
     {
