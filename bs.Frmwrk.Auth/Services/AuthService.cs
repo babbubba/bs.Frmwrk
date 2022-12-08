@@ -95,11 +95,10 @@ namespace bs.Frmwrk.Auth.Services
                     }
                 }
 
-                bool isValidPassword = await securityService.CheckPasswordValidity(createUserDto.Password, out string passwordCheckingError);
-                if (!isValidPassword)
+                if (!securityService.CheckPasswordValidity(createUserDto.Password, out string? passwordCheckingError))
                 {
                     response.Success = false;
-                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError);
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError??"N/D");
                     response.ErrorCode = 2212042300;
                     return response;
                 }
@@ -140,7 +139,6 @@ namespace bs.Frmwrk.Auth.Services
                 }
 
                 var user = await authRepository.GetUserByIdAsync(userId.ToGuid());
-                //var user = await unitOfWork.Session.GetAsync<UserModel>(userId.ToGuid(), NHibernate.LockMode.UpgradeNoWait);
                 if (user is null || user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpire <= DateTime.UtcNow)
                 {
                     response.Success = false;
@@ -161,7 +159,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore durante il rinnovo del token.");
         }
 
-        private bool CheckHashedPassword(IUserModel user, string clearPassword)
+        private static bool CheckHashedPassword(IUserModel user, string clearPassword)
         {
             var passwordHash = user.PasswordHash;
             /* Extract the bytes */
@@ -203,10 +201,8 @@ namespace bs.Frmwrk.Auth.Services
             return tokenService.GenerateAccessToken(claims);
         }
 
-        private string HashPassword(string clearPassword)
+        private static string HashPassword(string clearPassword)
         {
-            //byte[] salt;
-            //new RNGCryptoServiceProvider().GetBytes(salt = new byte[16]);
             byte[] salt = RandomNumberGenerator.GetBytes(16);
 
             var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);

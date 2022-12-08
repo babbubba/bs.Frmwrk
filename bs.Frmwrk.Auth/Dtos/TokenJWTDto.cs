@@ -1,6 +1,6 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
 
-namespace bs.Frmwrk.Auth.Services
+namespace bs.Frmwrk.Auth.Dtos
 {
     public class TokenJWTDto : ITokenJWTDto
     {
@@ -10,7 +10,7 @@ namespace bs.Frmwrk.Auth.Services
             ExpireAt = expireAt;
         }
 
-        public string Token { get; set; }
         public DateTime ExpireAt { get; set; }
+        public string Token { get; set; }
     }
 }

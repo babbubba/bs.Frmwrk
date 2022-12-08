@@ -1,4 +1,6 @@
 ﻿using bs.Data.Interfaces;
+using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
@@ -96,6 +98,32 @@ namespace bs.Frmwrk.Security.Services
                 //    Priority = Infrastructure.Dtos.Mailing.MessagePriority.Urgent
                 //});
             }
+        }
+
+        public async Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string permissionCode, PermissionType type = PermissionType.None)
+        {
+            // Administrator are allowed always
+            if (user is IRoledUser roledUser)
+            {
+                if (await CheckUserRoleAsync(roledUser, DefaultRolesCodes.Administrators)) return true;
+            }
+            //TODO: Implementa CheckUserPermissionAsync
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode)
+        {
+            if(user == null)
+            {
+                throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo."));
+            }
+
+            if (roleCode == null)
+            {
+                throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo."));
+            }
+
+            return user.Roles.Any(r => r.Code == roleCode);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using bs.Data.Interfaces;
+using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Base;
 using bs.Frmwrk.Base.Exceptions;
 using bs.Frmwrk.Core.Dtos.Auth;
