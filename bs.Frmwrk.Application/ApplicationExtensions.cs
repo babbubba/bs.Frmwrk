@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -53,7 +54,6 @@ namespace bs.Frmwrk.Application
 
             string logFile = Path.Combine(loggingSettings.Path ?? builder.Environment.ContentRootPath, loggingSettings.LogFileName ?? "application.log");
 
-            //Log.Logger = new LoggerConfiguration()
             var loggerConfiguration = new LoggerConfiguration()
                             .Enrich.FromLogContext()
                             .WriteTo.File(logFile, rollingInterval: RollingInterval.Day,
@@ -89,9 +89,14 @@ namespace bs.Frmwrk.Application
             {
                 Log.Debug($"Service is running in debug mode. You can disable this in the configuration file setting the 'EnableDebug' property in the 'AppConfiguration' section to false.");
             }
+            //Log.Logger = loggerConfiguration.CreateLogger();
 
+            //builder.Logging.ClearProviders();
+            //builder.Logging.AddSerilog(logger);
+            //builder.Host.UseSerilog();
 
-            //builder.Host.UseSerilog(Log.Logger);
+            builder.Host.UseSerilog((ctx, lc) => lc = loggerConfiguration);
+
         }
 
     }

@@ -1,16 +1,19 @@
 ﻿using bs.Frmwrk.Application;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace bs.Frmwrk.Test
 {
     public  class Program
     {
+
 
         /// <summary>
         /// Defines the entry point of the application.
@@ -18,10 +21,16 @@ namespace bs.Frmwrk.Test
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
-            var logger = LoggerFactory.Create(config =>
-            {
-                config.AddConsole();
-            }).CreateLogger("Program");
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateBootstrapLogger();
+
+            Log.Information("Starting up");
+
+            //var logger = LoggerFactory.Create(config =>
+            //{
+            //    config.AddConsole();
+            //}).CreateLogger("Program");
 
 
             var builder = WebApplication.CreateBuilder(args);
@@ -36,8 +45,13 @@ namespace bs.Frmwrk.Test
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                logger.LogCritical("Application start failed.", ex);
+                Log.Logger.Fatal("Application start failed.", ex);
                 throw;
+            }
+            finally
+            {
+                Log.Information("Shut down complete");
+                Log.CloseAndFlush();
             }
             //    var logger = Log.Logger;
 
