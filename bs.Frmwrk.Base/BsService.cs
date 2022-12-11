@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using bs.Data.Interfaces;
 using bs.Frmwrk.Base.Exceptions;
-using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
@@ -43,7 +42,7 @@ namespace bs.Frmwrk.Base
          Func<IApiPagedResponseViewModel<TResponse>, Task<IApiPagedResponseViewModel<TResponse>>> function,
          string genericErrorMessage)
         {
-            IApiPagedResponseViewModel<TResponse>? response = default;
+            IApiPagedResponseViewModel<TResponse>? response = (IApiPagedResponseViewModel<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponseViewModel<TResponse>)); ;
 
             if (response == null)
             {
@@ -63,7 +62,7 @@ namespace bs.Frmwrk.Base
             catch (BsException bex)
             {
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + bex.GetBaseException().Message;
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
                 response.ErrorCode = bex.ErrorCode;
                 response.Success = false;
                 logger.LogError(bex, response.ErrorMessage);
@@ -71,7 +70,7 @@ namespace bs.Frmwrk.Base
             catch (Exception ex)
             {
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + ex.GetBaseException().Message;
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
                 response.Success = false;
                 logger.LogError(ex, response.ErrorMessage);
             }
@@ -95,7 +94,7 @@ namespace bs.Frmwrk.Base
         {
             unitOfWork.BeginTransaction();
 
-            IApiResponseViewModel? response = default;
+            IApiResponseViewModel? response = (IApiResponseViewModel?)Activator.CreateInstance(typeof(ApiResponseViewModel));
 
             if (response == null)
             {
@@ -116,7 +115,7 @@ namespace bs.Frmwrk.Base
             catch (BsException bex)
             {
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + bex.GetBaseException().Message;
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
                 response.ErrorCode = bex.ErrorCode;
                 response.Success = false;
                 logger.LogError(bex, response.ErrorMessage);
@@ -124,7 +123,7 @@ namespace bs.Frmwrk.Base
             catch (Exception ex)
             {
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + ex.GetBaseException().Message;
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
                 response.Success = false;
                 logger.LogError(ex, response.ErrorMessage);
             }
@@ -146,7 +145,7 @@ namespace bs.Frmwrk.Base
         /// </exception>
         public async Task<IApiResponseViewModel<TResponse>> ExecuteTransactionAsync<TResponse>(Func<IApiResponseViewModel<TResponse>, Task<IApiResponseViewModel<TResponse>>> function, string genericErrorMessage)
         {
-            IApiResponseViewModel<TResponse>? response = default;
+            IApiResponseViewModel<TResponse>? response = (IApiResponseViewModel<TResponse>?)Activator.CreateInstance(typeof(ApiResponseViewModel<TResponse>));
             if (response == null)
             {
                 throw new BsException(2212071647, translateService.Translate("Impossibile costruire l'oggetto ApiResponse"));
@@ -166,7 +165,7 @@ namespace bs.Frmwrk.Base
             catch (BsException bex)
             {
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + bex.GetBaseException().Message;
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
                 response.ErrorCode = bex.ErrorCode;
                 response.Success = false;
                 logger.LogError(bex, response.ErrorMessage);
@@ -174,7 +173,7 @@ namespace bs.Frmwrk.Base
             catch (Exception ex)
             {
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + Environment.NewLine + ex.GetBaseException().Message;
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
                 response.Success = false;
                 logger.LogError(ex, response.ErrorMessage);
             }

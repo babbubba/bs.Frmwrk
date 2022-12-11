@@ -1,3 +1,6 @@
 ﻿{
-
+  "Database": {
+    "DatabaseEngineType": "sqlite",
+    "ConnectionString": "Data Source=.\\bs.Data.Test.db;Version=3;BinaryGuid=False;"
+  }
 }

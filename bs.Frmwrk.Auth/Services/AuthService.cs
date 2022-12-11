@@ -77,7 +77,7 @@ namespace bs.Frmwrk.Auth.Services
                 response.Value.Token = token.Token;
 
                 return response;
-            }, "Errore in autenticazione.");
+            }, "Errore in autenticazione");
         }
 
         public virtual async Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
@@ -98,7 +98,7 @@ namespace bs.Frmwrk.Auth.Services
                 if (!securityService.CheckPasswordValidity(createUserDto.Password, out string? passwordCheckingError))
                 {
                     response.Success = false;
-                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError??"N/D");
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
                     response.ErrorCode = 2212042300;
                     return response;
                 }
@@ -156,7 +156,7 @@ namespace bs.Frmwrk.Auth.Services
                 user.RefreshTokenExpire = response.Value.RefreshTokenExpire;
 
                 return response;
-            }, "Errore durante il rinnovo del token.");
+            }, "Errore durante il rinnovo del token");
         }
 
         private static bool CheckHashedPassword(IUserModel user, string clearPassword)

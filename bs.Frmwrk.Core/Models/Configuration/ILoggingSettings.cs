@@ -11,5 +11,4 @@
         string? SeqEndpoint { get; set; }
         string? ApplicationName { get; set; }
     }
-
 }

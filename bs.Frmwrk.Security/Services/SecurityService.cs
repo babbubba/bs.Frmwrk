@@ -31,7 +31,7 @@ namespace bs.Frmwrk.Security.Services
 
         public bool CheckPasswordValidity(string password, out string? errorMessage)
         {
-            if(string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(password))
             {
                 errorMessage = translateService.Translate("La password è vuota.");
                 return false;
@@ -39,7 +39,7 @@ namespace bs.Frmwrk.Security.Services
 
             if (password.Length < (securitySettings.PasswordMinLength ?? 1))
             {
-                errorMessage = translateService.Translate("La password è troppo corta (caratteri necessari {0}).", securitySettings.PasswordMinLength??1);
+                errorMessage = translateService.Translate("La password è troppo corta (caratteri necessari {0}).", securitySettings.PasswordMinLength ?? 1);
                 return false;
             }
 
@@ -61,7 +61,7 @@ namespace bs.Frmwrk.Security.Services
             await unitOfWork.Session.SaveAsync(newEntry);
 
             DateTime periodToCheckBaegin = DateTime.UtcNow.AddMinutes(-securitySettings.FailedAccessMonitoringPeriodInMinutes ?? 10);
-            
+
             var usernameAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBaegin && a.UserName.ToLower() == username.ToLower()).CountAsync();
 
             if (usernameAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
@@ -84,11 +84,11 @@ namespace bs.Frmwrk.Security.Services
                 }
             }
 
-            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBaegin && a.ClientIp!=null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
+            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBaegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
             if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
             {
                 //TooManyClientIpLoginAttemptsFailed?.Invoke(this, clientIp.ToLower());
-                logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp.ToLower()??"*"));
+                logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp.ToLower() ?? "*"));
                 //var adminUser = await usersRepository.GetUserByUsernameAsync("admin");
 
                 //await mailingService.SendEmailAsync(new MailMessageDto
@@ -114,7 +114,7 @@ namespace bs.Frmwrk.Security.Services
 
         public async Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode)
         {
-            if(user == null)
+            if (user == null)
             {
                 throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo."));
             }

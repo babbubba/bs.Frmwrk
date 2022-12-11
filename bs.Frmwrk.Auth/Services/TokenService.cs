@@ -10,14 +10,10 @@ using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Auth.Services
 {
@@ -47,7 +43,6 @@ namespace bs.Frmwrk.Auth.Services
             return new TokenJWTDto(tokenString, expireAt);
         }
 
-
         public string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
@@ -61,14 +56,13 @@ namespace bs.Frmwrk.Auth.Services
         public DateTime GenerateRefreshTokenExpireDate()
         {
             return DateTime.UtcNow.AddMinutes(securitySettings.JwtRefreshTokenValidityMinutes ?? 30);
-
         }
 
         public virtual ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = securitySettings.ValidateIssuer?? false,
+                ValidateIssuer = securitySettings.ValidateIssuer ?? false,
                 ValidateAudience = securitySettings.ValidateAudience ?? false,
                 ValidAudience = securitySettings.ValidTokenAudience,
                 ValidIssuer = securitySettings.ValidTokenIssuer,
@@ -85,20 +79,18 @@ namespace bs.Frmwrk.Auth.Services
             return principal;
         }
 
-
-
-
         public DateTime GenerateAccessTokenExpireDate()
         {
             return DateTime.UtcNow.AddMinutes(securitySettings.JwtTokenValidityMinutes ?? 5);
         }
+
         /// <summary>
         /// Gets the secret key.
         /// </summary>
         /// <returns></returns>
         private byte[] GetSecretKey()
         {
-            if(securitySettings.Secret is null)
+            if (securitySettings.Secret is null)
             {
                 throw new BsException(2212042341, T("Configuration error: 'Invalid secret key'."));
             }
@@ -131,15 +123,5 @@ namespace bs.Frmwrk.Auth.Services
         {
             return SecurityAlgorithms.HmacSha256;
         }
-
-
-
-
-
-
-
-
-
-
     }
 }

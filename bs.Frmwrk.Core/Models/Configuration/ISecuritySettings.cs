@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.Models.Configuration
+﻿namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ISecuritySettings
     {
@@ -18,6 +12,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The valid token issuer.
         /// </value>
         string? ValidTokenIssuer { get; set; }
+
         /// <summary>
         /// Gets or sets the valid token audience.
         /// </summary>
@@ -25,6 +20,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The valid token audience.
         /// </value>
         string? ValidTokenAudience { get; set; }
+
         /// <summary>
         /// Gets or sets the validate issuer.
         /// </summary>
@@ -32,6 +28,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The validate issuer.
         /// </value>
         bool? ValidateIssuer { get; set; }
+
         /// <summary>
         /// Gets or sets the validate audience.
         /// </summary>
@@ -39,6 +36,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The validate audience.
         /// </value>
         bool? ValidateAudience { get; set; }
+
         /// <summary>
         /// Gets or sets the JWT refresh token validity minutes.
         /// </summary>
@@ -46,6 +44,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The JWT refresh token validity minutes.
         /// </value>
         int? JwtRefreshTokenValidityMinutes { get; set; }
+
         /// <summary>
         /// Gets or sets the JWT token validity minutes.
         /// </summary>
@@ -53,6 +52,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The JWT token validity minutes.
         /// </value>
         int? JwtTokenValidityMinutes { get; set; }
+
         /// <summary>
         /// Gets or sets the secret.
         /// </summary>
@@ -60,6 +60,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The secret.
         /// </value>
         string? Secret { get; set; }
+
         /// <summary>
         /// Gets or sets the interval of failed access to count for check security violation ad disable user/ip.
         /// </summary>
@@ -67,6 +68,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The interval of failed access to count for check security violation ad disable user/ip.
         /// </value>
         int? FailedAccessMonitoringPeriodInMinutes { get; set; }
+
         /// <summary>
         /// Gets or sets the failed access maximum attempts.
         /// </summary>
@@ -74,6 +76,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The failed access maximum attempts.
         /// </value>
         int? FailedAccessMaxAttempts { get; set; }
+
         /// <summary>
         /// Gets or sets the minimum length of the password.
         /// </summary>
@@ -81,8 +84,8 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The minimum length of the password.
         /// </value>
         int? PasswordMinLength { get; set; }
+
         bool? ValidateTokenIssuer { get; set; }
         bool? ValidateTokenAudience { get; set; }
     }
-
 }

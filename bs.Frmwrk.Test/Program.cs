@@ -1,20 +1,11 @@
 ﻿using bs.Frmwrk.Application;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Serilog;
 
 namespace bs.Frmwrk.Test
 {
-    public  class Program
+    public class Program
     {
-
-
         /// <summary>
         /// Defines the entry point of the application.
         /// </summary>
@@ -27,17 +18,10 @@ namespace bs.Frmwrk.Test
 
             Log.Information("Starting up");
 
-            //var logger = LoggerFactory.Create(config =>
-            //{
-            //    config.AddConsole();
-            //}).CreateLogger("Program");
-
-
             var builder = WebApplication.CreateBuilder(args);
             try
             {
-                builder.SetCustomConfigFile();
-                builder.InitLogging();
+                builder.InitFrmwrk();
 
                 var app = builder.Build();
                 app.Run();
@@ -57,12 +41,6 @@ namespace bs.Frmwrk.Test
 
             //    try
             //    {
-            //        logger.Debug("Reading config file ...");
-            //        SetCustomConfigFile(builder);
-
-            //        logger.Debug("Initing logging ...");
-            //        InitLogging(builder);
-
             //        logger.Debug("Reading config security settings ...");
             //        IAppSecuritySettings appSecurity = ImportNRegisterAppSecuritySettings(builder);
 
@@ -202,7 +180,6 @@ namespace bs.Frmwrk.Test
             //        Log.CloseAndFlush();
             //    }
             //}
-
         }
     }
 }
