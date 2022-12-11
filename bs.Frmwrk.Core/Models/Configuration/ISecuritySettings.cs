@@ -81,5 +81,8 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The minimum length of the password.
         /// </value>
         int? PasswordMinLength { get; set; }
+        bool? ValidateTokenIssuer { get; set; }
+        bool? ValidateTokenAudience { get; set; }
     }
+
 }

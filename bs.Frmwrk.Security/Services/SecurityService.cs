@@ -1,5 +1,6 @@
 ﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;

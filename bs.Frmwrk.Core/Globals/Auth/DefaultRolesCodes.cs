@@ -1,4 +1,4 @@
-﻿namespace bs.Frmwrk.Core.Models.Auth
+﻿namespace bs.Frmwrk.Core.Globals.Auth
 {
     public static class DefaultRolesCodes
     {
