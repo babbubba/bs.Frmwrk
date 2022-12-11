@@ -1,13 +1,12 @@
-﻿using bs.Data.Interfaces.BaseEntities;
-using bs.Frmwrk.Core.Models.Security;
+﻿using bs.Frmwrk.Core.Models.Security;
 using NHibernate;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Mapping.ByCode.Conformist;
 using NHibernate.Type;
 
-namespace bs.Frmwrk.Security.Models
+namespace bs.Frmwrk.Test.Models
 {
-    public abstract class AuditFailedLoginBaseModel : IAuditFailedLoginModel
+    public class AuditFailedLoginBaseModel : IAuditFailedLoginModel
     {
         public virtual string? ClientIp { get; set; }
         public virtual DateTime EventDate { get; set; }

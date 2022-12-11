@@ -3,6 +3,7 @@ using bs.Frmwrk.Base.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
+using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
@@ -48,21 +49,19 @@ namespace bs.Frmwrk.Security.Services
             return true;
         }
 
-        public async Task TrackLoginFailAsync(string username, string clientIp)
+        public virtual async Task TrackLoginFailAsync(string username, string clientIp)
         {
             // TODO: Implementa notifiche per accessi falliti ed utenti bloccati
-            var newEntry = new AuditFailedLoginModel
-            {
-                ClientIp = clientIp,
-                EventDate = DateTime.UtcNow,
-                UserName = username
-            };
+            var newEntry = securityRepository.GetInstanceOfAuditFailedLogModel();
+            newEntry.ClientIp = clientIp;
+            newEntry.EventDate = DateTime.UtcNow;
+            newEntry.UserName = username;
 
             await unitOfWork.Session.SaveAsync(newEntry);
 
             DateTime periodToCheckBaegin = DateTime.UtcNow.AddMinutes(-securitySettings.FailedAccessMonitoringPeriodInMinutes ?? 10);
 
-            var usernameAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBaegin && a.UserName.ToLower() == username.ToLower()).CountAsync();
+            var usernameAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginBaseModel>().Where(a => a.EventDate > periodToCheckBaegin && a.UserName.ToLower() == username.ToLower()).CountAsync();
 
             if (usernameAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
             {
@@ -84,7 +83,7 @@ namespace bs.Frmwrk.Security.Services
                 }
             }
 
-            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBaegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
+            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginBaseModel>().Where(a => a.EventDate > periodToCheckBaegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
             if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
             {
                 //TooManyClientIpLoginAttemptsFailed?.Invoke(this, clientIp.ToLower());
@@ -125,6 +124,11 @@ namespace bs.Frmwrk.Security.Services
             }
 
             return user.Roles.Any(r => r.Code == roleCode);
+        }
+
+        public IAuditFailedLoginModel GetInstanceOfAuditFailedLogModel()
+        {
+            throw new NotImplementedException();
         }
     }
 }

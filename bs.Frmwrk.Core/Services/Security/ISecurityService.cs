@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Core.Models.Auth;
+using bs.Frmwrk.Core.Models.Security;
 
 namespace bs.Frmwrk.Core.Services.Security
 {
@@ -39,5 +40,6 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string clientIp);
+
     }
 }
