@@ -145,7 +145,7 @@ namespace bs.Frmwrk.Application
                 loggerConfiguration
                            .Enrich.WithProperty("ApplicationName", loggingSettings.ApplicationName ?? "*")
                            .Enrich.WithProperty("AssemblyVersion", productVersion ?? "*")
-                          .WriteTo.Seq(loggingSettings.SeqEndpoint);
+                           .WriteTo.Seq(loggingSettings.SeqEndpoint);
             }
 
             //loggerConfiguration.WriteTo.Udp(udpHost, udpPort, AddressFamily.InterNetwork, formatter: new Serilog.Sinks.Udp.TextFormatters.Log4jTextFormatter())
@@ -157,7 +157,6 @@ namespace bs.Frmwrk.Application
             Log.Logger = loggerConfiguration.CreateLogger();
 
             builder.Host.UseSerilog(Log.Logger);
-            //builder.Host.UseSerilog((ctx, lc) => lc = loggerConfiguration);
         }
 
         internal static void InitORM(this WebApplicationBuilder builder)
