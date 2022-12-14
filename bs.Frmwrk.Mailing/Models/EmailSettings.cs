@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Mailing.Models
 {
-    public class EmailSettingsModel : IEmailSettings
+    public class EmailSettings : IEmailSettings
     {
         public string From { get; set; }
         public string FromDisplayName { get; set; }

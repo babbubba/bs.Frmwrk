@@ -2,7 +2,11 @@
 {
     public interface ICoreSettings
     {
-        string ExternalDllFilesSearchPattern { get; set; }
-        string ExternalDllFilesRootPath { get; set; }
+        string? ExternalDllFilesSearchPattern { get; set; }
+        string? ExternalDllFilesRootPath { get; set; }
+        string[]? FrontendOrigins { get; set; }
+        string? AppTitle { get; set; }
+        string? AppCompany { get; set; }
+        string? CompanyWebSite { get; set; }
     }
 }

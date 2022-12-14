@@ -22,11 +22,6 @@ namespace bs.Frmwrk.Test
             try
             {
                 builder.InitFrmwrk();
-                builder.SetMailing();
-                builder.SetFileSystem();
-                builder.LoadExternalDll();
-                builder.RegisterRepositories();
-                builder.RegisterServices();
 
                 var app = builder.Build();
                 app.Run();

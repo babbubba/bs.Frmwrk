@@ -2,7 +2,7 @@
 
 namespace bs.Frmwrk.Application.Models.Configuration
 {
-    public class FileSystemSettingsModel : IFileSystemSettings
+    public class FileSystemSettings : IFileSystemSettings
     {
         public int? MemoryBufferThresholdMb { get; set; }
         public int? MultipartBodyLengthLimitMb { get; set; }
