@@ -1,23 +1,17 @@
-using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Services.Auth;
+using bs.Frmwrk.Test.Dtos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace bs.Frmwrk.Test
 {
-    public class AuthRequestDto : IAuthRequestDto
-    {
-        public string UserName { get; set; }
 
-        public string Password { get; set; }
-    }
-
-    public class Tests
+    public class ApiTest
     {
         [Test]
-        public async Task Test1()
+        public async Task BootstrapApi_Test()
         {
-            var logger = Root.ServiceProvider?.GetRequiredService<ILogger<Tests>>();
+            var logger = Root.ServiceProvider?.GetRequiredService<ILogger<ApiTest>>();
             logger.LogInformation("Log something");
 
             var authService = Root.ServiceProvider?.GetRequiredService<IAuthService>();

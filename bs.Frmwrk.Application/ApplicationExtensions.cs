@@ -22,6 +22,12 @@ using Serilog.Events;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using bs.Frmwrk.Shared;
+using bs.Frmwrk.Mailing.Models;
+using Microsoft.AspNetCore.Http.Features;
+using bs.Frmwrk.Core.ViewModels.Api;
+using MySqlX.XDevAPI.Common;
+using bs.Frmwrk.Core.Services.Base;
 
 namespace bs.Frmwrk.Application
 {
@@ -115,6 +121,7 @@ namespace bs.Frmwrk.Application
 
         internal static void SetLocalization(this WebApplicationBuilder builder)
         {
+            //TODO: Crea parametri impostazioni per lingue ammesse e lingua di default
             builder.Services.AddScoped<ITranslateService, TranslateService>();
 
             builder.Services.AddLocalization(); // we dont set the path so Localization assume that resource file is in the same path as 'Languages' shared class (Italcom.TodoStore.Infrastructure project in the Localization folder)
@@ -139,13 +146,13 @@ namespace bs.Frmwrk.Application
             builder.Configuration.GetSection("Security").Bind(securitySettings);
             builder.Services.AddSingleton(securitySettings);
 
-            var authRepository = GetTypeFromInterface(typeof(IAuthRepository));
+            var authRepository = typeof(IAuthRepository).GetTypeFromInterface();
             if (authRepository == null)
             {
                 throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface.");
             }
 
-            var securityRepository = GetTypeFromInterface(typeof(ISecurityRepository));
+            var securityRepository = typeof(ISecurityRepository).GetTypeFromInterface(); ;
             if (securityRepository == null)
             {
                 throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface.");
@@ -170,13 +177,127 @@ namespace bs.Frmwrk.Application
             builder.Services.AddBsData(dbContext);
         }
 
-        private static Type? GetTypeFromInterface(Type interfaceType)
+        public static void SetMailing(this WebApplicationBuilder builder)
         {
-            return AppDomain.CurrentDomain.GetAssemblies()
-            //.Where(a => a.FullName.StartsWith("*"))
-            .SelectMany(s => s.GetTypes())
-            .Where(p => interfaceType.IsAssignableFrom(p) && !p.IsAbstract && !p.IsInterface)
-            .SingleOrDefault();
+            IEmailSettings emailSettings = new EmailSettingsModel();
+            builder.Configuration.GetSection("Mailing").Bind(emailSettings);
+            builder.Services.AddSingleton(emailSettings);
         }
+
+        public static void SetFileSystem(this WebApplicationBuilder builder)
+        {
+            IFileSystemSettings fileSystemSettings = new FileSystemSettingsModel();
+            builder.Configuration.GetSection("FileSystem").Bind(fileSystemSettings);
+            builder.Services.AddSingleton(fileSystemSettings);
+
+            // File upload limits
+            builder.Services.Configure<FormOptions>(o =>
+            {
+                o.ValueLengthLimit = fileSystemSettings.ValueLengthLimitMb * 1024 * 1024 ?? int.MaxValue;
+                o.MultipartBodyLengthLimit = fileSystemSettings.MultipartBodyLengthLimitMb * 1024 * 1024 ?? int.MaxValue;
+                o.MemoryBufferThreshold = fileSystemSettings.MemoryBufferThresholdMb * 1024 * 1024 ?? int.MaxValue;
+            });
+        }
+
+        public static void LoadExternalDll(this WebApplicationBuilder builder)
+        {
+            var result = new Dictionary<string, IApiResponseViewModel>();
+            ICoreSettings coreSettings = new CoreSettingsModel();
+            builder.Configuration.GetSection("Core").Bind(coreSettings);
+            builder.Services.AddSingleton(coreSettings);
+
+            var dllPaths = Directory.GetFiles(coreSettings.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
+            foreach (var dllPath in dllPaths)
+            {
+                try
+                {
+                    Assembly.LoadFrom(dllPath);
+                    result.Add(dllPath, new ApiResponseViewModel());
+                }
+                catch (Exception ex)
+                {
+                    result.Add(dllPath, new ApiResponseViewModel(false, ex.Message));
+                }
+            }
+
+            //TODO: Log dei risultati dell'importazione delle librerie dinamiche
+
+        }
+
+        public static void RegisterRepositories(this WebApplicationBuilder builder)
+        {
+            var result = new Dictionary<string, ApiResponseViewModel>();
+            var repositories = typeof(IRepository).GetTypesFromInterface();
+
+
+            foreach (var repository in repositories)
+            {
+                if(repository is null)
+                {
+                    continue; 
+                }
+
+                try
+                {
+                    var repositoryInterfaces = repository.GetInterfacesOf(new Type[] { typeof(IRepository)});
+                    if(repositoryInterfaces == null) {
+                        result.Add(repository.FullName ?? repository.Name, new ApiResponseViewModel(false, $"No interfaces found for repository: '{repository.FullName?? repository.Name}'"));
+                        continue; 
+                    }
+                    foreach(var repositoryInterface in repositoryInterfaces)
+                    {
+                        if(repositoryInterface is not null)
+                        {
+                            builder.Services.AddScoped(repositoryInterface, repository);
+                            result.Add((repository.FullName ?? repository.Name) + $" [{repositoryInterface.FullName ?? repositoryInterface.Name}]", new ApiResponseViewModel());
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Add(repository.FullName ?? repository.Name, new ApiResponseViewModel( false,  ex.Message));
+                }
+            }
+            //TODO: Log dei risultati della registrazione dei repositories
+
+        }
+
+        public static void RegisterServices(this WebApplicationBuilder builder)
+        {
+            var result = new Dictionary<string, ApiResponseViewModel>();
+            var services = typeof(IBsService).GetTypesFromInterface();
+
+            foreach (var service in services)
+            {
+                if (service is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var serviceInterfaces = service.GetInterfacesOf(new Type[] { typeof(IBsService)/*, typeof(IInitializableService) */});
+                    if (serviceInterfaces == null)
+                    {
+                        result.Add(service.FullName ?? service.Name, new ApiResponseViewModel(false, $"No interfaces found for service: '{service.FullName ?? service.Name}'"));
+                        continue;
+                    }
+                    foreach (var serviceInterface in serviceInterfaces)
+                    {
+                        if (serviceInterface is not null)
+                        {
+                            builder.Services.AddScoped(serviceInterface, service);
+                            result.Add((service.FullName ?? service.Name) + $" [{serviceInterface.FullName ?? serviceInterface.Name}]", new ApiResponseViewModel());
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Add(service.FullName ?? service.Name, new ApiResponseViewModel(false, ex.Message));
+                }
+            }
+            //TODO: Log dei risultati della registrazione dei services
+        }
+
     }
 }

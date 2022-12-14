@@ -2,6 +2,17 @@
 {
     public class ApiResponseViewModel : IApiResponseViewModel
     {
+        public ApiResponseViewModel()
+        {
+            Success= true;
+        }
+
+        public ApiResponseViewModel(bool success, string errorMessage)
+        {
+            Success = success;
+            ErrorMessage = errorMessage;
+        }
+
         public long? ErrorCode { get; set; }
         public string? ErrorMessage { get; set; }
         public bool Success { get; set; }
