@@ -8,5 +8,6 @@
         string? AppTitle { get; set; }
         string? AppCompany { get; set; }
         string? CompanyWebSite { get; set; }
+        IDictionary<string, string>? AppRoles { get; set; }
     }
 }

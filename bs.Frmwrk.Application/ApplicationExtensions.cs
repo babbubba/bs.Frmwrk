@@ -18,7 +18,7 @@ using bs.Frmwrk.Mailing.Models;
 using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Services;
 using bs.Frmwrk.Shared;
-using Google.Protobuf.WellKnownTypes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -49,6 +49,12 @@ namespace bs.Frmwrk.Application
 
         public static void InitFrmwrk(this WebApplicationBuilder builder)
         {
+            Log.Logger = new LoggerConfiguration()
+               .WriteTo.Console()
+               .CreateBootstrapLogger();
+
+            Log.Information("Initializing Framework...");
+
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.SetCustomConfigFile();
             builder.InitConfiguration();
@@ -64,6 +70,7 @@ namespace bs.Frmwrk.Application
             builder.SetCors();
             builder.SetControllers();
             builder.InitSwagger();
+            builder.RegisterSignalR();
         }
 
         internal static void InitConfiguration(this WebApplicationBuilder builder)
@@ -127,7 +134,8 @@ namespace bs.Frmwrk.Application
                             .MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
                             .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Warning)
                             .MinimumLevel.Override("Microsoft.Extensions.Http.DefaultHttpClientFactory", LogEventLevel.Warning)
-                            .MinimumLevel.ControlledBy(loggingLevel);
+                            .MinimumLevel.ControlledBy(loggingLevel)
+                            .WriteTo.Console();
 
             if (!string.IsNullOrWhiteSpace(loggingSettings.SeqEndpoint))
             {
@@ -146,13 +154,10 @@ namespace bs.Frmwrk.Application
             {
                 Log.Debug($"Service is running in debug mode. You can disable this in the configuration file setting the 'EnableDebug' property in the 'AppConfiguration' section to false.");
             }
-            //Log.Logger = loggerConfiguration.CreateLogger();
+            Log.Logger = loggerConfiguration.CreateLogger();
 
-            //builder.Logging.ClearProviders();
-            //builder.Logging.AddSerilog(logger);
-            //builder.Host.UseSerilog();
-
-            builder.Host.UseSerilog((ctx, lc) => lc = loggerConfiguration);
+            builder.Host.UseSerilog(Log.Logger);
+            //builder.Host.UseSerilog((ctx, lc) => lc = loggerConfiguration);
         }
 
         internal static void InitORM(this WebApplicationBuilder builder)
@@ -325,6 +330,19 @@ namespace bs.Frmwrk.Application
                         }
                     };
                 });
+
+            // Setting Roles
+            if (coreSettings?.AppRoles is not null)
+            {
+                var config = new AuthorizationOptions();
+                foreach(var appRole in coreSettings.AppRoles)
+                {
+                    config.AddPolicy(appRole.Key, new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireRole(appRole.Key).Build());
+                }
+
+                builder.Services.AddAuthorization(c=> c = config);
+            }
+         
         }
 
         internal static void SetCors(this WebApplicationBuilder builder)
@@ -450,5 +468,13 @@ namespace bs.Frmwrk.Application
                 }
             });
         }
+
+        internal static void RegisterSignalR(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddSignalR();
+        }
+
+
+
     }
 }

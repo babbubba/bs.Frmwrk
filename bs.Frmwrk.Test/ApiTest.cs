@@ -11,8 +11,6 @@ namespace bs.Frmwrk.Test
         [Test]
         public async Task BootstrapApi_Test()
         {
-            var logger = Root.ServiceProvider?.GetRequiredService<ILogger<ApiTest>>();
-            logger.LogInformation("Log something");
 
             var authService = Root.ServiceProvider?.GetRequiredService<IAuthService>();
 

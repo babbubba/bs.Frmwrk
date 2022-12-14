@@ -12,12 +12,6 @@ namespace bs.Frmwrk.Test
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateBootstrapLogger();
-
-            Log.Information("Starting up");
-
             var builder = WebApplication.CreateBuilder(args);
             try
             {
@@ -29,7 +23,7 @@ namespace bs.Frmwrk.Test
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Log.Logger.Fatal("Application start failed.", ex);
+                Log.Logger.Fatal("Application startup failed.", ex);
                 throw;
             }
             finally
