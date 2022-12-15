@@ -15,7 +15,7 @@ namespace bs.Frmwrk.Test
             var builder = WebApplication.CreateBuilder(args);
             try
             {
-                builder.InitFrmwrk();
+                builder.BootstrapFrmwrk();
 
                 var app = builder.Build();
                 app.Run();

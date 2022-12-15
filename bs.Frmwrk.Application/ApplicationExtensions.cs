@@ -47,7 +47,7 @@ namespace bs.Frmwrk.Application
         private static ISecuritySettings? securitySettings;
         private static IDbContext? dbContext;
 
-        public static void InitFrmwrk(this WebApplicationBuilder builder)
+        public static void BootstrapFrmwrk(this WebApplicationBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
                .WriteTo.Console()
@@ -55,7 +55,6 @@ namespace bs.Frmwrk.Application
 
             Log.Information("Initializing Framework...");
 
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.SetCustomConfigFile();
             builder.InitConfiguration();
 
@@ -67,6 +66,7 @@ namespace bs.Frmwrk.Application
             builder.LoadExternalDll();
             builder.RegisterRepositories();
             builder.RegisterServices();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.SetCors();
             builder.SetControllers();
             builder.InitSwagger();
