@@ -1,0 +1,1 @@
+﻿for /r C:\Users\cavallarif\source\repos\bs.Frmwrk\ %f in (*.nupkg) do @copy %f C:\Users\cavallarif\source\NuGetPackages

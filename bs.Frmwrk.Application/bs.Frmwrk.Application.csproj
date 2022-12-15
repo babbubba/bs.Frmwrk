@@ -1,9 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="https:\github.com\babbubba\bs.Frmwrk\blob\main\README.md" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.0" />
@@ -35,8 +32,4 @@
     <RepositoryUrl>https://github.com/babbubba/bs.Frmwrk</RepositoryUrl>
     <PackageProjectUrl>https://github.com/babbubba/bs.Frmwrk</PackageProjectUrl>
   </PropertyGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="for /r $(SolutionDir) %25f in (*.nupkg) do @copy &quot;%25f&quot; C:\Users\cavallarif\source\NuGetPackages" />
-  </Target>
-
 </Project>
