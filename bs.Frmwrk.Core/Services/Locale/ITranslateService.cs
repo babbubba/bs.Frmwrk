@@ -5,8 +5,6 @@
     /// </summary>
     public interface ITranslateService
     {
-        //TODO: Ricorda di registrare nel bootstrap questo servizio per le traduzioni
-
         /// <summary>
         /// Translates the specified text.
         /// </summary>

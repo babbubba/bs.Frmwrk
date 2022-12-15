@@ -21,6 +21,10 @@ namespace bs.Frmwrk.Auth.Services
 {
     public class AuthService : BsService, IAuthService
     {
+        //TODO: Implementa recupera password
+        //TODO: Implementa cambia password
+        //TODO: Implemnta registrazione (moderata)
+
         protected readonly IAuthRepository authRepository;
         private readonly ITokenService tokenService;
 
