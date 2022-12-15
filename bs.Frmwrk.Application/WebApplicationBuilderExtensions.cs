@@ -87,8 +87,13 @@ namespace bs.Frmwrk.Application
             builder.Configuration.GetRequiredSection("Core").Bind(coreSettings);
             builder.Services.AddSingleton(coreSettings);
 
+
             securitySettings = new SecuritySettings();
-            builder.Configuration.GetSection("Security").Bind(securitySettings);
+            builder.Configuration.GetRequiredSection("Security").Bind(securitySettings);
+            if(string.IsNullOrWhiteSpace(securitySettings.Secret))
+            {
+                throw new BsException(2212151619, "Security -> Secret settings is mandatory. Check configuration file");
+            }
             builder.Services.AddSingleton(securitySettings);
 
             fileSystemSettings = new FileSystemSettings();
