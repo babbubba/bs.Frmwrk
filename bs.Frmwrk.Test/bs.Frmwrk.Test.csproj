@@ -8,6 +8,10 @@
     <IsPackable>false</IsPackable>
 
     <StartupObject>bs.Frmwrk.Test.Program</StartupObject>
+
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
