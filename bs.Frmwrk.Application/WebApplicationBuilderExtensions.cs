@@ -77,14 +77,14 @@ namespace bs.Frmwrk.Application
         internal static void InitConfiguration(this WebApplicationBuilder builder)
         {
             loggingSettings = new LoggingSettings();
-            builder.Configuration.GetSection("Logging").Bind(loggingSettings);
+            builder.Configuration.GetRequiredSection("Logging").Bind(loggingSettings);
             builder.Services.AddSingleton(loggingSettings);
 
             dbContext = new DbContext();
-            builder.Configuration.GetSection("Database").Bind(dbContext);
+            builder.Configuration.GetRequiredSection("Database").Bind(dbContext);
 
             coreSettings = new CoreSettings();
-            builder.Configuration.GetSection("Core").Bind(coreSettings);
+            builder.Configuration.GetRequiredSection("Core").Bind(coreSettings);
             builder.Services.AddSingleton(coreSettings);
 
             securitySettings = new SecuritySettings();
