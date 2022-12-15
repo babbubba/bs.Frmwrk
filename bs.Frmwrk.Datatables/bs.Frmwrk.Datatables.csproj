@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>$(AssemblyName)</Title>
+    <Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
 
 </Project>
