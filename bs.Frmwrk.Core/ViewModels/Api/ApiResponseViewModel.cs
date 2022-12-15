@@ -21,6 +21,10 @@
 
     public class ApiResponseViewModel<T> : ApiResponseViewModel, IApiResponseViewModel<T>
     {
+        public ApiResponseViewModel() : base() { }
+
+        public ApiResponseViewModel(bool success, string errorMessage): base(success, errorMessage) { }
+       
         public T Value { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Application;
+using bs.Frmwrk.Test.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Serilog;
 
@@ -18,6 +19,9 @@ namespace bs.Frmwrk.Test
                 builder.BootstrapFrmwrk();
 
                 var app = builder.Build();
+
+                app.ConfigureFrmwrk();
+
                 app.Run();
             }
             catch (Exception ex)

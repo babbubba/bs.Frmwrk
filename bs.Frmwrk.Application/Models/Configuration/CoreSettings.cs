@@ -11,6 +11,6 @@ namespace bs.Frmwrk.Application.Models.Configuration
         public string? AppCompany { get; set; }
         public string? CompanyWebSite { get; set; }
         public IDictionary<string, string>? AppRoles { get; set; }
-
+        public IDictionary<string, string>? SignalRHubs { get; set; }
     }
 }

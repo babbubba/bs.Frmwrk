@@ -29,7 +29,6 @@ namespace bs.Frmwrk.Shared
             return AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(s => s.GetTypes())
             .Where(p => interfaceType.IsAssignableFrom(p) && !p.IsAbstract && !p.IsInterface);
-          
         }
 
         public static IEnumerable<Type>? GetInterfacesOf(this Type concreteType, Type[]? excludedTypes = null)
@@ -51,6 +50,14 @@ namespace bs.Frmwrk.Shared
             //}
 
             return interfaces;// ?? throw new BsException(2212141235, $"No interface found for the class: '{concreteType.FullName ?? concreteType.Name}'");
+        }
+
+        public static Type? GetTypeByFullName(string typeFullName)
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+           .SelectMany(s => s.GetTypes())
+           .Where(t => t.FullName is not null && t.FullName == typeFullName)
+           .SingleOrDefault();
         }
 
     }

@@ -38,7 +38,8 @@ using System.Text;
 
 namespace bs.Frmwrk.Application
 {
-    public static class ApplicationExtensions
+
+    public static class WebApplicationBuilderExtensions
     {
         private static ICoreSettings? coreSettings;
         private static IEmailSettings? emailSettings;
