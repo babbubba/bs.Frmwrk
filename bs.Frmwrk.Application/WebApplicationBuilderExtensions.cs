@@ -304,8 +304,8 @@ namespace bs.Frmwrk.Application
                         ValidateIssuerSigningKey = true,
                         ValidateIssuer = securitySettings?.ValidateIssuer ?? false,
                         ValidateAudience = securitySettings?.ValidateAudience ?? false,
-                        ValidAudience = securitySettings?.ValidTokenAudience,
-                        ValidIssuer = securitySettings?.ValidTokenIssuer,
+                        ValidAudience = securitySettings?.ValidTokenAudience ?? "",
+                        ValidIssuer = securitySettings?.ValidTokenIssuer ?? "",
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securitySettings.Secret))
