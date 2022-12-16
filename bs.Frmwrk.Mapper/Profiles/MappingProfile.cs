@@ -23,5 +23,14 @@ namespace bs.Frmwrk.Mapper.Profiles
             CreateMap<TSourceInterface, TDestinationInterface>().As<TDestinationClass>();
             CreateMap<TSourceInterface, TDestinationClass>();
         }
+
+        public void CreateMappingWithReverse<TSourceInterface, TDestinationInterface, TSourceClass, TDestinationClass>() where TDestinationClass : TDestinationInterface  where TSourceClass : TSourceInterface
+        {
+            CreateMap<TSourceInterface, TDestinationInterface>().As<TDestinationClass>();
+            CreateMap<TSourceInterface, TDestinationClass>();
+
+            CreateMap<TDestinationInterface, TSourceInterface>().As<TSourceClass>();
+            CreateMap<TDestinationInterface, TSourceClass>();
+        }
     }
 }

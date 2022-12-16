@@ -11,6 +11,15 @@ namespace bs.Frmwrk.Core.Services.Auth
     public interface IAuthService
     {
         /// <summary>
+        /// Occurs when [login event].
+        /// </summary>
+        event EventHandler<IAuthEventDto> LoginEvent;
+        /// <summary>
+        /// Occurs when [authentication event].
+        /// </summary>
+        event EventHandler<IAuthEventDto> AuthEvent;
+
+        /// <summary>
         /// Authenticates the user with the provided password and returns the user data and tokens.
         /// </summary>
         /// <param name="authRequest">The authentication request.</param>
@@ -30,7 +39,8 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// </summary>
         /// <param name="refreshTokenRequest">The refresh token request.</param>
         /// <returns></returns>
-        Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest);
+        /// <param name="clientIp"></param>
+        Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest, string? clientIp = null);
 
         /// <summary>
         /// Creates the user asynchronous and return the new created user's id.

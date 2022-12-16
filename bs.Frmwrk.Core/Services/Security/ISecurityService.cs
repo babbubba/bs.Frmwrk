@@ -1,4 +1,5 @@
-﻿using bs.Frmwrk.Core.Models.Auth;
+﻿using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Security;
 
 namespace bs.Frmwrk.Core.Services.Security
@@ -8,6 +9,11 @@ namespace bs.Frmwrk.Core.Services.Security
     /// </summary>
     public interface ISecurityService
     {
+        /// <summary>
+        /// Occurs when [security event].
+        /// </summary>
+        event EventHandler<ISecurityEventDto> SecurityEvent;
+
         /// <summary>
         /// Checks the password validity.
         /// </summary>

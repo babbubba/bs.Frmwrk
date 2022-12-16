@@ -1,12 +1,14 @@
 ﻿using bs.Data.Interfaces;
+using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Auth.ViewModel;
-using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Auth;
@@ -15,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using bs.Frmwrk.Core.Services.Mapping;
 
 namespace bs.Frmwrk.Auth.Services
 {
@@ -35,6 +36,9 @@ namespace bs.Frmwrk.Auth.Services
             this.tokenService = tokenService;
         }
 
+        public event EventHandler<IAuthEventDto> LoginEvent;
+        public event EventHandler<IAuthEventDto> AuthEvent;
+
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
         {
             return await ExecuteTransactionAsync<IUserViewModel>(async (response) =>
@@ -45,7 +49,8 @@ namespace bs.Frmwrk.Auth.Services
                     response.Success = false;
                     response.ErrorMessage = T("Accesso fallito");
                     logger.LogWarning($"Autentication error user: '{authRequest.UserName}' not found (IP: {clientIp ?? "*"})");
-                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
+                    OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: utente non trovato"), clientIp);
+                    //await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     response.ErrorCode = 2212072057;
                     return response;
                 }
@@ -55,7 +60,8 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorMessage = T("Accesso fallito");
                     response.ErrorCode = 2212072057;
                     logger.LogWarning($"Autentication error for user: {authRequest.UserName} (IP: {clientIp ?? "*"})");
-                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
+                    OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: password errata"), clientIp);
+                    //await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     return response;
                 }
 
@@ -65,7 +71,8 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorMessage = T("Utente disabilitato");
                     response.ErrorCode = 2212072144;
                     logger.LogWarning($"Autentication blocked for disabled user: {authRequest.UserName} (IP: {clientIp ?? "*"})");
-                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
+                    OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: utente disabilitato"), clientIp);
+                    //await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     return response;
                 }
 
@@ -79,6 +86,7 @@ namespace bs.Frmwrk.Auth.Services
                 user.LastIp = clientIp;
                 response.Value = mapper.Map<IUserViewModel>(user);
                 response.Value.AccessToken = token.Token;
+                OnLoginEvent(authRequest.UserName, true, T("Accesso riuscito"), clientIp);
 
                 return response;
             }, "Errore in autenticazione");
@@ -128,7 +136,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore aggiornando lo stato dell'utente");
         }
 
-        public virtual async Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest)
+        public virtual async Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest, string? clientIp = null)
         {
             return await ExecuteTransactionAsync<IRefreshTokenViewModel>(async (response) =>
             {
@@ -137,8 +145,9 @@ namespace bs.Frmwrk.Auth.Services
                 if (userId is null)
                 {
                     response.Success = false;
-                    response.ErrorMessage = T("Il refresh token non valido.");
+                    response.ErrorMessage = T("Il refresh token non è valido.");
                     response.ErrorCode = 202020000;
+                    OnAuthEvent("N/D", false, T("Il refresh token non è valido."), clientIp);
                     return response;
                 }
 
@@ -148,6 +157,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.Success = false;
                     response.ErrorMessage = T("Refresh token non valido o scaduto.");
                     response.ErrorCode = 202020001;
+                    OnAuthEvent(user?.UserName??"N/D", false, T("Refresh token non valido o scaduto."), clientIp);
                     return response;
                 }
                 response.Value = new RefreshTokenViewModels
@@ -158,10 +168,17 @@ namespace bs.Frmwrk.Auth.Services
                 };
                 user.RefreshToken = response.Value.RefreshToken;
                 user.RefreshTokenExpire = response.Value.RefreshTokenExpire;
+                OnAuthEvent(user.UserName, true, T("Nuovo refresh token generato."), clientIp);
 
                 return response;
             }, "Errore durante il rinnovo del token");
         }
+
+        protected void OnLoginEvent(string userName, bool success, string message, string? clientIp = null) =>
+                                            LoginEvent?.Invoke(this, new AuthEventDto(userName, success, message, clientIp));
+
+        protected void OnAuthEvent(string userName, bool success, string message, string? clientIp = null) =>
+                                         AuthEvent?.Invoke(this, new AuthEventDto(userName, success, message, clientIp));
 
         private static bool CheckHashedPassword(IUserModel user, string clearPassword)
         {
@@ -179,6 +196,21 @@ namespace bs.Frmwrk.Auth.Services
                 if (hashBytes[i + 16] != hash[i])
                     return false;
             return true;
+        }
+
+        private static string HashPassword(string clearPassword)
+        {
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
+
+            var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);
+            byte[] hash = pbkdf2.GetBytes(20);
+
+            byte[] hashBytes = new byte[36];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 20);
+
+            string passwordHash = Convert.ToBase64String(hashBytes);
+            return passwordHash;
         }
 
         private ITokenJWTDto GenerateClaimsAndToken(IUserModel user)
@@ -203,21 +235,6 @@ namespace bs.Frmwrk.Auth.Services
             }
 
             return tokenService.GenerateAccessToken(claims);
-        }
-
-        private static string HashPassword(string clearPassword)
-        {
-            byte[] salt = RandomNumberGenerator.GetBytes(16);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);
-            byte[] hash = pbkdf2.GetBytes(20);
-
-            byte[] hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
-            Array.Copy(hash, 0, hashBytes, 16, 20);
-
-            string passwordHash = Convert.ToBase64String(hashBytes);
-            return passwordHash;
         }
     }
 }
