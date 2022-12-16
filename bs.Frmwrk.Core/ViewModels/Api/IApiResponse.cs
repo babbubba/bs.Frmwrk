@@ -3,7 +3,7 @@
     /// <summary>
     /// The base API Response (without data)
     /// </summary>
-    public interface IApiResponseViewModel
+    public interface IApiResponse
     {
         /// <summary>
         /// Gets or sets the error code.
@@ -22,7 +22,7 @@
         string? ErrorMessage { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="IResponseViewModel"/> is success.
+        /// Gets or sets a value indicating whether this <see cref="IApiResponse"/> is success.
         /// </summary>
         /// <value>
         ///   <c>true</c> if success; otherwise, <c>false</c>.
@@ -42,7 +42,7 @@
     /// The base API response (with data)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IApiResponseViewModel<T> : IApiResponseViewModel
+    public interface IApiResponse<T> : IApiResponse
     {
         /// <summary>
         /// Gets or sets the value field that contains the data to send to consumer.

@@ -1,8 +1,7 @@
-﻿using AutoMapper;
-using bs.Data.Interfaces;
+﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Auth.ViewModel;
-using bs.Frmwrk.Base;
-using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using bs.Frmwrk.Core.Services.Mapping;
 
 namespace bs.Frmwrk.Auth.Services
 {
@@ -28,14 +28,14 @@ namespace bs.Frmwrk.Auth.Services
         protected readonly IAuthRepository authRepository;
         private readonly ITokenService tokenService;
 
-        public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork,
+        public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork,
             IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork, securityService)
         {
             this.authRepository = authRepository;
             this.tokenService = tokenService;
         }
 
-        public virtual async Task<IApiResponseViewModel<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
+        public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
         {
             return await ExecuteTransactionAsync<IUserViewModel>(async (response) =>
             {
@@ -78,13 +78,13 @@ namespace bs.Frmwrk.Auth.Services
                 user.LastLogin = DateTime.UtcNow;
                 user.LastIp = clientIp;
                 response.Value = mapper.Map<IUserViewModel>(user);
-                response.Value.Token = token.Token;
+                response.Value.AccessToken = token.Token;
 
                 return response;
             }, "Errore in autenticazione");
         }
 
-        public virtual async Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
+        public virtual async Task<IApiResponse<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
@@ -115,7 +115,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore creando l'utente");
         }
 
-        public virtual async Task<IApiResponseViewModel> KeepAliveAsync(IKeepedAliveUser user)
+        public virtual async Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user)
         {
             return await ExecuteTransactionAsync(async (response) =>
             {
@@ -128,7 +128,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore aggiornando lo stato dell'utente");
         }
 
-        public virtual async Task<IApiResponseViewModel<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest)
+        public virtual async Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest)
         {
             return await ExecuteTransactionAsync<IRefreshTokenViewModel>(async (response) =>
             {

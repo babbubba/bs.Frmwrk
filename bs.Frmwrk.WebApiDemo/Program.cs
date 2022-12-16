@@ -1,5 +1,5 @@
 using bs.Frmwrk.Application;
-using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Exceptions;
 using Serilog;
 
 namespace bs.Frmwrk.WebApiDemo

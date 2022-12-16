@@ -11,6 +11,9 @@
   "Core": {
     "SignalRHubs": {
       "bs.Frmwrk.WebApiDemo.Hubs.TestHub": "testHub"
+    },
+    "AppRoles": {
+      "administrators":  "Administrators"
     }
   },
   "Security": {

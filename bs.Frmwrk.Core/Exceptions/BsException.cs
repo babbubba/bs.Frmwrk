@@ -1,4 +1,4 @@
-﻿namespace bs.Frmwrk.Base.Exceptions
+﻿namespace bs.Frmwrk.Core.Exceptions
 {
     public class BsException : Exception
     {

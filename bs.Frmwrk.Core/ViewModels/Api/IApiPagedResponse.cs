@@ -4,8 +4,8 @@
     ///  The base API response for DataTables jQuery component (or any library that wrap it). See: https://datatables.net/ for componente specification
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <seealso cref="bs.Frmwrk.Core.ViewModels.Api.IApiResponseViewModel" />
-    public interface IApiPagedResponseViewModel<T> : IApiResponseViewModel
+    /// <seealso cref="bs.Frmwrk.Core.ViewModels.Api.IApiResponse" />
+    public interface IApiPagedResponse<T> : IApiResponse
     {
         /// <summary>
         /// Gets or sets the data.

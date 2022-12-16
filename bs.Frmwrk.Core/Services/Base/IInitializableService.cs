@@ -4,6 +4,6 @@ namespace bs.Frmwrk.Core.Services.Base
 {
     public interface IInitializableService
     {
-        Task<IApiResponseViewModel> InitServiceAsync();
+        Task<IApiResponse> InitServiceAsync();
     }
 }

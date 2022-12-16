@@ -1,6 +1,6 @@
 ﻿namespace bs.Frmwrk.Shared
 {
-    public static class GuidExtension
+    public static class GuidExtensions
     {
         public static Guid? ToGuidN(this string? val)
         {

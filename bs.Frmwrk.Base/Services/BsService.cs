@@ -1,23 +1,23 @@
-﻿using AutoMapper;
-using bs.Data.Interfaces;
-using bs.Frmwrk.Base.Exceptions;
+﻿using bs.Data.Interfaces;
+using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using Microsoft.Extensions.Logging;
 
-namespace bs.Frmwrk.Base
+namespace bs.Frmwrk.Base.Services
 {
     public abstract class BsService : IBsService
     {
         protected readonly ILogger logger;
-        protected readonly IMapper mapper;
+        protected readonly IMapperService mapper;
         protected readonly IUnitOfWork unitOfWork;
         protected readonly ISecurityService securityService;
         private readonly ITranslateService translateService;
 
-        public BsService(ILogger logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork, ISecurityService securityService)
+        public BsService(ILogger logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork, ISecurityService securityService)
         {
             this.logger = logger;
             this.translateService = translateService;
@@ -33,16 +33,16 @@ namespace bs.Frmwrk.Base
         /// <param name="function">The function.</param>
         /// <param name="genericErrorMessage">The generic error message.</param>
         /// <returns></returns>
-        /// <exception cref="bs.Frmwrk.Base.Exceptions.BsException">
+        /// <exception cref="BsException">
         /// 2212071652
         /// or
         /// 2212071653
         /// </exception>
-        public async Task<IApiPagedResponseViewModel<TResponse>> ExecuteDatatableAsync<TResponse>(
-         Func<IApiPagedResponseViewModel<TResponse>, Task<IApiPagedResponseViewModel<TResponse>>> function,
+        public async Task<IApiPagedResponse<TResponse>> ExecuteDatatableAsync<TResponse>(
+         Func<IApiPagedResponse<TResponse>, Task<IApiPagedResponse<TResponse>>> function,
          string genericErrorMessage)
         {
-            IApiPagedResponseViewModel<TResponse>? response = (IApiPagedResponseViewModel<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponseViewModel<TResponse>)); ;
+            IApiPagedResponse<TResponse>? response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>)); ;
 
             if (response == null)
             {
@@ -85,16 +85,16 @@ namespace bs.Frmwrk.Base
         /// <param name="function">The function.</param>
         /// <param name="genericErrorMessage">The generic error message.</param>
         /// <returns></returns>
-        /// <exception cref="bs.Frmwrk.Base.Exceptions.BsException">
+        /// <exception cref="BsException">
         /// 2212071645
         /// or
         /// 2212071646
         /// </exception>
-        public async Task<IApiResponseViewModel> ExecuteTransactionAsync(Func<IApiResponseViewModel, Task<IApiResponseViewModel>> function, string genericErrorMessage)
+        public async Task<IApiResponse> ExecuteTransactionAsync(Func<IApiResponse, Task<IApiResponse>> function, string genericErrorMessage)
         {
             unitOfWork.BeginTransaction();
 
-            IApiResponseViewModel? response = (IApiResponseViewModel?)Activator.CreateInstance(typeof(ApiResponseViewModel));
+            IApiResponse? response = (IApiResponse?)Activator.CreateInstance(typeof(ApiResponse));
 
             if (response == null)
             {
@@ -138,14 +138,14 @@ namespace bs.Frmwrk.Base
         /// <param name="function">The function.</param>
         /// <param name="genericErrorMessage">The generic error message.</param>
         /// <returns></returns>
-        /// <exception cref="bs.Frmwrk.Base.Exceptions.BsException">
+        /// <exception cref="BsException">
         /// 2212071647
         /// or
         /// 2212071646
         /// </exception>
-        public async Task<IApiResponseViewModel<TResponse>> ExecuteTransactionAsync<TResponse>(Func<IApiResponseViewModel<TResponse>, Task<IApiResponseViewModel<TResponse>>> function, string genericErrorMessage)
+        public async Task<IApiResponse<TResponse>> ExecuteTransactionAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string genericErrorMessage)
         {
-            IApiResponseViewModel<TResponse>? response = (IApiResponseViewModel<TResponse>?)Activator.CreateInstance(typeof(ApiResponseViewModel<TResponse>));
+            IApiResponse<TResponse>? response = (IApiResponse<TResponse>?)Activator.CreateInstance(typeof(ApiResponse<TResponse>));
             if (response == null)
             {
                 throw new BsException(2212071647, translateService.Translate("Impossibile costruire l'oggetto ApiResponse"));

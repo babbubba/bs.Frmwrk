@@ -7,7 +7,8 @@ using NHibernate.Type;
 
 namespace bs.Frmwrk.WebApiDemo.Models
 {
-    public class UserModel : IUserModel, IPersistentEntity
+
+    public class UserModel : IUserModel, IRoledUser, IPersistentEntity
     {
         public virtual string Email { get; set; }
         public virtual bool Enabled { get; set; }
@@ -18,6 +19,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual string? RefreshToken { get; set; }
         public virtual DateTime? RefreshTokenExpire { get; set; }
         public virtual string UserName { get; set; }
+        public virtual ICollection<IRoleModel> Roles { get; set; }
 
         public class Map : ClassMapping<UserModel>
         {
@@ -41,6 +43,21 @@ namespace bs.Frmwrk.WebApiDemo.Models
                 Property(x => x.RefreshToken);
                 Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());
                 Property(x => x.UserName, m => m.UniqueKey("UQ__UserName"));
+
+                Bag(x => x.Roles, collectionMapping =>
+                {
+                    collectionMapping.Table("UsersRoles");
+                    collectionMapping.Cascade(Cascade.None);
+                    collectionMapping.Key(k => k.Column("UserId"));
+                    //collectionMapping.Lazy(CollectionLazy.NoLazy);
+                    //collectionMapping.Fetch(CollectionFetchMode.Join);
+                },
+                map => map.ManyToMany(p =>
+                {
+                    p.Column("RoleId");
+                    p.Class(typeof(RoleModel));
+                    p.ForeignKey("FK__Roles_Users");
+                }));
             }
         }
     }

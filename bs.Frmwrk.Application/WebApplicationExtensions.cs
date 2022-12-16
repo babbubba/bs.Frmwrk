@@ -50,7 +50,7 @@ namespace bs.Frmwrk.Application
                     if (exceptionHandler != null)
                     {
                         Log.Error(exceptionHandler.Error, "Unhandled exception");
-                        var response = new ApiResponseViewModel<string>
+                        var response = new ApiResponse<string>
                         {
                             Success = false,
                             Value = "Unhandled exception",
@@ -78,7 +78,7 @@ namespace bs.Frmwrk.Application
 
         internal static void InitServices(this WebApplication app)
         {
-            var result = new Dictionary<string, IApiResponseViewModel>();
+            var result = new Dictionary<string, IApiResponse>();
 
             var initializableServices = typeof(IInitializableService).GetTypesFromInterface();
 
@@ -90,12 +90,12 @@ namespace bs.Frmwrk.Application
                     var initializableServiceInterfaces = initializableService.GetInterfacesOf(new Type[] { typeof(IBsService), typeof(IInitializableService) });
                     if (initializableServiceInterfaces is not null && initializableServiceInterfaces.Count() > 1)
                     {
-                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool>(false, $"There are more than one interface for the class: '{initializableService.FullName ?? initializableService.Name}' ({string.Join(", ", initializableServiceInterfaces.Select(i => i.FullName ?? i.Name))})"));
+                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponse<bool>(false, $"There are more than one interface for the class: '{initializableService.FullName ?? initializableService.Name}' ({string.Join(", ", initializableServiceInterfaces.Select(i => i.FullName ?? i.Name))})"));
                         continue;
                     }
                     else if (initializableServiceInterfaces is null)
                     {
-                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool>(false, $"There are no interface for the class: '{initializableService.FullName ?? initializableService.Name}'"));
+                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponse<bool>(false, $"There are no interface for the class: '{initializableService.FullName ?? initializableService.Name}'"));
                         continue;
                     }
                     var initializableServiceInterface = initializableServiceInterfaces.Single();
@@ -108,7 +108,7 @@ namespace bs.Frmwrk.Application
                     }
                     else
                     {
-                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool>(false, "Cannot resolve instance from DI Container."));
+                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponse<bool>(false, "Cannot resolve instance from DI Container."));
                     }
                 }
             }

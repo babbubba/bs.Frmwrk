@@ -8,26 +8,26 @@ namespace bs.Frmwrk.Core.Services.Auth
     public interface IAuthService
     {
         /// <summary>
-        /// Authenticates the user.
+        /// Authenticates the user with the provided password and returns the user data and tokens.
         /// </summary>
         /// <param name="userAuth">The user authentication.</param>
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
-        Task<IApiResponseViewModel<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp);
+        Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp);
 
         /// <summary>
         /// Keeps alive the user setting last ping to current date time (UTC).
         /// </summary>
         /// <param name="user">The user.</param>
         /// <returns></returns>
-        Task<IApiResponseViewModel> KeepAliveAsync(IKeepedAliveUser user);
+        Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user);
 
         /// <summary>
         /// Refreshes the access token asynchronous.
         /// </summary>
         /// <param name="refreshTokenDto">The refresh token dto.</param>
         /// <returns></returns>
-        Task<IApiResponseViewModel<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest);
+        Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest);
 
         /// <summary>
         /// Creates the user asynchronous and return the new created user's id.
@@ -35,6 +35,6 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="createUserDto">The create user dto.</param>
         /// <param name="currentUser">The current user.</param>
         /// <returns></returns>
-        Task<IApiResponseViewModel<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser);
+        Task<IApiResponse<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser);
     }
 }

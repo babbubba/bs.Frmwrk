@@ -39,7 +39,6 @@ namespace bs.Frmwrk.Application.Middlewares
         {
             if (httpContext == null) throw new ArgumentNullException(nameof(httpContext));
 
-            //var sw = Stopwatch.StartNew();
             try
             {
                 LogContext.PushProperty("RemoteIpAddress", httpContext.Connection.RemoteIpAddress);
@@ -55,11 +54,13 @@ namespace bs.Frmwrk.Application.Middlewares
                     var userName = httpContext.User.FindFirst(ClaimTypes.Name)?.Value;
                     LogContext.PushProperty("UserName", userName ?? "*");
                 }
-                await _next(httpContext);
             }
             catch (Exception)
             {
             }
+
+            await _next(httpContext);
+
         }
     }
 }

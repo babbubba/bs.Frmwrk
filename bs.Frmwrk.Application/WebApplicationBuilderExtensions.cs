@@ -3,23 +3,25 @@ using bs.Data.Interfaces;
 using bs.Frmwrk.Application.Filters;
 using bs.Frmwrk.Application.Models.Configuration;
 using bs.Frmwrk.Auth.Services;
-using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Config;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Locale.Providers;
 using bs.Frmwrk.Locale.Services;
 using bs.Frmwrk.Mailing.Models;
+using bs.Frmwrk.Mapper.Services;
 using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Services;
 using bs.Frmwrk.Shared;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http.Features;
@@ -38,15 +40,14 @@ using System.Text;
 
 namespace bs.Frmwrk.Application
 {
-
     public static class WebApplicationBuilderExtensions
     {
         private static ICoreSettings? coreSettings;
+        private static IDbContext? dbContext;
         private static IEmailSettings? emailSettings;
         private static IFileSystemSettings? fileSystemSettings;
         private static ILoggingSettings? loggingSettings;
         private static ISecuritySettings? securitySettings;
-        private static IDbContext? dbContext;
 
         public static void BootstrapFrmwrk(this WebApplicationBuilder builder)
         {
@@ -68,7 +69,7 @@ namespace bs.Frmwrk.Application
             builder.LoadExternalDll();
             builder.RegisterRepositories();
             builder.RegisterServices();
-            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.SetMapper();
             builder.SetCors();
             builder.SetControllers();
             builder.InitSwagger();
@@ -85,7 +86,7 @@ namespace bs.Frmwrk.Application
 
             dbContext = new DbContext();
             var databaseSection = builder.Configuration.GetSection("Database");
-            if(!databaseSection.Exists())
+            if (!databaseSection.Exists())
             {
                 throw new BsException(2212161142, "Error in configuration file. The section 'Database' is mandatory.");
             }
@@ -93,7 +94,7 @@ namespace bs.Frmwrk.Application
 
             coreSettings = new CoreSettings();
             var coreSection = builder.Configuration.GetSection("Core");
-            if(!coreSection.Exists())
+            if (!coreSection.Exists())
             {
                 throw new BsException(2212161143, "Error in configuration file. The section 'Core' is mandatory.");
             }
@@ -102,12 +103,12 @@ namespace bs.Frmwrk.Application
 
             securitySettings = new SecuritySettings();
             var securitySection = builder.Configuration.GetSection("Security");
-            if(!securitySection.Exists())
+            if (!securitySection.Exists())
             {
                 throw new BsException(2212161144, "Error in configuration file. The section 'Security' is mandatory.");
             }
             securitySection.Bind(securitySettings);
-            if(string.IsNullOrWhiteSpace(securitySettings.Secret))
+            if (string.IsNullOrWhiteSpace(securitySettings.Secret))
             {
                 throw new BsException(2212151619, "Error in configuration file. 'Security' -> 'Secret' is mandatory.");
             }
@@ -184,10 +185,10 @@ namespace bs.Frmwrk.Application
 
         internal static void InitORM(this WebApplicationBuilder builder)
         {
-            if(dbContext is null)
+            if (dbContext is null)
             {
                 throw new BsException(2212141610, "Invalid configuration section 'Database'");
-            }       
+            }
 
             // Set the ORM auto schema update
             dbContext.Update = true;
@@ -196,20 +197,70 @@ namespace bs.Frmwrk.Application
             builder.Services.AddBsData(dbContext);
         }
 
+        internal static void InitSwagger(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(conf =>
+            {
+                // add JWT Authentication
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "JWT Authentication",
+                    Description = "Enter JWT Bearer token **_only_**. To get the token call **/account/authenticate** passing **username** and **password**",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+                conf.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+                conf.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {securityScheme, new string[] { }}
+                    });
+
+                // Documentation
+                conf.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = coreSettings?.AppTitle ?? "Application",
+                    Version = "v1",
+                    Description = "API references for " + coreSettings?.AppTitle ?? "Application",
+                    Contact = new OpenApiContact
+                    {
+                        Name = coreSettings?.AppCompany ?? "Company",
+                        Email = string.Empty,
+                        Url = coreSettings?.CompanyWebSite is not null ? new Uri(coreSettings.CompanyWebSite) : null,
+                    }
+                });
+
+                // Include all projects xml documentations
+                var xmlPaths = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
+                foreach (var xmlPath in xmlPaths)
+                {
+                    conf.IncludeXmlComments(xmlPath);
+                    conf.SchemaFilter<SwaggerEnumSchemaFilter>();
+                }
+            });
+        }
+
         internal static void LoadExternalDll(this WebApplicationBuilder builder)
         {
-            var result = new Dictionary<string, IApiResponseViewModel>();
+            var result = new Dictionary<string, IApiResponse>();
             var dllPaths = Directory.GetFiles(coreSettings.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
             foreach (var dllPath in dllPaths)
             {
                 try
                 {
                     Assembly.LoadFrom(dllPath);
-                    result.Add(dllPath, new ApiResponseViewModel());
+                    result.Add(dllPath, new ApiResponse());
                 }
                 catch (Exception ex)
                 {
-                    result.Add(dllPath, new ApiResponseViewModel(false, ex.Message));
+                    result.Add(dllPath, new ApiResponse(false, ex.Message));
                 }
             }
 
@@ -218,7 +269,7 @@ namespace bs.Frmwrk.Application
 
         internal static void RegisterRepositories(this WebApplicationBuilder builder)
         {
-            var result = new Dictionary<string, ApiResponseViewModel>();
+            var result = new Dictionary<string, ApiResponse>();
             var repositories = typeof(IRepository).GetTypesFromInterface();
 
             foreach (var repository in repositories)
@@ -233,7 +284,7 @@ namespace bs.Frmwrk.Application
                     var repositoryInterfaces = repository.GetInterfacesOf(new System.Type[] { typeof(IRepository) });
                     if (repositoryInterfaces == null)
                     {
-                        result.Add(repository.FullName ?? repository.Name, new ApiResponseViewModel(false, $"No interfaces found for repository: '{repository.FullName ?? repository.Name}'"));
+                        result.Add(repository.FullName ?? repository.Name, new ApiResponse(false, $"No interfaces found for repository: '{repository.FullName ?? repository.Name}'"));
                         continue;
                     }
                     foreach (var repositoryInterface in repositoryInterfaces)
@@ -241,13 +292,13 @@ namespace bs.Frmwrk.Application
                         if (repositoryInterface is not null)
                         {
                             builder.Services.AddScoped(repositoryInterface, repository);
-                            result.Add((repository.FullName ?? repository.Name) + $" [{repositoryInterface.FullName ?? repositoryInterface.Name}]", new ApiResponseViewModel());
+                            result.Add((repository.FullName ?? repository.Name) + $" [{repositoryInterface.FullName ?? repositoryInterface.Name}]", new ApiResponse());
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    result.Add(repository.FullName ?? repository.Name, new ApiResponseViewModel(false, ex.Message));
+                    result.Add(repository.FullName ?? repository.Name, new ApiResponse(false, ex.Message));
                 }
             }
             //TODO: Log dei risultati della registrazione dei repositories
@@ -255,7 +306,7 @@ namespace bs.Frmwrk.Application
 
         internal static void RegisterServices(this WebApplicationBuilder builder)
         {
-            var result = new Dictionary<string, ApiResponseViewModel>();
+            var result = new Dictionary<string, ApiResponse>();
             var services = typeof(IBsService).GetTypesFromInterface();
 
             foreach (var service in services)
@@ -270,7 +321,7 @@ namespace bs.Frmwrk.Application
                     var serviceInterfaces = service.GetInterfacesOf(new System.Type[] { typeof(IBsService)/*, typeof(IInitializableService) */});
                     if (serviceInterfaces == null)
                     {
-                        result.Add(service.FullName ?? service.Name, new ApiResponseViewModel(false, $"No interfaces found for service: '{service.FullName ?? service.Name}'"));
+                        result.Add(service.FullName ?? service.Name, new ApiResponse(false, $"No interfaces found for service: '{service.FullName ?? service.Name}'"));
                         continue;
                     }
                     foreach (var serviceInterface in serviceInterfaces)
@@ -278,16 +329,21 @@ namespace bs.Frmwrk.Application
                         if (serviceInterface is not null)
                         {
                             builder.Services.AddScoped(serviceInterface, service);
-                            result.Add((service.FullName ?? service.Name) + $" [{serviceInterface.FullName ?? serviceInterface.Name}]", new ApiResponseViewModel());
+                            result.Add((service.FullName ?? service.Name) + $" [{serviceInterface.FullName ?? serviceInterface.Name}]", new ApiResponse());
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    result.Add(service.FullName ?? service.Name, new ApiResponseViewModel(false, ex.Message));
+                    result.Add(service.FullName ?? service.Name, new ApiResponse(false, ex.Message));
                 }
             }
             //TODO: Log dei risultati della registrazione dei services
+        }
+
+        internal static void RegisterSignalR(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddSignalR();
         }
 
         internal static void SetAuthorization(this WebApplicationBuilder builder)
@@ -357,14 +413,21 @@ namespace bs.Frmwrk.Application
             if (coreSettings?.AppRoles is not null)
             {
                 var config = new AuthorizationOptions();
-                foreach(var appRole in coreSettings.AppRoles)
+                foreach (var appRole in coreSettings.AppRoles)
                 {
                     config.AddPolicy(appRole.Key, new AuthorizationPolicyBuilder().RequireAuthenticatedUser().RequireRole(appRole.Key).Build());
                 }
 
-                builder.Services.AddAuthorization(c=> c = config);
+                builder.Services.AddAuthorization(c => c = config);
             }
-         
+        }
+
+        internal static void SetControllers(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddControllers(conf =>
+            {
+                conf.AllowEmptyInputInBodyModelBinding = true;
+            });
         }
 
         internal static void SetCors(this WebApplicationBuilder builder)
@@ -433,70 +496,10 @@ namespace bs.Frmwrk.Application
                 });
         }
 
-        internal static void SetControllers(this WebApplicationBuilder builder)
+        internal static void SetMapper(this WebApplicationBuilder builder)
         {
-            builder.Services.AddControllers(conf =>
-            {
-                conf.AllowEmptyInputInBodyModelBinding = true;
-            });
+            builder.Services.AddSingleton<IMapperService, MapperService>();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
-
-        internal static void InitSwagger(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(conf =>
-            {
-                // add JWT Authentication
-                var securityScheme = new OpenApiSecurityScheme
-                {
-                    Name = "JWT Authentication",
-                    Description = "Enter JWT Bearer token **_only_**. To get the token call **/account/authenticate** passing **username** and **password**",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer", 
-                    BearerFormat = "JWT",
-                    Reference = new OpenApiReference
-                    {
-                        Id = JwtBearerDefaults.AuthenticationScheme,
-                        Type = ReferenceType.SecurityScheme
-                    }
-                };
-                conf.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
-                conf.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    {
-                        {securityScheme, new string[] { }}
-                    });
-
-                // Documentation
-                conf.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = coreSettings?.AppTitle ?? "Application",
-                    Version = "v1",
-                    Description = "API references for " + coreSettings?.AppTitle ?? "Application",
-                    Contact = new OpenApiContact
-                    {
-                        Name = coreSettings?.AppCompany ?? "Company",
-                        Email = string.Empty,
-                        Url = coreSettings?.CompanyWebSite is not null ? new Uri(coreSettings.CompanyWebSite) : null,
-                    }
-                });
-
-                // Include all projects xml documentations
-                var xmlPaths = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
-                foreach (var xmlPath in xmlPaths)
-                {
-                    conf.IncludeXmlComments(xmlPath);
-                    conf.SchemaFilter<SwaggerEnumSchemaFilter>();
-                }
-            });
-        }
-
-        internal static void RegisterSignalR(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddSignalR();
-        }
-
-
-
     }
 }

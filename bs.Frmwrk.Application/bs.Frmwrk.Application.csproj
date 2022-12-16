@@ -18,6 +18,7 @@
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Locale\bs.Frmwrk.Locale.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Mailing\bs.Frmwrk.Mailing.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.Mapper\bs.Frmwrk.Mapper.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Security\bs.Frmwrk.Security.csproj" />
   </ItemGroup>
   <PropertyGroup>

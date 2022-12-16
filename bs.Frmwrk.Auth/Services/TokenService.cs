@@ -1,8 +1,7 @@
-﻿using AutoMapper;
-using bs.Data.Interfaces;
+﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Auth.Dtos;
-using bs.Frmwrk.Base;
-using bs.Frmwrk.Base.Exceptions;
+using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Auth;
@@ -14,6 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using bs.Frmwrk.Core.Services.Mapping;
 
 namespace bs.Frmwrk.Auth.Services
 {
@@ -21,7 +21,7 @@ namespace bs.Frmwrk.Auth.Services
     {
         private readonly ISecuritySettings securitySettings;
 
-        public TokenService(ILogger<TokenService> logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork, ISecurityService securityService,
+        public TokenService(ILogger<TokenService> logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork, ISecurityService securityService,
             ISecuritySettings securitySettings) : base(logger, translateService, mapper, unitOfWork, securityService)
         {
             this.securitySettings = securitySettings;
