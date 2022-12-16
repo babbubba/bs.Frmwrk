@@ -4,6 +4,7 @@ using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
+using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
@@ -154,9 +155,9 @@ namespace bs.Frmwrk.Security.Services
 
             await unitOfWork.Session.SaveAsync(newEntry);
 
-            DateTime periodToCheckBaegin = DateTime.UtcNow.AddMinutes(-securitySettings.FailedAccessMonitoringPeriodInMinutes ?? 10);
+            DateTime periodToCheckBegin = DateTime.UtcNow.AddMinutes(-securitySettings.FailedAccessMonitoringPeriodInMinutes ?? -10);
 
-            var usernameAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginBaseModel>().Where(a => a.EventDate > periodToCheckBaegin && a.UserName.ToLower() == username.ToLower()).CountAsync();
+            var usernameAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.UserName.ToLower() == username.ToLower()).CountAsync();
 
             if (usernameAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
             {
@@ -169,7 +170,7 @@ namespace bs.Frmwrk.Security.Services
                 }
             }
 
-            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<AuditFailedLoginBaseModel>().Where(a => a.EventDate > periodToCheckBaegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
+            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
             if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
             {
                 OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);

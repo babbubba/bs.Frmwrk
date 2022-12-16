@@ -50,7 +50,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorMessage = T("Accesso fallito");
                     logger.LogWarning($"Autentication error user: '{authRequest.UserName}' not found (IP: {clientIp ?? "*"})");
                     OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: utente non trovato"), clientIp);
-                    //await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
+                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     response.ErrorCode = 2212072057;
                     return response;
                 }
@@ -61,7 +61,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorCode = 2212072057;
                     logger.LogWarning($"Autentication error for user: {authRequest.UserName} (IP: {clientIp ?? "*"})");
                     OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: password errata"), clientIp);
-                    //await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
+                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     return response;
                 }
 
@@ -72,7 +72,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorCode = 2212072144;
                     logger.LogWarning($"Autentication blocked for disabled user: {authRequest.UserName} (IP: {clientIp ?? "*"})");
                     OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: utente disabilitato"), clientIp);
-                    //await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
+                    await securityService.TrackLoginFailAsync(authRequest.UserName, clientIp);
                     return response;
                 }
 
