@@ -39,7 +39,7 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="username">The username.</param>
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
-        Task TrackLoginFailAsync(string username, string clientIp);
+        Task TrackLoginFailAsync(string username, string? clientIp);
 
     }
 }

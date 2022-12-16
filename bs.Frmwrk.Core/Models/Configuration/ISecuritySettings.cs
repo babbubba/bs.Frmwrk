@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
     public interface ISecuritySettings
     {
@@ -85,7 +85,19 @@
         /// </value>
         int? PasswordMinLength { get; set; }
 
+        /// <summary>
+        /// Gets or sets the validate token issuer.
+        /// </summary>
+        /// <value>
+        /// The validate token issuer.
+        /// </value>
         bool? ValidateTokenIssuer { get; set; }
+        /// <summary>
+        /// Gets or sets the validate token audience.
+        /// </summary>
+        /// <value>
+        /// The validate token audience.
+        /// </value>
         bool? ValidateTokenAudience { get; set; }
     }
 }

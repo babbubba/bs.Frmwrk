@@ -5,12 +5,15 @@ using bs.Frmwrk.Core.ViewModels.Auth;
 
 namespace bs.Frmwrk.Core.Services.Auth
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IAuthService
     {
         /// <summary>
         /// Authenticates the user with the provided password and returns the user data and tokens.
         /// </summary>
-        /// <param name="userAuth">The user authentication.</param>
+        /// <param name="authRequest">The authentication request.</param>
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp);
@@ -25,7 +28,7 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <summary>
         /// Refreshes the access token asynchronous.
         /// </summary>
-        /// <param name="refreshTokenDto">The refresh token dto.</param>
+        /// <param name="refreshTokenRequest">The refresh token request.</param>
         /// <returns></returns>
         Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest);
 

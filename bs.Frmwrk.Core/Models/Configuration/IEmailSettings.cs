@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Core.Models.Configuration
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IEmailSettings
     {
         /// <summary>

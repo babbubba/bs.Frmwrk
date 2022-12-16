@@ -1,5 +1,8 @@
 ﻿namespace bs.Frmwrk.Core.Models.Configuration
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IFileSystemSettings
     {
         /// <summary>

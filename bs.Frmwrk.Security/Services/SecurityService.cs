@@ -49,7 +49,7 @@ namespace bs.Frmwrk.Security.Services
             return true;
         }
 
-        public virtual async Task TrackLoginFailAsync(string username, string clientIp)
+        public virtual async Task TrackLoginFailAsync(string username, string? clientIp)
         {
             // TODO: Implementa notifiche per accessi falliti ed utenti bloccati
             var newEntry = securityRepository.GetInstanceOfAuditFailedLogModel();

@@ -1,5 +1,8 @@
 ﻿namespace bs.Frmwrk.Core.Models.Auth
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IKeepedAliveUser
     {
         /// <summary>

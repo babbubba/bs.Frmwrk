@@ -50,6 +50,6 @@
         /// <value>
         /// The value.
         /// </value>
-        T Value { get; set; }
+        T? Value { get; set; }
     }
 }
