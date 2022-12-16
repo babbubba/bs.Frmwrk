@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Application", "bs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Locale", "bs.Frmwrk.Locale\bs.Frmwrk.Locale.csproj", "{626AC574-4702-4BE2-8CDF-1FA8F3988971}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bs.Frmwrk.Mailing", "bs.Frmwrk.Mailing\bs.Frmwrk.Mailing.csproj", "{4034D40A-D46D-4F0F-BC8C-EB47914BD869}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Mailing", "bs.Frmwrk.Mailing\bs.Frmwrk.Mailing.csproj", "{4034D40A-D46D-4F0F-BC8C-EB47914BD869}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bs.Frmwrk.WebApiDemo", "bs.Frmwrk.WebApiDemo\bs.Frmwrk.WebApiDemo.csproj", "{20A11272-1347-4CDB-B8B5-89C3A76EC722}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{4034D40A-D46D-4F0F-BC8C-EB47914BD869}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4034D40A-D46D-4F0F-BC8C-EB47914BD869}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4034D40A-D46D-4F0F-BC8C-EB47914BD869}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20A11272-1347-4CDB-B8B5-89C3A76EC722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20A11272-1347-4CDB-B8B5-89C3A76EC722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20A11272-1347-4CDB-B8B5-89C3A76EC722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20A11272-1347-4CDB-B8B5-89C3A76EC722}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,10 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using NHibernate.Criterion;
 using Serilog;
 using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace bs.Frmwrk.Application
 {
@@ -21,6 +19,8 @@ namespace bs.Frmwrk.Application
     {
         public static void ConfigureFrmwrk(this WebApplication app)
         {
+            Log.Debug("Framework configuration...");
+
             app.PreloadORM();
             app.HandleReverseProxyRequest();
             app.ConfigureSwagger();
@@ -32,24 +32,9 @@ namespace bs.Frmwrk.Application
             app.UseMiddleware<SerilogMiddleware>();
             app.MapControllers();
             app.MapSignalRHubs();
-        }
-        internal static void PreloadORM(this WebApplication app) 
-        {
-            app.Services.GetService<NHibernate.ISessionFactory>();
-        }
 
-        internal static void HandleReverseProxyRequest(this WebApplication app)
-        {
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
-        }
-
-        internal static void ConfigureSwagger(this WebApplication app)
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            Log.Debug("Framework configuration complete");
+            Log.Information("Framework configured, application is starting");
         }
 
         internal static void ConfigureExceptionHandler(this WebApplication app)
@@ -77,6 +62,20 @@ namespace bs.Frmwrk.Application
             });
         }
 
+        internal static void ConfigureSwagger(this WebApplication app)
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        internal static void HandleReverseProxyRequest(this WebApplication app)
+        {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+        }
+
         internal static void InitServices(this WebApplication app)
         {
             var result = new Dictionary<string, IApiResponseViewModel>();
@@ -88,13 +87,13 @@ namespace bs.Frmwrk.Application
                 if (initializableService is null) continue;
                 using (var scope = app.Services.CreateScope())
                 {
-                    var initializableServiceInterfaces = initializableService.GetInterfacesOf(new Type[] { typeof(IBsService) , typeof(IInitializableService) });
+                    var initializableServiceInterfaces = initializableService.GetInterfacesOf(new Type[] { typeof(IBsService), typeof(IInitializableService) });
                     if (initializableServiceInterfaces is not null && initializableServiceInterfaces.Count() > 1)
                     {
                         result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool>(false, $"There are more than one interface for the class: '{initializableService.FullName ?? initializableService.Name}' ({string.Join(", ", initializableServiceInterfaces.Select(i => i.FullName ?? i.Name))})"));
                         continue;
                     }
-                    else if(initializableServiceInterfaces is null)
+                    else if (initializableServiceInterfaces is null)
                     {
                         result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool>(false, $"There are no interface for the class: '{initializableService.FullName ?? initializableService.Name}'"));
                         continue;
@@ -102,14 +101,14 @@ namespace bs.Frmwrk.Application
                     var initializableServiceInterface = initializableServiceInterfaces.Single();
 
                     var serviceToInit = scope.ServiceProvider.GetService(initializableServiceInterface);
-                  
+
                     if (serviceToInit != null)
                     {
-                        result.Add(initializableService.FullName?? initializableService.Name, ((IInitializableService)serviceToInit).InitServiceAsync().Result);
+                        result.Add(initializableService.FullName ?? initializableService.Name, ((IInitializableService)serviceToInit).InitServiceAsync().Result);
                     }
                     else
                     {
-                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool> ( false, "Cannot resolve instance from DI Container." ));
+                        result.Add(initializableService.FullName ?? initializableService.Name, new ApiResponseViewModel<bool>(false, "Cannot resolve instance from DI Container."));
                     }
                 }
             }
@@ -122,26 +121,27 @@ namespace bs.Frmwrk.Application
             //TODO: Controlla se la registrazione dinamica degli HUB Signal R funziona veramente
             var coreSettings = app.Services.GetService<ICoreSettings>();
 
-            if(coreSettings?.SignalRHubs is null)
+            if (coreSettings?.SignalRHubs is null)
             {
                 return;
             }
 
-            Log.Logger.Debug("Mapping SignalR Hubs");
+            Log.Debug("Mapping SignalR Hubs");
 
-            foreach(var signalRHub in coreSettings.SignalRHubs)
+            foreach (var signalRHub in coreSettings.SignalRHubs)
             {
                 var hubClass = ReflectionExtensions.GetTypeByFullName(signalRHub.Key);
 
-                if(hubClass is null) {
-                    Log.Logger.Error($"No implementation of the hub '{signalRHub.Key}' was found. This hub will never start");
+                if (hubClass is null)
+                {
+                    Log.Warning($"No implementation of the hub '{signalRHub.Key}' was found. This hub will never start");
                     continue;
                 }
 
-                MethodInfo? method = typeof(HubEndpointRouteBuilderExtensions).GetMethod(nameof(HubEndpointRouteBuilderExtensions.MapHub), BindingFlags.Static| BindingFlags.Public, new Type[] {typeof(IEndpointRouteBuilder),  typeof(string)});
-                if(method is null)
+                MethodInfo? method = typeof(HubEndpointRouteBuilderExtensions).GetMethod(nameof(HubEndpointRouteBuilderExtensions.MapHub), BindingFlags.Static | BindingFlags.Public, new Type[] { typeof(IEndpointRouteBuilder), typeof(string) });
+                if (method is null)
                 {
-                    Log.Logger.Error($"No implementation was found for the MapHub extension (check framework version). The hub '{signalRHub.Key}' will never start");
+                    Log.Error($"No implementation was found for the MapHub extension (check framework version). The hub '{signalRHub.Key}' will never start");
                     continue;
                 }
                 try
@@ -151,11 +151,16 @@ namespace bs.Frmwrk.Application
                 }
                 catch (Exception ex)
                 {
-                    Log.Logger.Error($"Cannot map the SignalR hub '{signalRHub.Key}'",ex);
+                    Log.Error($"Cannot map the SignalR hub '{signalRHub.Key}'", ex);
                     continue;
                 }
-                Log.Logger.Debug($"SignalR Hub '{signalRHub.Key}' succefully mapped at url: '{UrlsConfigurations.SignalRHubPrefix + signalRHub.Value}'");
+                Log.Debug($"SignalR Hub '{signalRHub.Key}' succefully mapped at url: '{UrlsConfigurations.SignalRHubPrefix + signalRHub.Value}'");
             }
+        }
+
+        internal static void PreloadORM(this WebApplication app)
+        {
+            app.Services.GetService<NHibernate.ISessionFactory>();
         }
     }
 }

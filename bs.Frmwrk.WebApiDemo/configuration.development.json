@@ -1,0 +1,19 @@
+﻿{
+  "Database": {
+    "DatabaseEngineType": "sqlite",
+    "ConnectionString": "Data Source=.\\bs.Frmwrk.WebApiDemo.db;Version=3;BinaryGuid=False;"
+  },
+  "Logging": {
+    "SeqEndpoint": "http://logs.italcom.it",
+    "ApplicationName": "bs.Frmwrk.WebApiDemo",
+    "Debug":  true
+  },
+  "Core": {
+    "SignalRHubs": {
+      "bs.Frmwrk.WebApiDemo.Hubs.TestHub": "testHub"
+    }
+  },
+  "Security": {
+    "secret": "chiave-da-cambiare-in-produzione"
+  }
+}

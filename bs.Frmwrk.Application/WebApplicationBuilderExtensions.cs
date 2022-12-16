@@ -52,9 +52,10 @@ namespace bs.Frmwrk.Application
         {
             Log.Logger = new LoggerConfiguration()
                .WriteTo.Console()
+               .MinimumLevel.ControlledBy(new LoggingLevelSwitch(LogEventLevel.Verbose))
                .CreateBootstrapLogger();
 
-            Log.Information("Initializing Framework...");
+            Log.Debug("Framework initialization...");
 
             builder.SetCustomConfigFile();
             builder.InitConfiguration();
@@ -72,6 +73,8 @@ namespace bs.Frmwrk.Application
             builder.SetControllers();
             builder.InitSwagger();
             builder.RegisterSignalR();
+
+            Log.Debug("Framework initialization complete");
         }
 
         internal static void InitConfiguration(this WebApplicationBuilder builder)
@@ -81,18 +84,32 @@ namespace bs.Frmwrk.Application
             builder.Services.AddSingleton(loggingSettings);
 
             dbContext = new DbContext();
-            builder.Configuration.GetRequiredSection("Database").Bind(dbContext);
+            var databaseSection = builder.Configuration.GetSection("Database");
+            if(!databaseSection.Exists())
+            {
+                throw new BsException(2212161142, "Error in configuration file. The section 'Database' is mandatory.");
+            }
+            databaseSection.Bind(dbContext);
 
             coreSettings = new CoreSettings();
-            builder.Configuration.GetRequiredSection("Core").Bind(coreSettings);
+            var coreSection = builder.Configuration.GetSection("Core");
+            if(!coreSection.Exists())
+            {
+                throw new BsException(2212161143, "Error in configuration file. The section 'Core' is mandatory.");
+            }
+            coreSection.Bind(coreSettings);
             builder.Services.AddSingleton(coreSettings);
 
-
             securitySettings = new SecuritySettings();
-            builder.Configuration.GetRequiredSection("Security").Bind(securitySettings);
+            var securitySection = builder.Configuration.GetSection("Security");
+            if(!securitySection.Exists())
+            {
+                throw new BsException(2212161144, "Error in configuration file. The section 'Security' is mandatory.");
+            }
+            securitySection.Bind(securitySettings);
             if(string.IsNullOrWhiteSpace(securitySettings.Secret))
             {
-                throw new BsException(2212151619, "Security -> Secret settings is mandatory. Check configuration file");
+                throw new BsException(2212151619, "Error in configuration file. 'Security' -> 'Secret' is mandatory.");
             }
             builder.Services.AddSingleton(securitySettings);
 
@@ -115,7 +132,7 @@ namespace bs.Frmwrk.Application
             LoggingLevelSwitch loggingLevel;
             if (loggingSettings.Debug is not null && loggingSettings.Debug == true)
             {
-                loggingLevel = new LoggingLevelSwitch(LogEventLevel.Debug);
+                loggingLevel = new LoggingLevelSwitch(LogEventLevel.Verbose);
             }
             else
             {
@@ -460,7 +477,7 @@ namespace bs.Frmwrk.Application
                     {
                         Name = coreSettings?.AppCompany ?? "Company",
                         Email = string.Empty,
-                        Url = coreSettings?.CompanyWebSite is not null ? new Uri("http://www.italcom.it") : null,
+                        Url = coreSettings?.CompanyWebSite is not null ? new Uri(coreSettings.CompanyWebSite) : null,
                     }
                 });
 
