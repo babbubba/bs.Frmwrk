@@ -126,7 +126,6 @@ namespace bs.Frmwrk.Security.Services
             }
 
             OnSecurityEvent(translateService.Translate("Verifica del permesso (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
-
             return result;
         }
 
