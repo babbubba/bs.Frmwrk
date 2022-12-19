@@ -454,23 +454,17 @@ namespace bs.Frmwrk.Application
         internal static void SetCustomConfigFile(this WebApplicationBuilder builder)
         {
             var contentRootPath = builder.Environment.ContentRootPath;
-            //Log.Debug($"Environment.ContentRootPath: {contentRootPath}");
+            var environmentName = builder.Environment.EnvironmentName.ToLower();
 
-            //var contentRootPath2 = AppContext.BaseDirectory;
-            //Log.Debug($"AppContext.BaseDirectory: {contentRootPath2}");
-
-            //var contentRootPath3 = Assembly.GetExecutingAssembly().Location;
-            //Log.Debug($"Assembly.GetExecutingAssembly().Location: {contentRootPath3}");
-
-            var configfilePath = Path.Combine(contentRootPath, $"configuration.{builder.Environment.EnvironmentName.ToLower()}.json");
+            var configfilePath = Path.Combine(contentRootPath, $"configuration.{environmentName}.json");
             if (!File.Exists(configfilePath))
             {
                 // Cannot init application because config file doesnt exist
                 throw new Exception($"No valid configuration file found at path: {configfilePath}");
             }
 
-            builder.Configuration.SetBasePath(builder.Environment.ContentRootPath);
-            builder.Configuration.AddJsonFile($"configuration.{builder.Environment.EnvironmentName}.json", optional: false, reloadOnChange: true);
+            builder.Configuration.SetBasePath(contentRootPath);
+            builder.Configuration.AddJsonFile($"configuration.{environmentName}.json", optional: false, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
         }
 
