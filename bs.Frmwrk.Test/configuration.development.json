@@ -11,5 +11,8 @@
     "SignalRHubs": {
       "bs.Frmwrk.Test.Hubs.TestHub": "testHub"
     }
+  },
+  "Security": {
+    "secret": "chiave-da-cambiare-in-produzione"
   }
 }
