@@ -453,7 +453,14 @@ namespace bs.Frmwrk.Application
 
         internal static void SetCustomConfigFile(this WebApplicationBuilder builder)
         {
-            var configfilePath = Path.Combine(builder.Environment.ContentRootPath, $"configuration.{builder.Environment.EnvironmentName}.json");
+            var contentRootPath = builder.Environment.ContentRootPath;
+            Log.Debug($"Environment.ContentRootPath: {contentRootPath}");
+
+            var contentRootPath2 = AppContext.BaseDirectory;
+            Log.Debug($"AppContext.BaseDirectory: {contentRootPath}");
+
+
+            var configfilePath = Path.Combine(contentRootPath, $"configuration.{builder.Environment.EnvironmentName}.json");
             if (!File.Exists(configfilePath))
             {
                 // Cannot init application because config file doesnt exist
