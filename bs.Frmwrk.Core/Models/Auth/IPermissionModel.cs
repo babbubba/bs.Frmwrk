@@ -38,7 +38,7 @@
         bool Enabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the type.
+        /// Gets or sets the type of the permission (the int value of enum is greater as greater is the security).
         /// </summary>
         /// <value>
         /// The type.

@@ -107,13 +107,27 @@ namespace bs.Frmwrk.Security.Services
         /// <exception cref="System.NotImplementedException"></exception>
         public async Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string permissionCode, PermissionType type = PermissionType.None)
         {
+            bool result = false;
+
             // Administrator are allowed always
             if (user is IRoledUser roledUser)
             {
                 if (await CheckUserRoleAsync(roledUser, DefaultRolesCodes.Administrators)) return true;
             }
-            //TODO: Implementa CheckUserPermissionAsync
-            throw new NotImplementedException();
+
+            // Check users' permission and type
+            if (user is IPermissionedUser permissionedUser)
+            {
+                result = permissionedUser.Permissions.Any(p => p.Code == permissionCode && type <= p.Type);
+            }
+            else
+            {
+                throw new BsException(2212191003, translateService.Translate("Utente non implementa la gestione dei permessi."));
+            }
+
+            OnSecurityEvent(translateService.Translate("Verifica del permesso (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
+
+            return result;
         }
 
         /// <summary>
@@ -122,11 +136,9 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="user">The user.</param>
         /// <param name="roleCode">The role code.</param>
         /// <returns></returns>
-        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">
-        /// 2212081134
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2212081134
         /// or
-        /// 2212081135
-        /// </exception>
+        /// 2212081135</exception>
         public async Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode)
         {
             if (user == null)
