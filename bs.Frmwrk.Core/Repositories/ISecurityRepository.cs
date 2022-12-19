@@ -14,13 +14,5 @@ namespace bs.Frmwrk.Core.Repositories
         /// <param name="userName">Name of the user.</param>
         /// <returns></returns>
         Task<IUserModel> GetUserByUserNameAsync(string userName);
-
-        /// <summary>
-        /// Gets the instance of audit failed log model.
-        /// </summary>
-        /// <returns></returns>
-        IAuditFailedLoginModel GetInstanceOfAuditFailedLogModel();
-
-        //Task<IRoleModel> GetRoleByCodeAsync(string roleCode);
     }
 }

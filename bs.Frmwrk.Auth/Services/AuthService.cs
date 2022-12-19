@@ -36,9 +36,9 @@ namespace bs.Frmwrk.Auth.Services
             this.tokenService = tokenService;
         }
 
-        public event EventHandler<IAuthEventDto> LoginEvent;
+        public event EventHandler<IAuthEventDto>? LoginEvent;
 
-        public event EventHandler<IAuthEventDto> AuthEvent;
+        public event EventHandler<IAuthEventDto>? AuthEvent;
 
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
         {
@@ -126,6 +126,7 @@ namespace bs.Frmwrk.Auth.Services
 
         public virtual async Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user)
         {
+#pragma warning disable CS1998
             return await ExecuteTransactionAsync(async (response) =>
             {
                 if (user is not null)
@@ -136,6 +137,8 @@ namespace bs.Frmwrk.Auth.Services
                 return response;
             }, "Errore aggiornando lo stato dell'utente");
         }
+#pragma warning restore CS1998
+
 
         public virtual async Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest, string? clientIp = null)
         {

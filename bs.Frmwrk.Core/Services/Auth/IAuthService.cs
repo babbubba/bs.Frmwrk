@@ -13,12 +13,12 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <summary>
         /// Occurs when [login event].
         /// </summary>
-        event EventHandler<IAuthEventDto> LoginEvent;
+        event EventHandler<IAuthEventDto>? LoginEvent;
 
         /// <summary>
         /// Occurs when [authentication event].
         /// </summary>
-        event EventHandler<IAuthEventDto> AuthEvent;
+        event EventHandler<IAuthEventDto>? AuthEvent;
 
         /// <summary>
         /// Authenticates the user with the provided password and returns the user data and tokens.

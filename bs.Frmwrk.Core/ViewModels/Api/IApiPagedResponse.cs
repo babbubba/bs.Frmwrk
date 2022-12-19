@@ -13,7 +13,7 @@
         /// <value>
         /// The data.
         /// </value>
-        IEnumerable<T> Data { get; set; }
+        IEnumerable<T>? Data { get; set; }
 
         /// <summary>
         /// Gets or sets the draw.

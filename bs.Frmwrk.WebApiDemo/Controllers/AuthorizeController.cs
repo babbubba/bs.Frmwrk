@@ -30,22 +30,22 @@ namespace bs.Frmwrk.WebApiDemo.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login(AuthRequestDto authRequest)
         {
-            return Ok(await authService.AuthenticateAsync(authRequest, ClientIp.ToString()));
+            return Ok(await authService.AuthenticateAsync(authRequest, ClientIp?.ToString()));
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(typeof(ApiResponse<UserViewModel>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> TestMapper(AuthRequestDto authRequest)
-        {
-            IUserModel userModel = new UserModel
-            {
-                UserName = "pippo",
-                Email = "pippo@paperopoli.gov.pa"
-            };
-            var viewModel = mapperService.Map<IUserViewModel>(userModel);
-            return Ok(viewModel);
-        }
+        //[HttpGet]
+        //[AllowAnonymous]
+        //[ProducesResponseType(typeof(ApiResponse<UserViewModel>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public async Task<IActionResult> TestMapper(AuthRequestDto authRequest)
+        //{
+        //    IUserModel userModel = new UserModel
+        //    {
+        //        UserName = "pippo",
+        //        Email = "pippo@paperopoli.gov.pa"
+        //    };
+        //    var viewModel = mapperService.Map<IUserViewModel>(userModel);
+        //    return Ok(viewModel);
+        //}
     }
 }

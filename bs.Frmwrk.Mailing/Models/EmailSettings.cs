@@ -14,7 +14,7 @@ namespace bs.Frmwrk.Mailing.Models
         /// <value>
         /// From.
         /// </value>
-        public string From { get; set; }
+        public string? From { get; set; }
 
         /// <summary>
         /// Gets or sets from display name.
@@ -22,7 +22,7 @@ namespace bs.Frmwrk.Mailing.Models
         /// <value>
         /// From display name.
         /// </value>
-        public string FromDisplayName { get; set; }
+        public string? FromDisplayName { get; set; }
 
         /// <summary>
         /// Gets or sets the SMTP server.
@@ -30,7 +30,7 @@ namespace bs.Frmwrk.Mailing.Models
         /// <value>
         /// The SMTP server.
         /// </value>
-        public string SmtpServer { get; set; }
+        public string? SmtpServer { get; set; }
 
         /// <summary>
         /// Gets or sets the port.
@@ -38,7 +38,7 @@ namespace bs.Frmwrk.Mailing.Models
         /// <value>
         /// The port.
         /// </value>
-        public int Port { get; set; }
+        public int? Port { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the user.
@@ -46,7 +46,7 @@ namespace bs.Frmwrk.Mailing.Models
         /// <value>
         /// The name of the user.
         /// </value>
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password.
@@ -54,6 +54,6 @@ namespace bs.Frmwrk.Mailing.Models
         /// <value>
         /// The password.
         /// </value>
-        public string Password { get; set; }
+        public string? Password { get; set; }
     }
 }

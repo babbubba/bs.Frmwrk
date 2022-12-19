@@ -6,8 +6,11 @@ using NHibernate.Type;
 
 namespace bs.Frmwrk.Test.Models
 {
+#pragma warning disable CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
+
     public class AuditFailedLoginBaseModel : IAuditFailedLoginModel
     {
+
         public virtual string? ClientIp { get; set; }
         public virtual DateTime EventDate { get; set; }
         public virtual Guid Id { get; set; }
@@ -33,4 +36,6 @@ namespace bs.Frmwrk.Test.Models
             }
         }
     }
+#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
+
 }

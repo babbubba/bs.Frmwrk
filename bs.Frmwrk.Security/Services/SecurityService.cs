@@ -9,8 +9,10 @@ using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Security.Dtos;
+using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace bs.Frmwrk.Security.Services
 {
@@ -65,12 +67,12 @@ namespace bs.Frmwrk.Security.Services
         /// <summary>
         /// Occurs when [security event].
         /// </summary>
-        public event EventHandler<ISecurityEventDto> SecurityEvent;
+        public event EventHandler<ISecurityEventDto>? SecurityEvent;
 
         /// <summary>
         /// Occurs when [too many attempts event].
         /// </summary>
-        public event EventHandler<ISecurityEventDto> TooManyAttemptsEvent;
+        public event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
         /// <summary>
         /// Checks the password validity.
@@ -140,6 +142,8 @@ namespace bs.Frmwrk.Security.Services
         /// 2212081135</exception>
         public async Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode)
         {
+#pragma warning disable CS1998
+
             if (user == null)
             {
                 throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo."));
@@ -152,6 +156,7 @@ namespace bs.Frmwrk.Security.Services
             var result = user.Roles.Any(r => r.Code == roleCode);
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
             return result;
+#pragma warning restore CS1998
         }
 
         /// <summary>
@@ -161,8 +166,9 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="clientIp">The client ip.</param>
         public virtual async Task TrackLoginFailAsync(string username, string? clientIp)
         {
-            // TODO: Implementa notifiche per accessi falliti ed utenti bloccati
-            var newEntry = securityRepository.GetInstanceOfAuditFailedLogModel();
+            var modelType = typeof(IAuditFailedLoginModel).GetTypeFromInterface() ?? throw new BsException(2212191126, translateService.Translate("Impossibile trovare una implementazione del modello 'IAuditFailedLoginModel'"));
+
+            IAuditFailedLoginModel newEntry = (IAuditFailedLoginModel)Activator.CreateInstance(modelType)!;
             newEntry.ClientIp = clientIp;
             newEntry.EventDate = DateTime.UtcNow;
             newEntry.UserName = username;

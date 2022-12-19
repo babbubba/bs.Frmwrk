@@ -34,6 +34,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -42,12 +43,12 @@ namespace bs.Frmwrk.Application
 {
     public static class WebApplicationBuilderExtensions
     {
-        private static ICoreSettings? coreSettings;
+        private static ICoreSettings coreSettings;
         private static IDbContext? dbContext;
         private static IEmailSettings? emailSettings;
         private static IFileSystemSettings? fileSystemSettings;
         private static ILoggingSettings? loggingSettings;
-        private static ISecuritySettings? securitySettings;
+        private static ISecuritySettings securitySettings;
 
         public static void BootstrapFrmwrk(this WebApplicationBuilder builder)
         {
@@ -250,7 +251,7 @@ namespace bs.Frmwrk.Application
         internal static void LoadExternalDll(this WebApplicationBuilder builder)
         {
             var result = new Dictionary<string, IApiResponse>();
-            var dllPaths = Directory.GetFiles(coreSettings.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
+            var dllPaths = Directory.GetFiles(coreSettings?.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings?.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
             foreach (var dllPath in dllPaths)
             {
                 try
@@ -351,13 +352,13 @@ namespace bs.Frmwrk.Application
             var authRepository = typeof(IAuthRepository).GetTypeFromInterface();
             if (authRepository == null)
             {
-                throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface.");
+                throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface");
             }
 
             var securityRepository = typeof(ISecurityRepository).GetTypeFromInterface(); ;
             if (securityRepository == null)
             {
-                throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface.");
+                throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface");
             }
 
             builder.Services.AddScoped(typeof(IAuthRepository), authRepository);
@@ -386,7 +387,7 @@ namespace bs.Frmwrk.Application
                         ValidIssuer = securitySettings?.ValidTokenIssuer ?? "",
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securitySettings.Secret))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securitySettings!.Secret!))
                     };
                     //Added to autenticate Signal R(token is in the query part of the url)
                     options.Events = new JwtBearerEvents

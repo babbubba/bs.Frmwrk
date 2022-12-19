@@ -19,10 +19,6 @@ namespace bs.Frmwrk.Test.Repositories
             throw new NotImplementedException();
         }
 
-        public IAuditFailedLoginModel GetInstanceOfAuditFailedLogModel()
-        {
-            return new AuditFailedLoginBaseModel();
-        }
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
         {

@@ -7,6 +7,7 @@ using NHibernate.Type;
 
 namespace bs.Frmwrk.WebApiDemo.Models
 {
+#pragma warning disable CS8618
     public class UserModel : IUserModel, IRoledUser, IPersistentEntity
     {
         public virtual string Email { get; set; }
@@ -60,4 +61,5 @@ namespace bs.Frmwrk.WebApiDemo.Models
             }
         }
     }
+#pragma warning restore CS8618
 }

@@ -21,7 +21,7 @@ namespace bs.Frmwrk.Application.Controllers
             this.authRepository = authRepository;
         }
 
-        protected IPAddress ClientIp
+        protected IPAddress? ClientIp
         {
             get
             {

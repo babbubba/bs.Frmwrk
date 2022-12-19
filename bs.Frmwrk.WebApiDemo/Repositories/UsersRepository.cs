@@ -19,10 +19,7 @@ namespace bs.Frmwrk.WebApiDemo.Repositories
             throw new NotImplementedException();
         }
 
-        public IAuditFailedLoginModel GetInstanceOfAuditFailedLogModel()
-        {
-            return new AuditFailedLoginModel();
-        }
+
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
         {

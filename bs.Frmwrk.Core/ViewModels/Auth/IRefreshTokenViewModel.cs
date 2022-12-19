@@ -11,7 +11,7 @@
         /// <value>
         /// The access token.
         /// </value>
-        string AccessToken { get; set; }
+        string? AccessToken { get; set; }
 
         /// <summary>
         /// Gets or sets the refresh token.
@@ -19,7 +19,7 @@
         /// <value>
         /// The refresh token.
         /// </value>
-        string RefreshToken { get; set; }
+        string? RefreshToken { get; set; }
 
         /// <summary>
         /// Gets or sets the refresh tokent expire.
@@ -27,6 +27,6 @@
         /// <value>
         /// The refresh tokent expire.
         /// </value>
-        DateTime RefreshTokenExpire { get; set; }
+        DateTime? RefreshTokenExpire { get; set; }
     }
 }

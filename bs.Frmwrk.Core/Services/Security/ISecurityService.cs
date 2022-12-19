@@ -11,7 +11,11 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <summary>
         /// Occurs when [security event].
         /// </summary>
-        event EventHandler<ISecurityEventDto> SecurityEvent;
+        event EventHandler<ISecurityEventDto>? SecurityEvent;
+        /// <summary>
+        /// Occurs when [too many attempts event].
+        /// </summary>
+        event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
         /// <summary>
         /// Checks the password validity.
