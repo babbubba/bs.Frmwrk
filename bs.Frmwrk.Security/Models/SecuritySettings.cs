@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Core.Models.Configuration;
+using bs.Frmwrk.Core.Models.Security;
 
 namespace bs.Frmwrk.Security.Models
 {
@@ -16,5 +17,7 @@ namespace bs.Frmwrk.Security.Models
         public int? PasswordMinLength { get; set; }
         public bool? ValidateTokenIssuer { get; set; }
         public bool? ValidateTokenAudience { get; set; }
+        public PasswordScore PasswordComplexity { get; set; } = PasswordScore.Weak;
+
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace bs.Frmwrk.Core.Models.Configuration
+﻿using bs.Frmwrk.Core.Models.Security;
+
+namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
     ///
@@ -100,5 +102,12 @@
         /// The validate token audience.
         /// </value>
         bool? ValidateTokenAudience { get; set; }
+        /// <summary>
+        /// Gets or sets the password complexity.
+        /// </summary>
+        /// <value>
+        /// The password complexity.
+        /// </value>
+        PasswordScore PasswordComplexity { get; set; }
     }
 }

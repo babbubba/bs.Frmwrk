@@ -9,6 +9,8 @@ using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Security.Dtos;
+using bs.Frmwrk.Security.Models;
+using bs.Frmwrk.Security.Utilities;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
@@ -93,8 +95,13 @@ namespace bs.Frmwrk.Security.Services
                 errorMessage = translateService.Translate("La password è troppo corta (caratteri necessari {0}).", securitySettings.PasswordMinLength ?? 1);
                 return false;
             }
+            var currentPasswordScore = PasswordAdvisor.CheckStrength(password);
+            if (currentPasswordScore <= securitySettings.PasswordComplexity)
+            {
+                errorMessage = translateService.Translate("La password non è sufficientemente complessita (la complessità della password è '{1}' ma è richiesto '{0}').", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString());
+                return false;
+            }
 
-            //TODO: Implementa il check della validità della password con l'utility PasswordAdvisor
             errorMessage = null;
             return true;
         }
