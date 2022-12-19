@@ -457,7 +457,10 @@ namespace bs.Frmwrk.Application
             Log.Debug($"Environment.ContentRootPath: {contentRootPath}");
 
             var contentRootPath2 = AppContext.BaseDirectory;
-            Log.Debug($"AppContext.BaseDirectory: {contentRootPath}");
+            Log.Debug($"AppContext.BaseDirectory: {contentRootPath2}");
+
+            var contentRootPath3 = Assembly.GetExecutingAssembly().Location;
+            Log.Debug($"Assembly.GetExecutingAssembly().Location: {contentRootPath3}");
 
 
             var configfilePath = Path.Combine(contentRootPath, $"configuration.{builder.Environment.EnvironmentName}.json");
