@@ -12,6 +12,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual string Code { get; set; }
         public virtual string Name { get; set; }
         public virtual bool Enabled { get; set; }
+
         public class Map : ClassMapping<RoleModel>
         {
             public Map()

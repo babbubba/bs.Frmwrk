@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuthRequestDto
     {
@@ -12,6 +12,7 @@
         /// The name of the user.
         /// </value>
         public string UserName { get; set; }
+
         /// <summary>
         /// Gets or sets the password.
         /// </summary>

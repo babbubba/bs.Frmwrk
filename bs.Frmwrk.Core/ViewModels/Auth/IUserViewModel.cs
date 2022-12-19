@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.ViewModels.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IUserViewModel
     {
@@ -12,6 +12,7 @@
         /// The name of the user.
         /// </value>
         public string UserName { get; set; }
+
         /// <summary>
         /// Gets or sets the email.
         /// </summary>
@@ -19,6 +20,7 @@
         /// The email.
         /// </value>
         public string Email { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="IUserViewModel"/> is enabled.
         /// </summary>
@@ -26,6 +28,7 @@
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
         public bool Enabled { get; set; }
+
         /// <summary>
         /// Gets or sets the last login.
         /// </summary>
@@ -33,6 +36,7 @@
         /// The last login.
         /// </value>
         public DateTime? LastLogin { get; set; }
+
         /// <summary>
         /// Gets or sets the access token.
         /// </summary>
@@ -40,6 +44,7 @@
         /// The access token.
         /// </value>
         string AccessToken { get; set; }
+
         /// <summary>
         /// Gets or sets the refresh token.
         /// </summary>
@@ -47,6 +52,7 @@
         /// The refresh token.
         /// </value>
         string RefreshToken { get; set; }
+
         /// <summary>
         /// Gets or sets the refresh token expire.
         /// </summary>

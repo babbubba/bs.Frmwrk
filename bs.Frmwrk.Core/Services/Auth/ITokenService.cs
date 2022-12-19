@@ -4,7 +4,7 @@ using System.Security.Claims;
 namespace bs.Frmwrk.Core.Services.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ITokenService
     {

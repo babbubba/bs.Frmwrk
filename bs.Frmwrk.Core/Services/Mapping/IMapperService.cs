@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Services.Mapping
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IMapperService
     {
@@ -12,6 +12,7 @@
         /// <param name="source">The source.</param>
         /// <returns></returns>
         TDestination Map<TDestination>(object source);
+
         /// <summary>
         /// Maps the specified source.
         /// </summary>
@@ -20,6 +21,7 @@
         /// <param name="source">The source.</param>
         /// <returns></returns>
         TDestination Map<TSource, TDestination>(TSource source);
+
         /// <summary>
         /// Maps the specified source.
         /// </summary>
@@ -29,6 +31,7 @@
         /// <param name="destination">The destination.</param>
         /// <returns></returns>
         TDestination Map<TSource, TDestination>(TSource source, TDestination destination);
+
         /// <summary>
         /// Maps the specified source.
         /// </summary>
@@ -37,6 +40,7 @@
         /// <param name="destinationType">Type of the destination.</param>
         /// <returns></returns>
         object Map(object source, Type sourceType, Type destinationType);
+
         /// <summary>
         /// Maps the specified source.
         /// </summary>

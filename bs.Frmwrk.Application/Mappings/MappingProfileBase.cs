@@ -2,7 +2,6 @@
 
 namespace bs.Frmwrk.Application.Mappings
 {
-
     public class MappingProfileBase : MappingProfile
     {
         public MappingProfileBase()

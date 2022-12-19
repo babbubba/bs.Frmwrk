@@ -6,14 +6,14 @@
   "Logging": {
     "SeqEndpoint": "http://logs.italcom.it",
     "ApplicationName": "bs.Frmwrk.WebApiDemo",
-    "Debug":  true
+    "Debug": true
   },
   "Core": {
     "SignalRHubs": {
       "bs.Frmwrk.WebApiDemo.Hubs.TestHub": "testHub"
     },
     "AppRoles": {
-      "administrators":  "Administrators"
+      "administrators": "Administrators"
     }
   },
   "Security": {

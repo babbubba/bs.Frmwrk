@@ -1,8 +1,8 @@
 ﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Core.Exceptions;
-using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using Microsoft.Extensions.Logging;

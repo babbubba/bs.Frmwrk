@@ -7,7 +7,6 @@ using NHibernate.Type;
 
 namespace bs.Frmwrk.Test.Models
 {
-
     public class UserModel : IUserModel, IPersistentEntity
     {
         public virtual string Email { get; set; }
@@ -41,7 +40,7 @@ namespace bs.Frmwrk.Test.Models
                 Property(x => x.PasswordHash);
                 Property(x => x.RefreshToken);
                 Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());
-                Property(x => x.UserName, m=> m.UniqueKey("UQ__UserName"));
+                Property(x => x.UserName, m => m.UniqueKey("UQ__UserName"));
             }
         }
     }

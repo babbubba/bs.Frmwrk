@@ -2,8 +2,6 @@
 
 namespace bs.Frmwrk.Auth.Dtos
 {
-
-
     public class AuthEventDto : IAuthEventDto
     {
         public AuthEventDto(string userName, bool success, string message, string? clientIp)

@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Models.Security
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuditFailedLoginModel
     {

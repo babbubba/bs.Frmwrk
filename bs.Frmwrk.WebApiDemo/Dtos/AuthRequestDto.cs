@@ -3,7 +3,7 @@
 namespace bs.Frmwrk.WebApiDemo.Dtos
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <seealso cref="bs.Frmwrk.Core.Dtos.Auth.IAuthRequestDto" />
     public class AuthRequestDto : IAuthRequestDto

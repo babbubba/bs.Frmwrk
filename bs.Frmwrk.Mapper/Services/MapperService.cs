@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using bs.Frmwrk.Core.Mapper.Profiles;
 using bs.Frmwrk.Core.Services.Mapping;
 
 namespace bs.Frmwrk.Mapper.Services

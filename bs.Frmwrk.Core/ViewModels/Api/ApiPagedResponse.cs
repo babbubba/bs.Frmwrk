@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.ViewModels.Api
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="bs.Frmwrk.Core.ViewModels.Api.ApiResponse" />
@@ -15,6 +15,7 @@
         /// The data.
         /// </value>
         public IEnumerable<T> Data { get; set; }
+
         /// <summary>
         /// Gets or sets the draw.
         /// </summary>
@@ -22,6 +23,7 @@
         /// The draw.
         /// </value>
         public int Draw { get; set; }
+
         /// <summary>
         /// Gets or sets the records filtered.
         /// </summary>
@@ -29,6 +31,7 @@
         /// The records filtered.
         /// </value>
         public int RecordsFiltered { get; set; }
+
         /// <summary>
         /// Gets or sets the records total.
         /// </summary>

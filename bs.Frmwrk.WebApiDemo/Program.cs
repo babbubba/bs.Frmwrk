@@ -32,9 +32,6 @@ namespace bs.Frmwrk.WebApiDemo
                 Log.Information("Shut down complete");
                 Log.CloseAndFlush();
             }
-
-
-
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace bs.Frmwrk.Core.Repositories
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuthRepository
     {

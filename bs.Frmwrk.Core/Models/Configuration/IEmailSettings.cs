@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.Models.Configuration
+﻿namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IEmailSettings
     {
@@ -18,6 +12,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// From.
         /// </value>
         string From { get; set; }
+
         /// <summary>
         /// Gets or sets from display name.
         /// </summary>
@@ -25,6 +20,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// From display name.
         /// </value>
         string FromDisplayName { get; set; }
+
         /// <summary>
         /// Gets or sets the SMTP server.
         /// </summary>
@@ -32,6 +28,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The SMTP server.
         /// </value>
         string SmtpServer { get; set; }
+
         /// <summary>
         /// Gets or sets the port.
         /// </summary>
@@ -39,6 +36,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The port.
         /// </value>
         int Port { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the user.
         /// </summary>
@@ -46,6 +44,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The name of the user.
         /// </value>
         string UserName { get; set; }
+
         /// <summary>
         /// Gets or sets the password.
         /// </summary>

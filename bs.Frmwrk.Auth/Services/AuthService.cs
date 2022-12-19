@@ -37,6 +37,7 @@ namespace bs.Frmwrk.Auth.Services
         }
 
         public event EventHandler<IAuthEventDto> LoginEvent;
+
         public event EventHandler<IAuthEventDto> AuthEvent;
 
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
@@ -157,7 +158,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.Success = false;
                     response.ErrorMessage = T("Refresh token non valido o scaduto.");
                     response.ErrorCode = 202020001;
-                    OnAuthEvent(user?.UserName??"N/D", false, T("Refresh token non valido o scaduto."), clientIp);
+                    OnAuthEvent(user?.UserName ?? "N/D", false, T("Refresh token non valido o scaduto."), clientIp);
                     return response;
                 }
                 response.Value = new RefreshTokenViewModels

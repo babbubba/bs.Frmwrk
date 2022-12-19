@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ISecuritySettings
     {
@@ -92,6 +92,7 @@
         /// The validate token issuer.
         /// </value>
         bool? ValidateTokenIssuer { get; set; }
+
         /// <summary>
         /// Gets or sets the validate token audience.
         /// </summary>

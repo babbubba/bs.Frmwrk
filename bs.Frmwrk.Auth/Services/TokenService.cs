@@ -1,11 +1,12 @@
 ﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Auth.Dtos;
-using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using bs.Frmwrk.Core.Services.Mapping;
 
 namespace bs.Frmwrk.Auth.Services
 {

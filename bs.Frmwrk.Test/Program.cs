@@ -1,5 +1,4 @@
 ﻿using bs.Frmwrk.Application;
-using bs.Frmwrk.Test.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Serilog;
 

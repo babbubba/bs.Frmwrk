@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Exceptions
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <seealso cref="System.Exception" />
     public class BsException : Exception

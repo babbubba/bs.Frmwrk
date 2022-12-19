@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.Dtos.Auth
+﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuthEventDto
     {
@@ -18,6 +12,7 @@ namespace bs.Frmwrk.Core.Dtos.Auth
         /// The client ip.
         /// </value>
         string? ClientIp { get; }
+
         /// <summary>
         /// Gets the message.
         /// </summary>
@@ -25,6 +20,7 @@ namespace bs.Frmwrk.Core.Dtos.Auth
         /// The message.
         /// </value>
         string Message { get; }
+
         /// <summary>
         /// Gets a value indicating whether this <see cref="IAuthEventDto"/> is success.
         /// </summary>
@@ -32,6 +28,7 @@ namespace bs.Frmwrk.Core.Dtos.Auth
         ///   <c>true</c> if success; otherwise, <c>false</c>.
         /// </value>
         bool Success { get; }
+
         /// <summary>
         /// Gets the name of the user.
         /// </summary>

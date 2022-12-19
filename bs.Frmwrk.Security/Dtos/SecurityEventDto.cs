@@ -1,9 +1,4 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Security.Dtos
 {
@@ -24,7 +19,5 @@ namespace bs.Frmwrk.Security.Dtos
         public SecurityEventSeverity Severity { get; }
 
         public string? UserName { get; }
-
-        
     }
 }

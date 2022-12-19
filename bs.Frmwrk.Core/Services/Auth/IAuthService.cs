@@ -6,7 +6,7 @@ using bs.Frmwrk.Core.ViewModels.Auth;
 namespace bs.Frmwrk.Core.Services.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuthService
     {
@@ -14,6 +14,7 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// Occurs when [login event].
         /// </summary>
         event EventHandler<IAuthEventDto> LoginEvent;
+
         /// <summary>
         /// Occurs when [authentication event].
         /// </summary>

@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ICreateUserDto
     {
@@ -12,6 +12,7 @@
         /// The name of the user.
         /// </value>
         string UserName { get; set; }
+
         /// <summary>
         /// Gets or sets the email.
         /// </summary>
@@ -19,6 +20,7 @@
         /// The email.
         /// </value>
         string Email { get; set; }
+
         /// <summary>
         /// Gets or sets the password.
         /// </summary>
@@ -26,6 +28,7 @@
         /// The password.
         /// </value>
         string Password { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="ICreateUserDto"/> is enabled.
         /// </summary>

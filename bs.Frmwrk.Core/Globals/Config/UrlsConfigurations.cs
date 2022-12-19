@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Globals.Config
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class UrlsConfigurations
     {

@@ -7,7 +7,6 @@ using NHibernate.Type;
 
 namespace bs.Frmwrk.WebApiDemo.Models
 {
-
     public class UserModel : IUserModel, IRoledUser, IPersistentEntity
     {
         public virtual string Email { get; set; }

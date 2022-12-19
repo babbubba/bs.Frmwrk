@@ -5,15 +5,10 @@ using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Test.Models;
 using NHibernate.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Test.Repositories
 {
-    public class UsersRepository : Repository,  IAuthRepository, ISecurityRepository
+    public class UsersRepository : Repository, IAuthRepository, ISecurityRepository
     {
         public UsersRepository(IUnitOfWork unitOfwork) : base(unitOfwork)
         {

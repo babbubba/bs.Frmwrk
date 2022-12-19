@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ILoggingSettings
     {
@@ -12,6 +12,7 @@
         /// The path.
         /// </value>
         string? Path { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the log file.
         /// </summary>
@@ -19,6 +20,7 @@
         /// The name of the log file.
         /// </value>
         string? LogFileName { get; set; }
+
         /// <summary>
         /// Gets or sets the debug.
         /// </summary>
@@ -26,6 +28,7 @@
         /// The debug.
         /// </value>
         bool? Debug { get; set; }
+
         /// <summary>
         /// Gets or sets the retention days.
         /// </summary>
@@ -33,6 +36,7 @@
         /// The retention days.
         /// </value>
         int? RetentionDays { get; set; }
+
         /// <summary>
         /// Gets or sets the log file limit in bytes.
         /// </summary>
@@ -40,6 +44,7 @@
         /// The log file limit in bytes.
         /// </value>
         int? LogFileLimitInBytes { get; set; }
+
         /// <summary>
         /// Gets or sets the template.
         /// </summary>
@@ -47,6 +52,7 @@
         /// The template.
         /// </value>
         string? Template { get; set; }
+
         /// <summary>
         /// Gets or sets the seq endpoint.
         /// </summary>
@@ -54,6 +60,7 @@
         /// The seq endpoint.
         /// </value>
         string? SeqEndpoint { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the application.
         /// </summary>

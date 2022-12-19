@@ -10,6 +10,6 @@
   "Core": {
     "SignalRHubs": {
       "bs.Frmwrk.Test.Hubs.TestHub": "testHub"
-    } 
+    }
   }
 }

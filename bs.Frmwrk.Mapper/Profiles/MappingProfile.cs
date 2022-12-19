@@ -1,12 +1,5 @@
 ﻿using AutoMapper;
 using bs.Frmwrk.Core.Mapper.Profiles;
-using bs.Frmwrk.Core.Models.Auth;
-using bs.Frmwrk.Core.ViewModels.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Mapper.Profiles
 {
@@ -24,7 +17,7 @@ namespace bs.Frmwrk.Mapper.Profiles
             CreateMap<TSourceInterface, TDestinationClass>();
         }
 
-        public void CreateMappingWithReverse<TSourceInterface, TDestinationInterface, TSourceClass, TDestinationClass>() where TDestinationClass : TDestinationInterface  where TSourceClass : TSourceInterface
+        public void CreateMappingWithReverse<TSourceInterface, TDestinationInterface, TSourceClass, TDestinationClass>() where TDestinationClass : TDestinationInterface where TSourceClass : TSourceInterface
         {
             CreateMap<TSourceInterface, TDestinationInterface>().As<TDestinationClass>();
             CreateMap<TSourceInterface, TDestinationClass>();

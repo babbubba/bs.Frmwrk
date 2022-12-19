@@ -9,14 +9,13 @@ using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Security.Dtos;
-using bs.Frmwrk.Security.Models;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 
 namespace bs.Frmwrk.Security.Services
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <seealso cref="bs.Frmwrk.Core.Services.Security.ISecurityService" />
     public class SecurityService : ISecurityService
@@ -25,18 +24,22 @@ namespace bs.Frmwrk.Security.Services
         /// The logger
         /// </summary>
         private readonly ILogger<SecurityService> logger;
+
         /// <summary>
         /// The security repository
         /// </summary>
         private readonly ISecurityRepository securityRepository;
+
         /// <summary>
         /// The security settings
         /// </summary>
         private readonly ISecuritySettings securitySettings;
+
         /// <summary>
         /// The translate service
         /// </summary>
         private readonly ITranslateService translateService;
+
         /// <summary>
         /// The unit of work
         /// </summary>

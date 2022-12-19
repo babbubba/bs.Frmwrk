@@ -3,7 +3,7 @@
 namespace bs.Frmwrk.Core.Services.Base
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IBsService
     {

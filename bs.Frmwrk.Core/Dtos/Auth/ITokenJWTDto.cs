@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ITokenJWTDto
     {
@@ -12,6 +12,7 @@
         /// The token.
         /// </value>
         string Token { get; set; }
+
         /// <summary>
         /// Gets or sets the expire at.
         /// </summary>

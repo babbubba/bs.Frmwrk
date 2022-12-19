@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Mapper.Profiles
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IMappingProfile
     {
