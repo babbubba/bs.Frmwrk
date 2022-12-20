@@ -1,9 +1,16 @@
-﻿namespace bs.Frmwrk.Core.Models.Auth
+﻿using bs.Frmwrk.Core.Models.Auth;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace bs.Frmwrk.Core.Dtos.Security
 {
     /// <summary>
-    ///
+    /// 
     /// </summary>
-    public interface IPermissionModel
+    public interface IPermissionDto
     {
         /// <summary>
         /// Gets or sets the identifier.
@@ -11,7 +18,7 @@
         /// <value>
         /// The identifier.
         /// </value>
-        Guid Id { get; set; }
+        string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the code.
@@ -36,5 +43,7 @@
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
         bool Enabled { get; set; }
+
+
     }
 }

@@ -8,7 +8,8 @@ using NHibernate.Type;
 namespace bs.Frmwrk.WebApiDemo.Models
 {
 #pragma warning disable CS8618
-    public class UserModel : IUserModel, IRoledUser, IPersistentEntity
+
+    public class UserModel : IUserModel, IRoledUser, IPermissionedUser, IPersistentEntity
     {
         public virtual string Email { get; set; }
         public virtual bool Enabled { get; set; }
@@ -20,6 +21,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual DateTime? RefreshTokenExpire { get; set; }
         public virtual string UserName { get; set; }
         public virtual ICollection<IRoleModel> Roles { get; set; }
+        public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; }
 
         public class Map : ClassMapping<UserModel>
         {
@@ -49,8 +51,6 @@ namespace bs.Frmwrk.WebApiDemo.Models
                     collectionMapping.Table("UsersRoles");
                     collectionMapping.Cascade(Cascade.None);
                     collectionMapping.Key(k => k.Column("UserId"));
-                    //collectionMapping.Lazy(CollectionLazy.NoLazy);
-                    //collectionMapping.Fetch(CollectionFetchMode.Join);
                 },
                 map => map.ManyToMany(p =>
                 {
@@ -58,8 +58,33 @@ namespace bs.Frmwrk.WebApiDemo.Models
                     p.Class(typeof(RoleModel));
                     p.ForeignKey("FK__Roles_Users");
                 }));
+
+                Bag(x => x.UsersPermissions, collectionMapping => {
+                    collectionMapping.Inverse(true);
+                    collectionMapping.Cascade(Cascade.All);
+                    collectionMapping.Key(k => k.Column("UserId"));
+                }, map => map.OneToMany(p =>
+                {
+                    p.Class(typeof(UsersPermissionsModel));
+                }));
+
+                //Bag(x => x.Permissions, collectionMapping =>
+                //{
+                //    collectionMapping.Table("UsersPermissions");
+                //    collectionMapping.Cascade(Cascade.None);
+                //    collectionMapping.Key(k => k.Column("UserId"));
+                //},
+                //map => map.ManyToMany(p =>
+                //{
+                //    p.Column("PermissionId");
+                //    p.Class(typeof(PermissionModel));
+                //    p.ForeignKey("FK__Permissions_Users");
+                //}));
+
+
             }
         }
     }
+
 #pragma warning restore CS8618
 }

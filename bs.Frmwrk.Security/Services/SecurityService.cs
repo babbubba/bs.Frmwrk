@@ -1,5 +1,6 @@
 ﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Models.Auth;
@@ -7,6 +8,7 @@ using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Common;
@@ -17,6 +19,7 @@ using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata.Ecma335;
 
 #pragma warning disable CS1998
 
@@ -48,6 +51,7 @@ namespace bs.Frmwrk.Security.Services
         /// The translate service
         /// </summary>
         private readonly ITranslateService translateService;
+        private readonly IMapperService mapper;
 
         /// <summary>
         /// The unit of work
@@ -62,13 +66,14 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="unitOfWork">The unit of work.</param>
         /// <param name="securityRepository">The security repository.</param>
         /// <param name="translateService">The translate service.</param>
-        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ISecurityRepository securityRepository, ITranslateService translateService)
+        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ISecurityRepository securityRepository, ITranslateService translateService, IMapperService mapper)
         {
             this.logger = logger;
             this.securitySettings = securitySettings;
             this.unitOfWork = unitOfWork;
             this.securityRepository = securityRepository;
             this.translateService = translateService;
+            this.mapper = mapper;
         }
 
         /// <summary>
@@ -138,11 +143,13 @@ namespace bs.Frmwrk.Security.Services
             // Check users' permission and type
             if (user is IPermissionedUser permissionedUser)
             {
-                result = permissionedUser.Permissions.Any(p => p.Code == permissionCode && type <= p.Type);
+                result = permissionedUser.UsersPermissions.Any(up => up.Permission.Code == permissionCode && type <= up.Type);
             }
             else
             {
-                throw new BsException(2212191003, translateService.Translate("Utente non implementa la gestione dei permessi."));
+                //throw new BsException(2212191003, translateService.Translate("Utente non implementa la gestione dei permessi."));
+                // Skip check
+                result = false;
             }
 
             OnSecurityEvent(translateService.Translate("Verifica del permesso (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
@@ -237,6 +244,42 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="clientIp">The client ip.</param>
         protected void OnTooManyAttemptsEventEvent(string message, SecurityEventSeverity severity, string userName, string? clientIp = null) =>
                                                     TooManyAttemptsEvent?.Invoke(this, new SecurityEventDto(message, severity, userName, clientIp));
+
+        public async Task<IApiResponse> InitServiceAsync()
+        {
+            // Create the default permission
+            try
+            {
+                unitOfWork.BeginTransaction();
+                await CreatePermissionAsync(CreatePermissionDto("USERS_REGISTRY", "Anagrafica utenti"));
+                await CreatePermissionAsync(CreatePermissionDto("ROLES_REGISTRY", "Anagrafica ruoli"));
+                await CreatePermissionAsync(CreatePermissionDto("PERMISSIONS_REGISTRY", "Anagrafica permessi"));
+                await unitOfWork.TryCommitOrRollbackAsync();
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, ex.GetBaseException().Message);
+            }
+            return new ApiResponse();
+        }
+
+        public async Task<IPermissionModel> CreatePermissionAsync(IPermissionDto dto)
+        {
+            var model = mapper.Map<IPermissionModel>(dto);  
+            await securityRepository.CreatePermissionAsync(model);
+            return model;
+        }
+
+        public IPermissionDto CreatePermissionDto(string code, string name, bool enabled = true)
+        {
+            var permissionDtoType = typeof(IPermissionDto).GetTypeFromInterface() ?? throw new BsException(2212201042, translateService.Translate("Impossibile trovare una implementazione del modello 'IPermissionDto'"));
+            IPermissionDto permissionEntry = (IPermissionDto)Activator.CreateInstance(permissionDtoType)!;
+            permissionEntry.Code = code;
+            permissionEntry.Name = name;
+            permissionEntry.Enabled = enabled;
+            return permissionEntry;
+
+        }
     }
 
 }

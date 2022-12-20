@@ -10,7 +10,7 @@ namespace bs.Frmwrk.Test.Models
 {
 #pragma warning disable CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 
-    public class UserModel : IUserModel, IPersistentEntity
+    public class UserModel : IUserModel, IRoledUser, IPermissionedUser, IPersistentEntity
     {
         public virtual string Email { get; set; }
         public virtual bool Enabled { get; set; }
@@ -21,6 +21,8 @@ namespace bs.Frmwrk.Test.Models
         public virtual string? RefreshToken { get; set; }
         public virtual DateTime? RefreshTokenExpire { get; set; }
         public virtual string UserName { get; set; }
+        public virtual ICollection<IRoleModel> Roles { get; set; }
+        public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; }
 
         public class Map : ClassMapping<UserModel>
         {
@@ -44,6 +46,42 @@ namespace bs.Frmwrk.Test.Models
                 Property(x => x.RefreshToken);
                 Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());
                 Property(x => x.UserName, m => m.UniqueKey("UQ__UserName"));
+
+                Bag(x => x.Roles, collectionMapping =>
+                {
+                    collectionMapping.Table("UsersRoles");
+                    collectionMapping.Cascade(Cascade.None);
+                    collectionMapping.Key(k => k.Column("UserId"));
+                },
+                map => map.ManyToMany(p =>
+                {
+                    p.Column("RoleId");
+                    p.Class(typeof(RoleModel));
+                    p.ForeignKey("FK__Roles_Users");
+                }));
+
+                Bag(x => x.UsersPermissions, collectionMapping => {
+                    collectionMapping.Inverse(true);
+                    collectionMapping.Cascade(Cascade.All);
+                    collectionMapping.Key(k => k.Column("UserId"));
+                }, map => map.OneToMany(p =>
+                {
+                    p.Class(typeof(UsersPermissionsModel));
+                }));
+                //Bag(x => x.Permissions, collectionMapping =>
+                //{
+                //    collectionMapping.Table("UsersPermissions");
+                //    collectionMapping.Cascade(Cascade.None);
+                //    collectionMapping.Key(k => k.Column("UserId"));
+                //},
+                //map => map.ManyToMany(p =>
+                //{
+                //    p.Column("PermissionId");
+                //    p.Class(typeof(PermissionModel));
+                //    p.ForeignKey("FK__Permissions_Users");
+                //}));
+
+
             }
         }
     }

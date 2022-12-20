@@ -1,5 +1,6 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Models.Auth;
+using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Common;
 
@@ -8,7 +9,7 @@ namespace bs.Frmwrk.Core.Services.Security
     /// <summary>
     ///
     /// </summary>
-    public interface ISecurityService
+    public interface ISecurityService : IInitializableService
     {
         /// <summary>
         /// Occurs when [security event].

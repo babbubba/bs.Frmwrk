@@ -14,10 +14,16 @@ namespace bs.Frmwrk.WebApiDemo.Repositories
         {
         }
 
-        public async Task CreateUserAsync(IUserModel userModel)
+        public async Task CreatePermissionAsync(IPermissionModel model)
         {
-            await CreateAsync((UserModel)userModel);
+            await CreateAsync((PermissionModel)model);
         }
+
+        public Task CreateUserAsync(IUserModel userModel)
+        {
+            throw new NotImplementedException();
+        }
+
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
         {

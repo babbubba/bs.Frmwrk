@@ -11,6 +11,6 @@
         /// <value>
         /// The roles.
         /// </value>
-        public ICollection<IPermissionModel> Permissions { get; set; }
+        public ICollection<IUsersPermissionsModel> UsersPermissions { get; set; }
     }
 }
