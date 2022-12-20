@@ -8,6 +8,8 @@ using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Security;
+using bs.Frmwrk.Core.ViewModels.Api;
+using bs.Frmwrk.Core.ViewModels.Common;
 using bs.Frmwrk.Security.Dtos;
 using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Utilities;
@@ -16,8 +18,11 @@ using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using System.Diagnostics.CodeAnalysis;
 
+#pragma warning disable CS1998
+
 namespace bs.Frmwrk.Security.Services
 {
+
     /// <summary>
     ///
     /// </summary>
@@ -90,11 +95,6 @@ namespace bs.Frmwrk.Security.Services
                 return false;
             }
 
-            if (password.Length < (securitySettings.PasswordMinLength ?? 1))
-            {
-                errorMessage = translateService.Translate("La password è troppo corta (caratteri necessari {0}).", securitySettings.PasswordMinLength ?? 1);
-                return false;
-            }
             var currentPasswordScore = PasswordAdvisor.CheckStrength(password);
             if (currentPasswordScore <= securitySettings.PasswordComplexity)
             {
@@ -104,6 +104,17 @@ namespace bs.Frmwrk.Security.Services
 
             errorMessage = null;
             return true;
+        }
+
+        public IApiResponse<ISelectListItem> GetPasswordScore(string password)
+        {
+            PasswordScore score = 0;
+            if (!string.IsNullOrWhiteSpace(password))
+            {
+                score = PasswordAdvisor.CheckStrength(password);
+            }
+
+            return  new ApiResponse<ISelectListItem>(new SelectListItem(((int)score).ToString(), score.ToString()));
         }
 
         /// <summary>
@@ -149,7 +160,6 @@ namespace bs.Frmwrk.Security.Services
         /// 2212081135</exception>
         public async Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode)
         {
-#pragma warning disable CS1998
 
             if (user == null)
             {
@@ -163,7 +173,6 @@ namespace bs.Frmwrk.Security.Services
             var result = user.Roles.Any(r => r.Code == roleCode);
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
             return result;
-#pragma warning restore CS1998
         }
 
         /// <summary>
@@ -192,17 +201,21 @@ namespace bs.Frmwrk.Security.Services
                 if (usernameToDisable is not null)
                 {
                     usernameToDisable.Enabled = false;
-                    OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp);
+                    OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp??"*");
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}'. L'utente è stato disabilitato!", username.ToLower()));
                 }
             }
 
-            var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
-            if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
+            if(clientIp is not null)
             {
-                OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);
-                logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp?.ToLower() ?? "*"));
+                var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
+                if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
+                {
+                    OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);
+                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp?.ToLower() ?? "*"));
+                }
             }
+           
         }
 
         /// <summary>
@@ -225,4 +238,7 @@ namespace bs.Frmwrk.Security.Services
         protected void OnTooManyAttemptsEventEvent(string message, SecurityEventSeverity severity, string userName, string? clientIp = null) =>
                                                     TooManyAttemptsEvent?.Invoke(this, new SecurityEventDto(message, severity, userName, clientIp));
     }
+
 }
+
+#pragma warning restore CS1998

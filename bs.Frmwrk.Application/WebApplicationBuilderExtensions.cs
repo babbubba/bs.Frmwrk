@@ -43,12 +43,12 @@ namespace bs.Frmwrk.Application
 {
     public static class WebApplicationBuilderExtensions
     {
-        private static ICoreSettings coreSettings;
+        private static ICoreSettings? coreSettings;
         private static IDbContext? dbContext;
         private static IEmailSettings? emailSettings;
         private static IFileSystemSettings? fileSystemSettings;
         private static ILoggingSettings? loggingSettings;
-        private static ISecuritySettings securitySettings;
+        private static ISecuritySettings? securitySettings;
 
         public static void BootstrapFrmwrk(this WebApplicationBuilder builder)
         {

@@ -1,5 +1,7 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Models.Auth;
+using bs.Frmwrk.Core.ViewModels.Api;
+using bs.Frmwrk.Core.ViewModels.Common;
 
 namespace bs.Frmwrk.Core.Services.Security
 {
@@ -12,10 +14,18 @@ namespace bs.Frmwrk.Core.Services.Security
         /// Occurs when [security event].
         /// </summary>
         event EventHandler<ISecurityEventDto>? SecurityEvent;
+
         /// <summary>
         /// Occurs when [too many attempts event].
         /// </summary>
         event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
+
+        /// <summary>
+        /// Gets the password score.
+        /// </summary>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        IApiResponse<ISelectListItem> GetPasswordScore(string password);
 
         /// <summary>
         /// Checks the password validity.

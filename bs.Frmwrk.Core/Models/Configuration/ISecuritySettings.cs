@@ -79,13 +79,6 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// </value>
         int? FailedAccessMaxAttempts { get; set; }
 
-        /// <summary>
-        /// Gets or sets the minimum length of the password.
-        /// </summary>
-        /// <value>
-        /// The minimum length of the password.
-        /// </value>
-        int? PasswordMinLength { get; set; }
 
         /// <summary>
         /// Gets or sets the validate token issuer.
