@@ -25,12 +25,6 @@ namespace bs.Frmwrk.Test.Repositories
         }
 
 
-        public Task CreateUserAsync(IUserModel userModel)
-        {
-            throw new NotImplementedException();
-        }
-
-
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
         {
             throw new NotImplementedException();

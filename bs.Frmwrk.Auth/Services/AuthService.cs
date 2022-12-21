@@ -97,17 +97,22 @@ namespace bs.Frmwrk.Auth.Services
                 await unitOfWork.Session.SaveAsync(existingModel);
             }
 
-            if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
-            {
-                foreach (var roleId in dto.RolesIds)
-                {
-                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId.ToGuid()), r=>r.Id);
-                }
-            }
+            await AddRolesToUser(dto, existingModel);
 
             existingModel.PasswordHash = HashPassword(dto.Password);
 
             return existingModel;
+        }
+
+        private async Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel)
+        {
+            if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
+            {
+                foreach (var roleId in dto.RolesIds)
+                {
+                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId.ToGuid()), r => r.Id);
+                }
+            }
         }
 
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
@@ -125,6 +130,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorCode = 2212072057;
                     return response;
                 }
+
                 if (!CheckHashedPassword(user, authRequest.Password))
                 {
                     response.Success = false;
@@ -167,16 +173,17 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
+                if(await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == createUserDto.UserName))
+                {
+                    response.ErrorMessage = T("Il nome utente è già registrato!");
+                    response.ErrorCode = 2212211648;
+                    response.Success = false;
+                    return response;
+                }
+
                 var model = mapper.Map<IUserModel>(createUserDto);
 
-                // Map the roles
-                if (createUserDto.RolesIds != null && model is IRoledUser roledUser)
-                {
-                    foreach (var roleId in createUserDto.RolesIds)
-                    {
-                        roledUser.Roles.Add(await authRepository.GetRoleByIdAsync(roleId.ToGuid()));
-                    }
-                }
+                await AddRolesToUser(createUserDto, model);
 
                 if (!securityService.CheckPasswordValidity(createUserDto.Password, out string? passwordCheckingError))
                 {
@@ -188,7 +195,8 @@ namespace bs.Frmwrk.Auth.Services
 
                 model.PasswordHash = HashPassword(createUserDto.Password);
 
-                await authRepository.CreateUserAsync(model);
+                await unitOfWork.Session.SaveAsync(model);
+
                 response.Value = model.Id.ToString();
                 return response;
             }, "Errore creando l'utente");

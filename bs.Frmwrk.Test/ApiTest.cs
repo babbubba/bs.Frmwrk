@@ -1,22 +1,26 @@
-using bs.Frmwrk.Auth.Services;
+using bs.Data.Interfaces;
+using bs.Frmwrk.Auth.Dtos;
+using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Security;
-using bs.Frmwrk.Security.Services;
 using bs.Frmwrk.Shared;
 using bs.Frmwrk.Test.Dtos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NUnit.Framework;
-using Serilog;
+using NHibernate.Linq;
 
 namespace bs.Frmwrk.Test
 {
     public class ApiTest
     {
-        /// <summary>
-        /// Resolves the authentication service and try to login.
-        /// </summary>
+
+        public async Task<IUserModel> GetCurrentUser()
+        {
+            var uow = Root.ServiceProvider?.GetRequiredService<IUnitOfWork>();
+            return await uow.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == "admin");
+        }
+
         [Test]
         public async Task AuthService_Test()
         {
@@ -27,7 +31,7 @@ namespace bs.Frmwrk.Test
             Assert.That(authService, Is.Not.Null, "Cannot resolve AuthService from DI");
 
             log?.LogInformation("Testing authentication (user 'Admin')");
-            var authResponse = await authService.AuthenticateAsync(new AuthRequestDto ("admin", "Pa$$w0rd01!" ), "test-host");
+            var authResponse = await authService.AuthenticateAsync(new AuthRequestDto("admin", "Pa$$w0rd01!"), "test-host");
             Assert.That(authResponse, Is.Not.Null, "AuthenticateAsync doesnt work properly");
             Assert.That(authResponse.Success, Is.True, "Admin authentication fails");
 
@@ -35,6 +39,14 @@ namespace bs.Frmwrk.Test
             var authResponse2 = await authService.AuthenticateAsync(new AuthRequestDto("user", "Pa$$w0rd01!"), "test-host");
             Assert.That(authResponse2, Is.Not.Null, "AuthenticateAsync doesnt work properly");
             Assert.That(authResponse2.Success, Is.True, "User authentication fails");
+
+            //Create user
+            var newUser = new CreateUserDto("test", "Passw0rdDiProva@", new string[] {});
+            newUser.Email = "test@bsoft.it";
+            var createUserResponse = await authService.CreateUserAsync(newUser, await GetCurrentUser());
+
+            Assert.That(createUserResponse, Is.Not.Null, "CreateUserAsync doesnt work properly");
+            Assert.That(createUserResponse.Success, Is.True, $"Cannot create the user: {createUserResponse.ErrorMessage} ({createUserResponse.ErrorCode})");
         }
 
         [Test]
@@ -83,7 +95,6 @@ namespace bs.Frmwrk.Test
             Assert.That(getPasswordScoreResponse.Value.Id.ToEnum<PasswordScore>(), Is.EqualTo(PasswordScore.VeryStrong), "GetPasswordScore doesnt work properly");
 
             log?.LogInformation("Testing permissions");
-
         }
     }
 }

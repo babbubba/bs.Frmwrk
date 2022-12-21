@@ -27,7 +27,7 @@ namespace bs.Frmwrk.Security.Utilities
             if (Regex.Match(password, @".[!,@,#,$,%,^,&,*,?,_,~,£,(,)]", RegexOptions.ECMAScript).Success)
                 score++;
             
-            return score.ToEnum<PasswordScore>();
+            return score <= 5 ? score.ToEnum<PasswordScore>() : PasswordScore.VeryStrong;
         }
     }
 }

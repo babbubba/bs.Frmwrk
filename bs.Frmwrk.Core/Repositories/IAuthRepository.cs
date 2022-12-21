@@ -27,12 +27,5 @@ namespace bs.Frmwrk.Core.Repositories
         /// <param name="roleId">The role identifier.</param>
         /// <returns></returns>
         Task<IRoleModel> GetRoleByIdAsync(Guid roleId);
-
-        /// <summary>
-        /// Creates the user asynchronous.
-        /// </summary>
-        /// <param name="userModel">The user model.</param>
-        /// <returns></returns>
-        Task CreateUserAsync(IUserModel userModel);
     }
 }
