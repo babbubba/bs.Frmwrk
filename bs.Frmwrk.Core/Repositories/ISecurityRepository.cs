@@ -21,5 +21,11 @@ namespace bs.Frmwrk.Core.Repositories
         /// <param name="userName">Name of the user.</param>
         /// <returns></returns>
         Task<IUserModel> GetUserByUserNameAsync(string userName);
+        /// <summary>
+        /// Updates the permission asynchronous.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        Task UpdatePermissionAsync(IPermissionModel model);
     }
 }

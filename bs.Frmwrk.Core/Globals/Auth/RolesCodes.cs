@@ -3,16 +3,16 @@
     /// <summary>
     ///
     /// </summary>
-    public static class DefaultRolesCodes
+    public static class RolesCodes
     {
         /// <summary>
         /// The administrators
         /// </summary>
-        public const string Administrators = "administrators";
+        public const string ADMINISTRATOR = "administrators";
 
         /// <summary>
         /// The users
         /// </summary>
-        public const string Users = "users";
+        public const string USERS = "users";
     }
 }

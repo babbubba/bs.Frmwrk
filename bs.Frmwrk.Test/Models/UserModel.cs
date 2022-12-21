@@ -21,8 +21,8 @@ namespace bs.Frmwrk.Test.Models
         public virtual string? RefreshToken { get; set; }
         public virtual DateTime? RefreshTokenExpire { get; set; }
         public virtual string UserName { get; set; }
-        public virtual ICollection<IRoleModel> Roles { get; set; }
-        public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; }
+        public virtual ICollection<IRoleModel> Roles { get; set; } = new List<IRoleModel>();
+        public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; } = new List<IUsersPermissionsModel>();
 
         public class Map : ClassMapping<UserModel>
         {

@@ -4,11 +4,6 @@ using bs.Frmwrk.Core.ViewModels.Auth;
 using bs.Frmwrk.Mapper.Profiles;
 using bs.Frmwrk.Test.Models;
 using bs.Frmwrk.Test.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Test.Mappings
 {
@@ -17,7 +12,6 @@ namespace bs.Frmwrk.Test.Mappings
         public Mapping()
         {
             CreateMapping<IUserModel, IUserViewModel, UserViewModel>();
-            CreateMapping<IPermissionDto, IPermissionModel, PermissionModel>();
         }
     }
 }

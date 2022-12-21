@@ -1,8 +1,10 @@
 ﻿using bs.Data.Interfaces;
+using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
+using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Models.Security;
@@ -123,7 +125,7 @@ namespace bs.Frmwrk.Security.Services
         }
 
         /// <summary>
-        /// Checks the user permission asynchronous.
+        /// Checks the user permission asynchronous if user implements permissions.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="permissionCode">The permission code.</param>
@@ -137,7 +139,7 @@ namespace bs.Frmwrk.Security.Services
             // Administrator are allowed always
             if (user is IRoledUser roledUser)
             {
-                if (await CheckUserRoleAsync(roledUser, DefaultRolesCodes.Administrators)) return true;
+                if (await CheckUserRoleAsync(roledUser, RolesCodes.ADMINISTRATOR)) return true;
             }
 
             // Check users' permission and type
@@ -147,9 +149,8 @@ namespace bs.Frmwrk.Security.Services
             }
             else
             {
-                //throw new BsException(2212191003, translateService.Translate("Utente non implementa la gestione dei permessi."));
                 // Skip check
-                result = false;
+                result = true;
             }
 
             OnSecurityEvent(translateService.Translate("Verifica del permesso (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
@@ -251,9 +252,10 @@ namespace bs.Frmwrk.Security.Services
             try
             {
                 unitOfWork.BeginTransaction();
-                await CreatePermissionAsync(CreatePermissionDto("USERS_REGISTRY", "Anagrafica utenti"));
-                await CreatePermissionAsync(CreatePermissionDto("ROLES_REGISTRY", "Anagrafica ruoli"));
-                await CreatePermissionAsync(CreatePermissionDto("PERMISSIONS_REGISTRY", "Anagrafica permessi"));
+                await CreatePermissionIfNotExistsAsync(new  CreatePermissionDto(PermissionsCodes.USERS_REGISTRY, "Anagrafica utenti"));
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.ROLES_REGISTRY, "Anagrafica ruoli"));
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.PERMISSIONS_REGISTRY, "Anagrafica permessi"));
+
                 await unitOfWork.TryCommitOrRollbackAsync();
             }
             catch (Exception ex)
@@ -263,22 +265,21 @@ namespace bs.Frmwrk.Security.Services
             return new ApiResponse();
         }
 
-        public async Task<IPermissionModel> CreatePermissionAsync(IPermissionDto dto)
+        public async Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto)
         {
-            var model = mapper.Map<IPermissionModel>(dto);  
-            await securityRepository.CreatePermissionAsync(model);
-            return model;
-        }
-
-        public IPermissionDto CreatePermissionDto(string code, string name, bool enabled = true)
-        {
-            var permissionDtoType = typeof(IPermissionDto).GetTypeFromInterface() ?? throw new BsException(2212201042, translateService.Translate("Impossibile trovare una implementazione del modello 'IPermissionDto'"));
-            IPermissionDto permissionEntry = (IPermissionDto)Activator.CreateInstance(permissionDtoType)!;
-            permissionEntry.Code = code;
-            permissionEntry.Name = name;
-            permissionEntry.Enabled = enabled;
-            return permissionEntry;
-
+            IPermissionModel? existingPermission = await unitOfWork.Session.Query<IPermissionModel>().SingleOrDefaultAsync(p=>p.Code == dto.Code);
+            if (existingPermission != null)
+            {
+                mapper.Map(dto, existingPermission);
+                await securityRepository.UpdatePermissionAsync(existingPermission);
+            }
+            else
+            {
+                existingPermission = mapper.Map<IPermissionModel>(dto);
+                await securityRepository.CreatePermissionAsync(existingPermission);
+            }
+           
+            return existingPermission;
         }
     }
 

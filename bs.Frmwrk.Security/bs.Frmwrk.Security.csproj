@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\bs.Frmwrk.Auth\bs.Frmwrk.Auth.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Base\bs.Frmwrk.Base.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
   </ItemGroup>

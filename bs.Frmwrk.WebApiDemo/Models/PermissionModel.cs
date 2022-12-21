@@ -29,7 +29,7 @@ namespace bs.Frmwrk.WebApiDemo
                     x.UnsavedValue(Guid.Empty);
                 });
 
-                Property(x => x.Code);
+                Property(x => x.Code, map => map.UniqueKey("UQ__Permissions"));
                 Property(x => x.Enabled);
                 Property(x => x.Name);
             }

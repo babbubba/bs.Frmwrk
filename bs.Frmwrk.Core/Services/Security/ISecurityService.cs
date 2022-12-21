@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.ViewModels.Api;
@@ -60,5 +61,11 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
+        /// <summary>
+        /// Creates the permission if not exists asynchronous.
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        /// <returns></returns>
+        Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto);
     }
 }

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.Shared\bs.Frmwrk.Shared.csproj" />
   </ItemGroup>
 
 </Project>

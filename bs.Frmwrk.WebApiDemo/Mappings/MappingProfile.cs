@@ -11,7 +11,7 @@ namespace bs.Frmwrk.WebApiDemo.Mappings
         public Mapping()
         {
             CreateMapping<IUserModel, IUserViewModel, UserViewModel>();
-            CreateMapping<IPermissionDto, IPermissionModel, PermissionModel>();
+            CreateMapping<ICreatePermissionDto, IPermissionModel, PermissionModel>();
         }
     }
 }

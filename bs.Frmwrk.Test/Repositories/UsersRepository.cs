@@ -19,6 +19,12 @@ namespace bs.Frmwrk.Test.Repositories
             await CreateAsync((PermissionModel)model);
         }
 
+        public async Task UpdatePermissionAsync(IPermissionModel model)
+        {
+            await UpdateAsync((PermissionModel)model);
+        }
+
+
         public Task CreateUserAsync(IUserModel userModel)
         {
             throw new NotImplementedException();

@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\bs.Frmwrk.Base\bs.Frmwrk.Base.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.Mapper\bs.Frmwrk.Mapper.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Shared\bs.Frmwrk.Shared.csproj" />
   </ItemGroup>
 

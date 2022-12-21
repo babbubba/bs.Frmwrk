@@ -3,10 +3,14 @@ using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Auth.ViewModel;
 using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Core.Globals.Auth;
+using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
+using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
@@ -14,13 +18,15 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Auth;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Ubiety.Dns.Core;
 
 namespace bs.Frmwrk.Auth.Services
 {
-    public class AuthService : BsService, IAuthService
+    public class AuthService : BsService, IAuthService, IInitializableService
     {
         //TODO: Implementa recupera password
         //TODO: Implementa cambia password
@@ -36,9 +42,73 @@ namespace bs.Frmwrk.Auth.Services
             this.tokenService = tokenService;
         }
 
+        public async Task<IApiResponse> InitServiceAsync()
+        {
+            try
+            {
+                unitOfWork.BeginTransaction();
+                var administratorsRole = await CreateRoleIfNotExistsAsync(new CreateRoleDto(RolesCodes.ADMINISTRATOR, "Administrators"));
+                var usersRole = await CreateRoleIfNotExistsAsync(new CreateRoleDto(RolesCodes.USERS, "Users"));
+
+                await CreateUserIfNotExistsAsync(new CreateUserDto("admin", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }));
+                await CreateUserIfNotExistsAsync(new CreateUserDto("user", "Pa$$w0rd01!", new string[] { usersRole.Id.ToString() }));
+
+                await unitOfWork.TryCommitOrRollbackAsync();
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, ex.GetBaseException().Message);
+            }
+            return new ApiResponse();
+        }
+
         public event EventHandler<IAuthEventDto>? LoginEvent;
 
         public event EventHandler<IAuthEventDto>? AuthEvent;
+
+        public async Task<IRoleModel> CreateRoleIfNotExistsAsync(ICreateRoleDto dto)
+        {
+            IRoleModel? existingModel = await unitOfWork.Session.Query<IRoleModel>().SingleOrDefaultAsync(p => p.Code == dto.Code);
+            if (existingModel != null)
+            {
+                mapper.Map(dto, existingModel);
+                await unitOfWork.Session.UpdateAsync(existingModel);
+            }
+            else
+            {
+                existingModel = mapper.Map<IRoleModel>(dto);
+                await unitOfWork.Session.SaveAsync(existingModel);
+            }
+
+            return existingModel;
+        }
+
+        public async Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto)
+        {
+            IUserModel? existingModel = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(p => p.UserName == dto.UserName);
+            if (existingModel != null)
+            {
+                mapper.Map(dto, existingModel);
+                await unitOfWork.Session.UpdateAsync(existingModel);
+            }
+            else
+            {
+                existingModel = mapper.Map<IUserModel>(dto);
+                await unitOfWork.Session.SaveAsync(existingModel);
+            }
+
+            if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
+            {
+                foreach (var roleId in dto.RolesIds)
+                {
+                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId.ToGuid()), r=>r.Id);
+                }
+            }
+
+            existingModel.PasswordHash = HashPassword(dto.Password);
+
+            return existingModel;
+        }
 
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
         {
@@ -138,7 +208,6 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore aggiornando lo stato dell'utente");
         }
 #pragma warning restore CS1998
-
 
         public virtual async Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest, string? clientIp = null)
         {

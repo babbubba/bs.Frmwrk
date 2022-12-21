@@ -10,16 +10,8 @@ namespace bs.Frmwrk.Core.Dtos.Security
     /// <summary>
     /// 
     /// </summary>
-    public interface IPermissionDto
+    public interface ICreatePermissionDto
     {
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        string Id { get; set; }
-
         /// <summary>
         /// Gets or sets the code.
         /// </summary>
@@ -29,14 +21,6 @@ namespace bs.Frmwrk.Core.Dtos.Security
         string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        string Name { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether this <see cref="IRoleModel" /> is enabled.
         /// </summary>
         /// <value>
@@ -44,6 +28,12 @@ namespace bs.Frmwrk.Core.Dtos.Security
         /// </value>
         bool Enabled { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        string Label { get; set; }
     }
 }

@@ -1,17 +1,12 @@
-﻿namespace bs.Frmwrk.Core.Models.Auth
+﻿using bs.Frmwrk.Core.Mapper.Profiles;
+
+namespace bs.Frmwrk.Core.Models.Auth
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IPermissionModel
+    public interface IPermissionModel : IIdentified
     {
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        Guid Id { get; set; }
 
         /// <summary>
         /// Gets or sets the code.

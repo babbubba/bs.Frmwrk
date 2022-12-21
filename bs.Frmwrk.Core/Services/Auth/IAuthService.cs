@@ -50,5 +50,17 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="currentUser">The current user.</param>
         /// <returns></returns>
         Task<IApiResponse<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser);
+        /// <summary>
+        /// Creates the role if not exists asynchronous.
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        /// <returns></returns>
+        Task<IRoleModel> CreateRoleIfNotExistsAsync(ICreateRoleDto dto);
+        /// <summary>
+        /// Creates the user if not exists asynchronous.
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        /// <returns></returns>
+        Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto);
     }
 }
