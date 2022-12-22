@@ -29,13 +29,14 @@
         /// </value>
         string? SmtpServer { get; set; }
 
+
         /// <summary>
         /// Gets or sets the port.
         /// </summary>
         /// <value>
         /// The port.
         /// </value>
-        int? Port { get; set; }
+        int Port { get; set; } 
 
         /// <summary>
         /// Gets or sets the name of the user.

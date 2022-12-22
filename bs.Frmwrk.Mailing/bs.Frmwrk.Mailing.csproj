@@ -12,6 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NETCore.MailKit" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\bs.Frmwrk.Base\bs.Frmwrk.Base.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
   </ItemGroup>
 

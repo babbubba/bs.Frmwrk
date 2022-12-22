@@ -9,6 +9,7 @@ namespace bs.Frmwrk.Auth.Mappings
         public AuthMapping()
         {
             CreateMapping<ICreateUserDto, IUserModel>();
+            CreateMapping<IAuthRegisterDto, IUserModel>();
             CreateMapping<ICreateRoleDto, IRoleModel>();
         }
     }

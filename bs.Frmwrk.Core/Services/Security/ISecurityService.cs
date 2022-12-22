@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Dtos.Mailing;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Services.Base;
@@ -35,7 +36,7 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="password">The password.</param>
         /// <param name="errorMessage">The error message.</param>
         /// <returns></returns>
-        bool CheckPasswordValidity(string password, out string? errorMessage);
+        bool CheckPasswordValidity(string? password, out string? errorMessage);
 
         /// <summary>
         /// Checks the user permission asynchronous.
@@ -67,5 +68,11 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
         Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto);
+        /// <summary>
+        /// Sends the registration confirm link via mail if is enabled the VerifyEmail check in settings
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        Task SendRegistrationConfirmAsync(IUserModel model);
     }
 }

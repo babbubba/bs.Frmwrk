@@ -10,12 +10,14 @@ using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mailing;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Locale.Providers;
 using bs.Frmwrk.Locale.Services;
 using bs.Frmwrk.Mailing.Models;
+using bs.Frmwrk.Mailing.Services;
 using bs.Frmwrk.Mapper.Services;
 using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Services;
@@ -30,6 +32,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Org.BouncyCastle.Asn1.Cmp;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -64,6 +67,7 @@ namespace bs.Frmwrk.Application
 
             builder.InitLogging();
             builder.SetLocalization();
+            builder.SetMailing();
             builder.InitORM();
             builder.SetAuthorization();
             builder.SetFileSystem();
@@ -100,6 +104,10 @@ namespace bs.Frmwrk.Application
                 throw new BsException(2212161143, "Error in configuration file. The section 'Core' is mandatory.");
             }
             coreSection.Bind(coreSettings);
+            if (string.IsNullOrWhiteSpace(coreSettings.PublishUrl))
+            {
+                throw new BsException(2212151619, "Error in configuration file. 'Core' -> 'PublishUrl' is mandatory.");
+            }
             builder.Services.AddSingleton(coreSettings);
 
             securitySettings = new SecuritySettings();
@@ -122,6 +130,19 @@ namespace bs.Frmwrk.Application
             emailSettings = new EmailSettings();
             builder.Configuration.GetSection("Mailing").Bind(emailSettings);
             builder.Services.AddSingleton(emailSettings);
+        }
+
+        internal static void SetMailing(this WebApplicationBuilder builder)
+        {
+            if (emailSettings != null && emailSettings.SmtpServer != null && emailSettings.From != null)
+            {
+                builder.Services.AddScoped<IMailingService, MailingService>();
+            }
+            else
+            {
+                Log.Logger.Error("Cannot init Mailing Service. Check configuration file section 'Mailing'.");
+                throw new BsException(2212221445, "Cannot init Mailing Service. Check configuration file section 'Mailing'.");
+            }
         }
 
         internal static void InitLogging(this WebApplicationBuilder builder)

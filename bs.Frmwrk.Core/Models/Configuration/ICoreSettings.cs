@@ -68,5 +68,12 @@
         /// The signal r hubs.
         /// </value>
         IDictionary<string, string>? SignalRHubs { get; set; }
+        /// <summary>
+        /// Gets or sets the publish URL.
+        /// </summary>
+        /// <value>
+        /// The publish URL.
+        /// </value>
+        string? PublishUrl { get; set; }
     }
 }

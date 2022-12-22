@@ -1,6 +1,7 @@
 ﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Core.Dtos.Auth;
+using bs.Frmwrk.Core.Dtos.Mailing;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
@@ -10,10 +11,12 @@ using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mailing;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Common;
+using bs.Frmwrk.Mailing.Dtos;
 using bs.Frmwrk.Security.Dtos;
 using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Utilities;
@@ -54,6 +57,8 @@ namespace bs.Frmwrk.Security.Services
         /// </summary>
         private readonly ITranslateService translateService;
         private readonly IMapperService mapper;
+        private readonly ICoreSettings coreSettings;
+        private readonly IMailingService mailingService;
 
         /// <summary>
         /// The unit of work
@@ -68,7 +73,7 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="unitOfWork">The unit of work.</param>
         /// <param name="securityRepository">The security repository.</param>
         /// <param name="translateService">The translate service.</param>
-        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ISecurityRepository securityRepository, ITranslateService translateService, IMapperService mapper)
+        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ISecurityRepository securityRepository, ITranslateService translateService, IMapperService mapper, ICoreSettings coreSettings, IMailingService mailingService)
         {
             this.logger = logger;
             this.securitySettings = securitySettings;
@@ -76,6 +81,8 @@ namespace bs.Frmwrk.Security.Services
             this.securityRepository = securityRepository;
             this.translateService = translateService;
             this.mapper = mapper;
+            this.coreSettings = coreSettings;
+            this.mailingService = mailingService;
         }
 
         /// <summary>
@@ -88,13 +95,14 @@ namespace bs.Frmwrk.Security.Services
         /// </summary>
         public event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
+
         /// <summary>
         /// Checks the password validity.
         /// </summary>
         /// <param name="password">The password.</param>
         /// <param name="errorMessage">The error message.</param>
         /// <returns></returns>
-        public bool CheckPasswordValidity(string password, out string? errorMessage)
+        public bool CheckPasswordValidity(string? password, out string? errorMessage)
         {
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -209,7 +217,7 @@ namespace bs.Frmwrk.Security.Services
                 if (usernameToDisable is not null)
                 {
                     usernameToDisable.Enabled = false;
-                    OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp??"*");
+                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp??"*");
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}'. L'utente è stato disabilitato!", username.ToLower()));
                 }
             }
@@ -219,7 +227,7 @@ namespace bs.Frmwrk.Security.Services
                 var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
                 if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
                 {
-                    OnTooManyAttemptsEventEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);
+                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp?.ToLower() ?? "*"));
                 }
             }
@@ -243,7 +251,7 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="severity">The severity.</param>
         /// <param name="userName">Name of the user.</param>
         /// <param name="clientIp">The client ip.</param>
-        protected void OnTooManyAttemptsEventEvent(string message, SecurityEventSeverity severity, string userName, string? clientIp = null) =>
+        protected void OnTooManyAttemptsEvent(string message, SecurityEventSeverity severity, string userName, string? clientIp = null) =>
                                                     TooManyAttemptsEvent?.Invoke(this, new SecurityEventDto(message, severity, userName, clientIp));
 
         public async Task<IApiResponse> InitServiceAsync()
@@ -281,6 +289,27 @@ namespace bs.Frmwrk.Security.Services
            
             return existingPermission;
         }
+
+        public async Task SendRegistrationConfirmAsync(IUserModel user)
+        {
+            if(securitySettings.VerifyEmail)
+            {
+                //send email link
+                user.ModerationId= Guid.NewGuid();
+                var message = new MailMessageDto();
+                message.Subject = translateService.Translate($"Conferma email");
+                message.IsHtmlBody= true;
+                message.ToEmails = new string[] { user.Email };
+                message.Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ModerationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ModerationId.ToString())}</p>";
+                await mailingService.SendEmailAsync(message);
+            }
+        }
+
+        public string GetConfirmRegistrationUrl(string userId, string confirmationId)
+        {
+            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/ConfirmEmail?UserId={userId}&ConfirmationId={confirmationId}";
+        }
+
     }
 
 }

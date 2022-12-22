@@ -22,6 +22,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual string UserName { get; set; }
         public virtual ICollection<IRoleModel> Roles { get; set; }
         public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; }
+        public virtual Guid ModerationId { get; set; }
 
         public class Map : ClassMapping<UserModel>
         {
@@ -40,6 +41,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
                 Property(x => x.Email);
                 Property(x => x.Enabled);
                 Property(x => x.LastIp);
+                Property(x => x.ModerationId);
                 Property(x => x.LastLogin, map => map.Type<UtcDateTimeType>());
                 Property(x => x.PasswordHash);
                 Property(x => x.RefreshToken);

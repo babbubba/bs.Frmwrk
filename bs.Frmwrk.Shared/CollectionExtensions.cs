@@ -19,8 +19,9 @@ namespace bs.Frmwrk.Shared
             {
                 throw new BsException(2212211504, "Parameter is mandatory");
             }
+      
 
-            if (!collection.Any(v => parameter(v).Equals(parameter(itemToAdd))))
+            if (!collection.Any(v =>  parameter(v).Equals(parameter(itemToAdd))))
             {
                 collection.Add(itemToAdd);
             }

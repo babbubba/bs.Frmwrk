@@ -169,11 +169,11 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore in autenticazione");
         }
 
-        public virtual async Task<IApiResponse<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
+        public virtual async Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto)
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
-                if(await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == createUserDto.UserName))
+                if(await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == authRegisterDto.UserName))
                 {
                     response.ErrorMessage = T("Il nome utente è già registrato!");
                     response.ErrorCode = 2212211648;
@@ -181,11 +181,17 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                var model = mapper.Map<IUserModel>(createUserDto);
+                if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.Email == authRegisterDto.Email))
+                {
+                    response.ErrorMessage = T("L'indirizzo email è già registrato!");
+                    response.ErrorCode = 2212211649;
+                    response.Success = false;
+                    return response;
+                }
 
-                await AddRolesToUser(createUserDto, model);
+                var model = mapper.Map<IUserModel>(authRegisterDto);
 
-                if (!securityService.CheckPasswordValidity(createUserDto.Password, out string? passwordCheckingError))
+                if (!securityService.CheckPasswordValidity(authRegisterDto.Password, out string? passwordCheckingError))
                 {
                     response.Success = false;
                     response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
@@ -193,13 +199,14 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                model.PasswordHash = HashPassword(createUserDto.Password);
-
+                model.PasswordHash = HashPassword(authRegisterDto.Password);
                 await unitOfWork.Session.SaveAsync(model);
+
+                await securityService.SendRegistrationConfirmAsync(model);
 
                 response.Value = model.Id.ToString();
                 return response;
-            }, "Errore creando l'utente");
+            }, "Errore durante la registrazione dell'utente");
         }
 
         public virtual async Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user)
@@ -279,8 +286,12 @@ namespace bs.Frmwrk.Auth.Services
             return true;
         }
 
-        private static string HashPassword(string clearPassword)
+        private string HashPassword(string? clearPassword)
         {
+            if(string.IsNullOrWhiteSpace(clearPassword))
+            {
+                throw new BsException(2212221238, T("Impossibile mascherare una password vuota!"));
+            }
             byte[] salt = RandomNumberGenerator.GetBytes(16);
 
             var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);

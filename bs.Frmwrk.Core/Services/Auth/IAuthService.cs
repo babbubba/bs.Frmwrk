@@ -46,10 +46,9 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <summary>
         /// Creates the user asynchronous and return the new created user's id.
         /// </summary>
-        /// <param name="createUserDto">The create user dto.</param>
-        /// <param name="currentUser">The current user.</param>
+        /// <param name="authRegisterDto">The authentication register dto.</param>
         /// <returns></returns>
-        Task<IApiResponse<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser);
+        Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto);
         /// <summary>
         /// Creates the role if not exists asynchronous.
         /// </summary>

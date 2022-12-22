@@ -76,5 +76,14 @@
         /// The last ip.
         /// </value>
         string? LastIp { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the moderation identifier.
+        /// </summary>
+        /// <value>
+        /// The moderation identifier.
+        /// </value>
+        Guid ModerationId { get; set; }
     }
 }

@@ -41,9 +41,8 @@ namespace bs.Frmwrk.Test
             Assert.That(authResponse2.Success, Is.True, "User authentication fails");
 
             //Create user
-            var newUser = new CreateUserDto("test", "Passw0rdDiProva@", new string[] {});
-            newUser.Email = "test@bsoft.it";
-            var createUserResponse = await authService.CreateUserAsync(newUser, await GetCurrentUser());
+            var newUser = new AuthRegisterDto { UserName = "test", Password = "Passw0rdDiProva@", Email = "fcavallari@bsoftsolutions.it" };
+            var createUserResponse = await authService.RegisterNewUserAsync(newUser);
 
             Assert.That(createUserResponse, Is.Not.Null, "CreateUserAsync doesnt work properly");
             Assert.That(createUserResponse.Success, Is.True, $"Cannot create the user: {createUserResponse.ErrorMessage} ({createUserResponse.ErrorCode})");
