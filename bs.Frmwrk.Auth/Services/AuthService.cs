@@ -27,9 +27,10 @@ using Ubiety.Dns.Core;
 
 namespace bs.Frmwrk.Auth.Services
 {
+#pragma warning disable CS1998
+
     public class AuthService : BsService, IAuthService, IInitializableService
     {
-        //TODO: Implementa recupera password
         //TODO: Implementa cambia password
         //TODO: Implemnta registrazione (moderata)
 
@@ -241,7 +242,6 @@ namespace bs.Frmwrk.Auth.Services
 
         public virtual async Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user)
         {
-#pragma warning disable CS1998
             return await ExecuteTransactionAsync(async (response) =>
             {
                 if (user is not null)
@@ -252,7 +252,6 @@ namespace bs.Frmwrk.Auth.Services
                 return response;
             }, "Errore aggiornando lo stato dell'utente");
         }
-#pragma warning restore CS1998
 
         public virtual async Task<IApiResponse<IRefreshTokenViewModel>> RefreshAccessTokenAsync(IRefreshTokenRequestDto refreshTokenRequest, string? clientIp = null)
         {
@@ -358,5 +357,96 @@ namespace bs.Frmwrk.Auth.Services
 
             return tokenService.GenerateAccessToken(claims);
         }
+
+        public async Task<IApiResponse> RequestRecoveryUserPasswordLinkAsync(IRequestRecoveryUserPasswordLinkDto recoveryUserPasswordDto)
+        {
+            return await ExecuteTransactionAsync(async (response) =>
+            {
+                var user = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == recoveryUserPasswordDto.UserName && u.Email == recoveryUserPasswordDto.Email);
+                if (user is null)
+                {
+                    response.ErrorMessage = T("Impossibile trovare l'utente o l'email indicata");
+                    response.ErrorCode = 2301091518;
+                    response.Success = false;
+                    return response;
+                }
+
+                await securityService.SendRecoveryPasswordLinkAsync(user);
+
+                return response;
+            }, "Errore durante il ripristino della password dell'utente");
+        }
+
+        public async Task<IApiResponse> ChangePasswordAsync(IChangeUserPasswordDto  changeUserPasswordDto, IUserModel? currentUser)
+        {
+            return await ExecuteTransactionAsync(async (response) =>
+            {
+                var query = unitOfWork.Session.Query<IUserModel>();
+                query = query.Where(u => u.UserName == changeUserPasswordDto.UserName);
+
+                if (currentUser is null && string.IsNullOrWhiteSpace(changeUserPasswordDto.RecoveryPasswordId))
+                {
+                    response.ErrorMessage = T("Impossibile cambiare la password (id ripristino non valido)");
+                    response.ErrorCode = 2301091542;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (currentUser is not null && string.IsNullOrWhiteSpace(changeUserPasswordDto.OldPassword))
+                {
+                    response.ErrorMessage = T("Impossibile cambiare la password (password attuale non valida)");
+                    response.ErrorCode = 2301091548;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (currentUser is null)
+                {
+                    query = query.Where(u => u.RecoveryPasswordId == changeUserPasswordDto.RecoveryPasswordId.ToGuid());
+                }
+
+                var user = await query.SingleOrDefaultAsync();
+                if (user is null)
+                {
+                    response.ErrorMessage = T("Impossibile trovare l'utente o l'id per il ripristino della password");
+                    response.ErrorCode = 2301091543;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (currentUser is not null && !CheckHashedPassword(user, changeUserPasswordDto.OldPassword))
+                {
+                    response.ErrorMessage = T("Impossibile cambiare la password (password attuale non errata)");
+                    response.ErrorCode = 2301091550;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (changeUserPasswordDto.Password != changeUserPasswordDto.PasswordConfirm)
+                {
+                    response.ErrorMessage = T("Le password non coincidono");
+                    response.ErrorCode = 2301091544;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (!securityService.CheckPasswordValidity(changeUserPasswordDto.Password, out string? passwordCheckingError))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
+                    response.ErrorCode = 2301091545;
+                    return response;
+                }
+
+                user.PasswordHash = HashPassword(changeUserPasswordDto.Password);
+
+                await unitOfWork.Session.SaveAsync(user);
+                return response;
+            }, "Errore durante il cambiamento della password");
+        }
+
     }
+
+#pragma warning restore CS1998
+
 }

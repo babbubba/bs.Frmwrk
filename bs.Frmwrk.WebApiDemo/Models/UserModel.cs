@@ -24,6 +24,9 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; }
         public virtual Guid? ConfirmationId { get; set; }
 
+        public virtual Guid? RecoveryPasswordId { get; set; }
+
+
         public class Map : ClassMapping<UserModel>
         {
             public Map()
@@ -44,6 +47,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
                 Property(x => x.ConfirmationId);
                 Property(x => x.LastLogin, map => map.Type<UtcDateTimeType>());
                 Property(x => x.PasswordHash);
+                Property(x => x.RecoveryPasswordId);
                 Property(x => x.RefreshToken);
                 Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());
                 Property(x => x.UserName, m => m.UniqueKey("UQ__UserName"));

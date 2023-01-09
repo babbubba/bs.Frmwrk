@@ -25,6 +25,9 @@ namespace bs.Frmwrk.Test.Models
         public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; } = new List<IUsersPermissionsModel>();
         public virtual Guid? ConfirmationId { get; set; }
 
+        public virtual Guid? RecoveryPasswordId { get; set; }
+
+
 
         public class Map : ClassMapping<UserModel>
         {
@@ -45,6 +48,8 @@ namespace bs.Frmwrk.Test.Models
                 Property(x => x.LastIp);
                 Property(x => x.LastLogin, map => map.Type<UtcDateTimeType>());
                 Property(x => x.PasswordHash);
+                Property(x => x.RecoveryPasswordId);
+
                 Property(x => x.ConfirmationId);
                 Property(x => x.RefreshToken);
                 Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());

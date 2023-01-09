@@ -11,10 +11,10 @@ namespace bs.Frmwrk.Auth.Dtos
             RolesIds = rolesIds;
         }
 
-        public string UserName{get;set;}
-        public string Email{get;set;} = string.Empty;
-        public string Password{get;set;}
+        public string Email { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
-        public string[]? RolesIds{get;set;}
+        public string Password { get; set; }
+        public string[]? RolesIds { get; set; }
+        public string UserName { get; set; }
     }
 }

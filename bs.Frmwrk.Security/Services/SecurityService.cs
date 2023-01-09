@@ -306,9 +306,33 @@ namespace bs.Frmwrk.Security.Services
             }
         }
 
+        public async Task SendRecoveryPasswordLinkAsync(IUserModel user)
+        {
+            if (user.Enabled)
+            {
+                //send email link
+                user.RecoveryPasswordId = Guid.NewGuid();
+                var message = new MailMessageDto();
+                message.Subject = translateService.Translate($"Ripristino password");
+                message.IsHtmlBody = true;
+                message.ToEmails = new string[] { user.Email };
+                message.Body = @$"<p>Clicca <a href=""{GetRecoveryPasswordUrl(user.Id.ToString(), user.RecoveryPasswordId.ToString())}""> qui </a> per ripristinare la password.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetRecoveryPasswordUrl(user.Id.ToString(), user.RecoveryPasswordId.ToString())}</p>";
+                await mailingService.SendEmailAsync(message);
+            }
+            else
+            {
+
+            }
+        }
+
         public string GetConfirmRegistrationUrl(string userId, string confirmationId)
         {
             return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/ConfirmEmail?UserId={userId}&ConfirmationId={confirmationId}";
+        }
+
+        public string GetRecoveryPasswordUrl(string userId, string recoveryPasswordId)
+        {
+            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/RecoveryPassword?UserId={userId}&RecoveryPasswordId={recoveryPasswordId}";
         }
 
     }

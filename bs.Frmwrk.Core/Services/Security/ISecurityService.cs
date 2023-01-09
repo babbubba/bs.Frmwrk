@@ -74,5 +74,6 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="model">The model.</param>
         /// <returns></returns>
         Task SendRegistrationConfirmAsync(IUserModel model);
+        Task SendRecoveryPasswordLinkAsync(IUserModel user);
     }
 }

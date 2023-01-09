@@ -67,5 +67,18 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="confirmEmailDto">The confirm email dto.</param>
         /// <returns></returns>
         Task<IApiResponse> ConfirmEmailAsync(IConfirmEmailDto confirmEmailDto);
+        /// <summary>
+        /// Recoveries the user password asynchronous.
+        /// </summary>
+        /// <param name="recoveryUserPasswordDto">The recovery user password dto.</param>
+        /// <returns></returns>
+        Task<IApiResponse> RequestRecoveryUserPasswordLinkAsync(IRequestRecoveryUserPasswordLinkDto recoveryUserPasswordDto);
+        /// <summary>
+        /// Changes the password for user asynchronous.
+        /// </summary>
+        /// <param name="changeUserPasswordDto">The change user password dto.</param>
+        /// <param name="currentUser">The current user.</param>
+        /// <returns></returns>
+        Task<IApiResponse> ChangePasswordAsync(IChangeUserPasswordDto changeUserPasswordDto, IUserModel? currentUser);
     }
 }
