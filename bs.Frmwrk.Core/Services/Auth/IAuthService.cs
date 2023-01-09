@@ -61,5 +61,11 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
         Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto);
+        /// <summary>
+        /// Confirms the email asynchronous.
+        /// </summary>
+        /// <param name="confirmEmailDto">The confirm email dto.</param>
+        /// <returns></returns>
+        Task<IApiResponse> ConfirmEmailAsync(IConfirmEmailDto confirmEmailDto);
     }
 }

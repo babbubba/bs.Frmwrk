@@ -263,6 +263,7 @@ namespace bs.Frmwrk.Security.Services
                 await CreatePermissionIfNotExistsAsync(new  CreatePermissionDto(PermissionsCodes.USERS_REGISTRY, "Anagrafica utenti"));
                 await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.ROLES_REGISTRY, "Anagrafica ruoli"));
                 await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.PERMISSIONS_REGISTRY, "Anagrafica permessi"));
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.USERS_MODERATION, "Moderazione utenti"));
 
                 await unitOfWork.TryCommitOrRollbackAsync();
             }
@@ -295,12 +296,12 @@ namespace bs.Frmwrk.Security.Services
             if(securitySettings.VerifyEmail)
             {
                 //send email link
-                user.ModerationId= Guid.NewGuid();
+                user.ConfirmationId= Guid.NewGuid();
                 var message = new MailMessageDto();
                 message.Subject = translateService.Translate($"Conferma email");
                 message.IsHtmlBody= true;
                 message.ToEmails = new string[] { user.Email };
-                message.Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ModerationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ModerationId.ToString())}</p>";
+                message.Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}</p>";
                 await mailingService.SendEmailAsync(message);
             }
         }

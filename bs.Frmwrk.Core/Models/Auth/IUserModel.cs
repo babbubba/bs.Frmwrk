@@ -79,11 +79,11 @@
 
 
         /// <summary>
-        /// Gets or sets the moderation identifier.
+        /// Gets or sets the confirmation identifier.
         /// </summary>
         /// <value>
-        /// The moderation identifier.
+        /// The confirmation identifier.
         /// </value>
-        Guid ModerationId { get; set; }
+        Guid? ConfirmationId { get; set; }
     }
 }

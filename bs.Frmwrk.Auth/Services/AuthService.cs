@@ -17,6 +17,7 @@ using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Auth;
 using bs.Frmwrk.Shared;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using System.IdentityModel.Tokens.Jwt;
@@ -207,6 +208,35 @@ namespace bs.Frmwrk.Auth.Services
                 response.Value = model.Id.ToString();
                 return response;
             }, "Errore durante la registrazione dell'utente");
+        }
+
+        public virtual async Task<IApiResponse> ConfirmEmailAsync(IConfirmEmailDto confirmEmailDto)
+        {
+            return await ExecuteTransactionAsync(async (response) =>
+            {
+                var user = await unitOfWork.Session.GetAsync<IUserModel>(confirmEmailDto.UserId.ToGuid());
+                if (user is null)
+                {
+                    response.ErrorMessage = T("Impossibile trovare l'utente richiesto");
+                    response.ErrorCode = 2212221559;
+                    response.Success = false;
+                    return response;
+                }
+
+                if(user.ConfirmationId != confirmEmailDto.ConfirmationId.ToGuid())
+                {
+                    response.ErrorMessage = T("Link di conferma registrazione non valido");
+                    response.ErrorCode = 2212221600;
+                    response.Success = false;
+                    return response;
+                }
+
+                user.Enabled = true;
+                user.ConfirmationId = null;
+
+                await unitOfWork.Session.UpdateAsync(user);
+                return response;
+            }, "Errore durante la conferma della email dell'utente");
         }
 
         public virtual async Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user)

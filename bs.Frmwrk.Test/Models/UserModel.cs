@@ -23,7 +23,7 @@ namespace bs.Frmwrk.Test.Models
         public virtual string UserName { get; set; }
         public virtual ICollection<IRoleModel> Roles { get; set; } = new List<IRoleModel>();
         public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; } = new List<IUsersPermissionsModel>();
-        public virtual Guid ModerationId { get; set; }
+        public virtual Guid? ConfirmationId { get; set; }
 
 
         public class Map : ClassMapping<UserModel>
@@ -45,7 +45,7 @@ namespace bs.Frmwrk.Test.Models
                 Property(x => x.LastIp);
                 Property(x => x.LastLogin, map => map.Type<UtcDateTimeType>());
                 Property(x => x.PasswordHash);
-                Property(x => x.ModerationId);
+                Property(x => x.ConfirmationId);
                 Property(x => x.RefreshToken);
                 Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());
                 Property(x => x.UserName, m => m.UniqueKey("UQ__UserName"));

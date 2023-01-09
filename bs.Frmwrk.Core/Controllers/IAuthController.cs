@@ -1,15 +1,10 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace bs.Frmwrk.Core
+namespace bs.Frmwrk.Core.Controllers
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuthController
     {
@@ -21,17 +16,17 @@ namespace bs.Frmwrk.Core
         Task<IActionResult> ConfirmEmail(IConfirmEmailDto confirmEmailDto);
 
         /// <summary>
-        /// Registers the specified register dto.
-        /// </summary>
-        /// <param name="registerDto">The register dto.</param>
-        /// <returns></returns>
-        Task<IActionResult> Register(IAuthRegisterDto registerDto);
-
-        /// <summary>
         /// Logins the specified authentication request dto.
         /// </summary>
         /// <param name="authRequestDto">The authentication request dto.</param>
         /// <returns></returns>
         Task<IActionResult> Login(IAuthRequestDto authRequestDto);
+
+        /// <summary>
+        /// Registers the specified register dto.
+        /// </summary>
+        /// <param name="registerDto">The register dto.</param>
+        /// <returns></returns>
+        Task<IActionResult> Register(IAuthRegisterDto registerDto);
     }
 }

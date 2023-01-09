@@ -1,24 +1,20 @@
-﻿using bs.Data.Interfaces;
-using bs.Frmwrk.Base.Services;
-using bs.Frmwrk.Core.Dtos.Mailing;
+﻿using bs.Frmwrk.Core.Dtos.Mailing;
+using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Mailing;
-using bs.Frmwrk.Core.Services.Mapping;
-using bs.Frmwrk.Core.Services.Security;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using MimeKit;
-using MailKit.Net.Smtp;
 using MessagePriority = bs.Frmwrk.Core.Dtos.Mailing.MessagePriority;
-using bs.Frmwrk.Core.Exceptions;
 
 namespace bs.Frmwrk.Mailing.Services
 {
-    public class MailingService :  IMailingService
+    public class MailingService : IMailingService
     {
+        private readonly IEmailSettings emailSettings;
         private readonly ILogger<MailingService> logger;
         private readonly ITranslateService translateService;
-        private readonly IEmailSettings emailSettings;
 
         public MailingService(ILogger<MailingService> logger, ITranslateService translateService, IEmailSettings emailSettings)
         {
@@ -26,7 +22,6 @@ namespace bs.Frmwrk.Mailing.Services
             this.translateService = translateService;
             this.emailSettings = emailSettings;
         }
-  
 
         public async Task SendEmailAsync(IMailMessageDto messageDto)
         {
@@ -54,10 +49,9 @@ namespace bs.Frmwrk.Mailing.Services
 
         private MimeMessage CreateEmailMessage(IMailMessageDto messageDto)
         {
-
             var smtpEmailMessage = new MimeMessage();
             smtpEmailMessage.From.Add(new MailboxAddress(emailSettings.FromDisplayName ?? "", emailSettings.From));
-            if(messageDto.ToEmails != null) smtpEmailMessage.To.AddRange(messageDto.ToEmails.Select(m => new MailboxAddress("", m)));
+            if (messageDto.ToEmails != null) smtpEmailMessage.To.AddRange(messageDto.ToEmails.Select(m => new MailboxAddress("", m)));
             if (messageDto.CcEmails != null) smtpEmailMessage.Cc.AddRange(messageDto.CcEmails.Select(m => new MailboxAddress("", m)));
             if (messageDto.CcnEmails != null) smtpEmailMessage.Bcc.AddRange(messageDto.CcnEmails.Select(m => new MailboxAddress("", m)));
             smtpEmailMessage.Subject = messageDto.Subject;
@@ -68,13 +62,16 @@ namespace bs.Frmwrk.Mailing.Services
                     smtpEmailMessage.Priority = MimeKit.MessagePriority.NonUrgent;
 
                     break;
+
                 case MessagePriority.Normal:
                     smtpEmailMessage.Priority = MimeKit.MessagePriority.Normal;
 
                     break;
+
                 case MessagePriority.Urgent:
                     smtpEmailMessage.Priority = MimeKit.MessagePriority.Urgent;
                     break;
+
                 default:
                     break;
             }
