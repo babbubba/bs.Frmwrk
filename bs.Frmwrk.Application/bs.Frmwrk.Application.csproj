@@ -32,5 +32,8 @@
     <Version>$(AssemblyVersion)</Version>
     <RepositoryUrl>https://github.com/babbubba/bs.Frmwrk</RepositoryUrl>
     <PackageProjectUrl>https://github.com/babbubba/bs.Frmwrk</PackageProjectUrl>
+    <Authors>babbubba</Authors>
+    <Company>bSoft</Company>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 </Project>

@@ -10,6 +10,9 @@
     <FileVersion>1.2.0.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Authors>babbubba</Authors>
+    <Company>bSoft</Company>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
