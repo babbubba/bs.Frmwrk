@@ -69,10 +69,10 @@ namespace bs.Frmwrk.Application
             builder.InitLogging();
             builder.SetLocalization();
             builder.SetMailing();
+            builder.LoadExternalDll();
             builder.InitORM();
             builder.SetAuthorization();
             builder.SetFileSystem();
-            builder.LoadExternalDll();
             builder.RegisterRepositories();
             builder.RegisterServices();
             builder.SetMapper();
