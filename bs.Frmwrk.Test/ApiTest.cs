@@ -51,7 +51,7 @@ namespace bs.Frmwrk.Test
 
             // Try to receive the forgotten password
             log?.LogInformation("Registering new user (user 'test')");
-            var r8 = await authService.RequestRecoveryUserPasswordLinkAsync(new RequestRecoveryUserPasswordLinkDto { UserName = "user", Email = "test@test.com" });
+            var r8 = await authService.RequestRecoveryUserPasswordLinkAsync(new RequestRecoveryUserPasswordLinkDto { UserName = "user", Email = "user@test.com" });
             Assert.That(r8, Is.Not.Null, "RequestRecoveryUserPasswordLinkAsync doesnt work properly");
             Assert.That(r8.Success, Is.True, $"Cannot recover the user's password: {r8.ErrorMessage} ({r8.ErrorCode})");
         }
