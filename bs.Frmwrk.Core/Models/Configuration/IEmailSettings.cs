@@ -11,7 +11,7 @@
         /// <value>
         /// From.
         /// </value>
-        string From { get; set; }
+        string? From { get; set; }
 
         /// <summary>
         /// Gets or sets from display name.
@@ -19,7 +19,7 @@
         /// <value>
         /// From display name.
         /// </value>
-        string FromDisplayName { get; set; }
+        string? FromDisplayName { get; set; }
 
         /// <summary>
         /// Gets or sets the SMTP server.
@@ -27,7 +27,8 @@
         /// <value>
         /// The SMTP server.
         /// </value>
-        string SmtpServer { get; set; }
+        string? SmtpServer { get; set; }
+
 
         /// <summary>
         /// Gets or sets the port.
@@ -35,7 +36,7 @@
         /// <value>
         /// The port.
         /// </value>
-        int Port { get; set; }
+        int Port { get; set; } 
 
         /// <summary>
         /// Gets or sets the name of the user.
@@ -43,7 +44,7 @@
         /// <value>
         /// The name of the user.
         /// </value>
-        string UserName { get; set; }
+        string? UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password.
@@ -51,6 +52,6 @@
         /// <value>
         /// The password.
         /// </value>
-        string Password { get; set; }
+        string? Password { get; set; }
     }
 }

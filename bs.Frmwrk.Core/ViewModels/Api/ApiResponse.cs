@@ -73,6 +73,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiResponse{T}"/> class.
         /// </summary>
+        /// <param name="value">The value.</param>
+        public ApiResponse(T? value)
+        {
+            Value = value;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiResponse{T}"/> class.
+        /// </summary>
         /// <param name="success">if set to <c>true</c> [success].</param>
         /// <param name="errorMessage">The error message.</param>
         public ApiResponse(bool success, string errorMessage) : base(success, errorMessage) { }

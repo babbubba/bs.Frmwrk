@@ -4,9 +4,11 @@ using bs.Frmwrk.Auth.ViewModel;
 using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
+using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
@@ -14,16 +16,17 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Auth;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace bs.Frmwrk.Auth.Services
 {
-    public class AuthService : BsService, IAuthService
+#pragma warning disable CS1998
+
+    public class AuthService : BsService, IAuthService, IInitializableService
     {
-        //TODO: Implementa recupera password
-        //TODO: Implementa cambia password
         //TODO: Implemnta registrazione (moderata)
 
         protected readonly IAuthRepository authRepository;
@@ -36,9 +39,9 @@ namespace bs.Frmwrk.Auth.Services
             this.tokenService = tokenService;
         }
 
-        public event EventHandler<IAuthEventDto> LoginEvent;
+        public event EventHandler<IAuthEventDto>? AuthEvent;
 
-        public event EventHandler<IAuthEventDto> AuthEvent;
+        public event EventHandler<IAuthEventDto>? LoginEvent;
 
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
         {
@@ -55,6 +58,7 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorCode = 2212072057;
                     return response;
                 }
+
                 if (!CheckHashedPassword(user, authRequest.Password))
                 {
                     response.Success = false;
@@ -93,35 +97,159 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore in autenticazione");
         }
 
-        public virtual async Task<IApiResponse<string>> CreateUserAsync(ICreateUserDto createUserDto, IUserModel currentUser)
+        public async Task<IApiResponse> ChangePasswordAsync(IChangeUserPasswordDto changeUserPasswordDto, IUserModel? currentUser)
         {
-            return await ExecuteTransactionAsync<string>(async (response) =>
+            return await ExecuteTransactionAsync(async (response) =>
             {
-                var model = mapper.Map<IUserModel>(createUserDto);
+                var query = unitOfWork.Session.Query<IUserModel>();
+                query = query.Where(u => u.UserName == changeUserPasswordDto.UserName);
 
-                // Map the roles
-                if (createUserDto.RolesIds != null && model is IRoledUser roledUser)
+                if (currentUser is null && string.IsNullOrWhiteSpace(changeUserPasswordDto.RecoveryPasswordId))
                 {
-                    foreach (var roleId in createUserDto.RolesIds)
-                    {
-                        roledUser.Roles.Add(await authRepository.GetRoleByIdAsync(roleId.ToGuid()));
-                    }
-                }
-
-                if (!securityService.CheckPasswordValidity(createUserDto.Password, out string? passwordCheckingError))
-                {
+                    response.ErrorMessage = T("Impossibile cambiare la password (id ripristino non valido)");
+                    response.ErrorCode = 2301091542;
                     response.Success = false;
-                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
-                    response.ErrorCode = 2212042300;
                     return response;
                 }
 
-                model.PasswordHash = HashPassword(createUserDto.Password);
+                if (currentUser is not null && string.IsNullOrWhiteSpace(changeUserPasswordDto.OldPassword))
+                {
+                    response.ErrorMessage = T("Impossibile cambiare la password (password attuale non valida)");
+                    response.ErrorCode = 2301091548;
+                    response.Success = false;
+                    return response;
+                }
 
-                await authRepository.CreateUserAsync(model);
-                response.Value = model.Id.ToString();
+                if (currentUser is null)
+                {
+                    query = query.Where(u => u.RecoveryPasswordId == changeUserPasswordDto.RecoveryPasswordId.ToGuid());
+                }
+
+                var user = await query.SingleOrDefaultAsync();
+                if (user is null)
+                {
+                    response.ErrorMessage = T("Impossibile trovare l'utente o l'id per il ripristino della password");
+                    response.ErrorCode = 2301091543;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (currentUser is not null && !CheckHashedPassword(user, changeUserPasswordDto.OldPassword))
+                {
+                    response.ErrorMessage = T("Impossibile cambiare la password (password attuale non errata)");
+                    response.ErrorCode = 2301091550;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (changeUserPasswordDto.Password != changeUserPasswordDto.PasswordConfirm)
+                {
+                    response.ErrorMessage = T("Le password non coincidono");
+                    response.ErrorCode = 2301091544;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (!securityService.CheckPasswordValidity(changeUserPasswordDto.Password, out string? passwordCheckingError))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
+                    response.ErrorCode = 2301091545;
+                    return response;
+                }
+
+                user.PasswordHash = HashPassword(changeUserPasswordDto.Password);
+
+                await unitOfWork.Session.SaveAsync(user);
                 return response;
-            }, "Errore creando l'utente");
+            }, "Errore durante il cambiamento della password");
+        }
+
+        public virtual async Task<IApiResponse> ConfirmEmailAsync(IConfirmEmailDto confirmEmailDto)
+        {
+            return await ExecuteTransactionAsync(async (response) =>
+            {
+                var user = await unitOfWork.Session.GetAsync<IUserModel>(confirmEmailDto.UserId.ToGuid());
+                if (user is null)
+                {
+                    response.ErrorMessage = T("Impossibile trovare l'utente richiesto");
+                    response.ErrorCode = 2212221559;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (user.ConfirmationId != confirmEmailDto.ConfirmationId.ToGuid())
+                {
+                    response.ErrorMessage = T("Link di conferma registrazione non valido");
+                    response.ErrorCode = 2212221600;
+                    response.Success = false;
+                    return response;
+                }
+
+                user.Enabled = true;
+                user.ConfirmationId = null;
+
+                await unitOfWork.Session.UpdateAsync(user);
+                return response;
+            }, "Errore durante la conferma della email dell'utente");
+        }
+
+        public async Task<IRoleModel> CreateRoleIfNotExistsAsync(ICreateRoleDto dto)
+        {
+            IRoleModel? existingModel = await unitOfWork.Session.Query<IRoleModel>().SingleOrDefaultAsync(p => p.Code == dto.Code);
+            if (existingModel != null)
+            {
+                mapper.Map(dto, existingModel);
+                await unitOfWork.Session.UpdateAsync(existingModel);
+            }
+            else
+            {
+                existingModel = mapper.Map<IRoleModel>(dto);
+                await unitOfWork.Session.SaveAsync(existingModel);
+            }
+
+            return existingModel;
+        }
+
+        public async Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto)
+        {
+            IUserModel? existingModel = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(p => p.UserName == dto.UserName);
+            if (existingModel != null)
+            {
+                mapper.Map(dto, existingModel);
+                await unitOfWork.Session.UpdateAsync(existingModel);
+            }
+            else
+            {
+                existingModel = mapper.Map<IUserModel>(dto);
+                await unitOfWork.Session.SaveAsync(existingModel);
+            }
+
+            await AddRolesToUser(dto, existingModel);
+
+            existingModel.PasswordHash = HashPassword(dto.Password);
+
+            return existingModel;
+        }
+
+        public async Task<IApiResponse> InitServiceAsync()
+        {
+            try
+            {
+                unitOfWork.BeginTransaction();
+                var administratorsRole = await CreateRoleIfNotExistsAsync(new CreateRoleDto(RolesCodes.ADMINISTRATOR, "Administrators"));
+                var usersRole = await CreateRoleIfNotExistsAsync(new CreateRoleDto(RolesCodes.USERS, "Users"));
+
+                await CreateUserIfNotExistsAsync(new CreateUserDto("admin", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }) { Email = "admin@test.com" });
+                await CreateUserIfNotExistsAsync(new CreateUserDto("user", "Pa$$w0rd01!", new string[] { usersRole.Id.ToString() }) { Email = "user@test.com" });
+
+                await unitOfWork.TryCommitOrRollbackAsync();
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, ex.GetBaseException().Message);
+            }
+            return new ApiResponse();
         }
 
         public virtual async Task<IApiResponse> KeepAliveAsync(IKeepedAliveUser user)
@@ -141,6 +269,14 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<IRefreshTokenViewModel>(async (response) =>
             {
+                if (string.IsNullOrWhiteSpace(refreshTokenRequest?.AccessToken))
+                {
+                    response.ErrorMessage = T("Il campo AccessToken è obbligatorio!");
+                    response.ErrorCode = 2301100845;
+                    response.Success = false;
+                    return response;
+                }
+
                 var principal = tokenService.GetPrincipalFromExpiredToken(refreshTokenRequest.AccessToken);
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId is null)
@@ -175,11 +311,94 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore durante il rinnovo del token");
         }
 
-        protected void OnLoginEvent(string userName, bool success, string message, string? clientIp = null) =>
-                                            LoginEvent?.Invoke(this, new AuthEventDto(userName, success, message, clientIp));
+        public virtual async Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto)
+        {
+            return await ExecuteTransactionAsync<string>(async (response) =>
+            {
+                if (string.IsNullOrWhiteSpace(authRegisterDto?.UserName))
+                {
+                    response.ErrorMessage = T("Il nome utente è obbligatorio!");
+                    response.ErrorCode = 2301100841;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (string.IsNullOrWhiteSpace(authRegisterDto?.Password))
+                {
+                    response.ErrorMessage = T("La password è obbligatoria!");
+                    response.ErrorCode = 2301100842;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (string.IsNullOrWhiteSpace(authRegisterDto?.Email))
+                {
+                    response.ErrorMessage = T("L'email è obbligatoria!");
+                    response.ErrorCode = 2301100843;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == authRegisterDto.UserName))
+                {
+                    response.ErrorMessage = T("Il nome utente è già registrato!");
+                    response.ErrorCode = 2212211648;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.Email == authRegisterDto.Email))
+                {
+                    response.ErrorMessage = T("L'indirizzo email è già registrato!");
+                    response.ErrorCode = 2212211649;
+                    response.Success = false;
+                    return response;
+                }
+
+                var model = mapper.Map<IUserModel>(authRegisterDto);
+
+                if (!securityService.CheckPasswordValidity(authRegisterDto.Password, out string? passwordCheckingError))
+                {
+                    response.Success = false;
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
+                    response.ErrorCode = 2212042300;
+                    return response;
+                }
+
+                model.PasswordHash = HashPassword(authRegisterDto.Password);
+                await unitOfWork.Session.SaveAsync(model);
+
+                await securityService.SendRegistrationConfirmAsync(model);
+
+                response.Value = model.Id.ToString();
+                return response;
+            }, "Errore durante la registrazione dell'utente");
+        }
+
+        public async Task<IApiResponse> RequestRecoveryUserPasswordLinkAsync(IRequestRecoveryUserPasswordLinkDto recoveryUserPasswordDto)
+        {
+            return await ExecuteTransactionAsync(async (response) =>
+            {
+                var user = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == recoveryUserPasswordDto.UserName && u.Email == recoveryUserPasswordDto.Email);
+                if (user is null)
+                {
+                    response.ErrorMessage = T("Impossibile trovare l'utente o l'email indicata");
+                    response.ErrorCode = 2301091518;
+                    response.Success = false;
+                    return response;
+                }
+
+                await securityService.SendRecoveryPasswordLinkAsync(user);
+
+                return response;
+            }, "Errore durante il ripristino della password dell'utente");
+        }
 
         protected void OnAuthEvent(string userName, bool success, string message, string? clientIp = null) =>
                                          AuthEvent?.Invoke(this, new AuthEventDto(userName, success, message, clientIp));
+
+        protected void OnLoginEvent(string userName, bool success, string message, string? clientIp = null) =>
+                                            LoginEvent?.Invoke(this, new AuthEventDto(userName, success, message, clientIp));
 
         private static bool CheckHashedPassword(IUserModel user, string clearPassword)
         {
@@ -199,19 +418,15 @@ namespace bs.Frmwrk.Auth.Services
             return true;
         }
 
-        private static string HashPassword(string clearPassword)
+        private async Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel)
         {
-            byte[] salt = RandomNumberGenerator.GetBytes(16);
-
-            var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);
-            byte[] hash = pbkdf2.GetBytes(20);
-
-            byte[] hashBytes = new byte[36];
-            Array.Copy(salt, 0, hashBytes, 0, 16);
-            Array.Copy(hash, 0, hashBytes, 16, 20);
-
-            string passwordHash = Convert.ToBase64String(hashBytes);
-            return passwordHash;
+            if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
+            {
+                foreach (var roleId in dto.RolesIds)
+                {
+                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId.ToGuid()), r => r.Id);
+                }
+            }
         }
 
         private ITokenJWTDto GenerateClaimsAndToken(IUserModel user)
@@ -237,5 +452,26 @@ namespace bs.Frmwrk.Auth.Services
 
             return tokenService.GenerateAccessToken(claims);
         }
+
+        private string HashPassword(string? clearPassword)
+        {
+            if (string.IsNullOrWhiteSpace(clearPassword))
+            {
+                throw new BsException(2212221238, T("Impossibile mascherare una password vuota!"));
+            }
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
+
+            var pbkdf2 = new Rfc2898DeriveBytes(clearPassword, salt, 10000);
+            byte[] hash = pbkdf2.GetBytes(20);
+
+            byte[] hashBytes = new byte[36];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 20);
+
+            string passwordHash = Convert.ToBase64String(hashBytes);
+            return passwordHash;
+        }
     }
+
+#pragma warning restore CS1998
 }

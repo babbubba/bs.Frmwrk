@@ -10,12 +10,14 @@ using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
+using bs.Frmwrk.Core.Services.Mailing;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Locale.Providers;
 using bs.Frmwrk.Locale.Services;
 using bs.Frmwrk.Mailing.Models;
+using bs.Frmwrk.Mailing.Services;
 using bs.Frmwrk.Mapper.Services;
 using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Services;
@@ -30,10 +32,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Org.BouncyCastle.Asn1.Cmp;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -63,6 +67,7 @@ namespace bs.Frmwrk.Application
 
             builder.InitLogging();
             builder.SetLocalization();
+            builder.SetMailing();
             builder.InitORM();
             builder.SetAuthorization();
             builder.SetFileSystem();
@@ -99,6 +104,10 @@ namespace bs.Frmwrk.Application
                 throw new BsException(2212161143, "Error in configuration file. The section 'Core' is mandatory.");
             }
             coreSection.Bind(coreSettings);
+            if (string.IsNullOrWhiteSpace(coreSettings.PublishUrl))
+            {
+                throw new BsException(2212151619, "Error in configuration file. 'Core' -> 'PublishUrl' is mandatory.");
+            }
             builder.Services.AddSingleton(coreSettings);
 
             securitySettings = new SecuritySettings();
@@ -121,6 +130,19 @@ namespace bs.Frmwrk.Application
             emailSettings = new EmailSettings();
             builder.Configuration.GetSection("Mailing").Bind(emailSettings);
             builder.Services.AddSingleton(emailSettings);
+        }
+
+        internal static void SetMailing(this WebApplicationBuilder builder)
+        {
+            if (emailSettings != null && emailSettings.SmtpServer != null && emailSettings.From != null)
+            {
+                builder.Services.AddScoped<IMailingService, MailingService>();
+            }
+            else
+            {
+                Log.Logger.Error("Cannot init Mailing Service. Check configuration file section 'Mailing'.");
+                throw new BsException(2212221445, "Cannot init Mailing Service. Check configuration file section 'Mailing'.");
+            }
         }
 
         internal static void InitLogging(this WebApplicationBuilder builder)
@@ -250,7 +272,7 @@ namespace bs.Frmwrk.Application
         internal static void LoadExternalDll(this WebApplicationBuilder builder)
         {
             var result = new Dictionary<string, IApiResponse>();
-            var dllPaths = Directory.GetFiles(coreSettings.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
+            var dllPaths = Directory.GetFiles(coreSettings?.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings?.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
             foreach (var dllPath in dllPaths)
             {
                 try
@@ -351,13 +373,13 @@ namespace bs.Frmwrk.Application
             var authRepository = typeof(IAuthRepository).GetTypeFromInterface();
             if (authRepository == null)
             {
-                throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface.");
+                throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface");
             }
 
             var securityRepository = typeof(ISecurityRepository).GetTypeFromInterface(); ;
             if (securityRepository == null)
             {
-                throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface.");
+                throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface");
             }
 
             builder.Services.AddScoped(typeof(IAuthRepository), authRepository);
@@ -386,7 +408,7 @@ namespace bs.Frmwrk.Application
                         ValidIssuer = securitySettings?.ValidTokenIssuer ?? "",
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securitySettings.Secret))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securitySettings!.Secret!))
                     };
                     //Added to autenticate Signal R(token is in the query part of the url)
                     options.Events = new JwtBearerEvents
@@ -452,15 +474,18 @@ namespace bs.Frmwrk.Application
 
         internal static void SetCustomConfigFile(this WebApplicationBuilder builder)
         {
-            var configfilePath = Path.Combine(builder.Environment.ContentRootPath, $"configuration.{builder.Environment.EnvironmentName}.json");
+            var contentRootPath = builder.Environment.ContentRootPath;
+            var environmentName = builder.Environment.EnvironmentName.ToLower();
+
+            var configfilePath = Path.Combine(contentRootPath, $"configuration.{environmentName}.json");
             if (!File.Exists(configfilePath))
             {
                 // Cannot init application because config file doesnt exist
                 throw new Exception($"No valid configuration file found at path: {configfilePath}");
             }
 
-            builder.Configuration.SetBasePath(builder.Environment.ContentRootPath);
-            builder.Configuration.AddJsonFile($"configuration.{builder.Environment.EnvironmentName}.json", optional: false, reloadOnChange: true);
+            builder.Configuration.SetBasePath(contentRootPath);
+            builder.Configuration.AddJsonFile($"configuration.{environmentName}.json", optional: false, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
         }
 

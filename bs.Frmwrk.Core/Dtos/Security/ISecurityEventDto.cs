@@ -35,7 +35,7 @@
         /// <value>
         /// The name of the user.
         /// </value>
-        string UserName { get; }
+        string? UserName { get; }
     }
 
     /// <summary>

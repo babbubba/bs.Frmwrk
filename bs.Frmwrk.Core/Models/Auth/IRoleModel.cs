@@ -27,7 +27,7 @@
         /// <value>
         /// The name.
         /// </value>
-        public string Name { get; set; }
+        public string Label { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="IRoleModel"/> is enabled.

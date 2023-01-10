@@ -6,10 +6,17 @@
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Authors>babbubba</Authors>
+    <Company>bSoft</Company>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+  </ItemGroup>
 
 </Project>

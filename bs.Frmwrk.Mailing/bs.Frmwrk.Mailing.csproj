@@ -6,12 +6,20 @@
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
+    <Authors>babbubba</Authors>
+    <Company>bSoft</Company>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NETCore.MailKit" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\bs.Frmwrk.Base\bs.Frmwrk.Base.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
   </ItemGroup>
 

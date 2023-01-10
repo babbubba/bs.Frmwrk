@@ -1,17 +1,12 @@
-﻿namespace bs.Frmwrk.Core.Models.Auth
+﻿using bs.Frmwrk.Core.Mapper.Profiles;
+
+namespace bs.Frmwrk.Core.Models.Auth
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IPermissionModel
+    public interface IPermissionModel : IIdentified
     {
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        Guid Id { get; set; }
 
         /// <summary>
         /// Gets or sets the code.
@@ -36,13 +31,5 @@
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
         bool Enabled { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the permission (the int value of enum is greater as greater is the security).
-        /// </summary>
-        /// <value>
-        /// The type.
-        /// </value>
-        PermissionType Type { get; set; }
     }
 }

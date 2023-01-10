@@ -6,9 +6,12 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>$(AssemblyName)</Title>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <FileVersion>1.2.1.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
+    <Authors>babbubba</Authors>
+    <Company>bSoft</Company>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\bs.Frmwrk.Auth\bs.Frmwrk.Auth.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Base\bs.Frmwrk.Base.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.Mailing\bs.Frmwrk.Mailing.csproj" />
   </ItemGroup>
 
 </Project>

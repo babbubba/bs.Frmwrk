@@ -14,7 +14,7 @@ namespace bs.Frmwrk.Auth.ViewModel
         /// <value>
         /// The access token.
         /// </value>
-        public string AccessToken { get; set; }
+        public string? AccessToken { get; set; }
 
         /// <summary>
         /// Gets or sets the refresh token.
@@ -22,7 +22,7 @@ namespace bs.Frmwrk.Auth.ViewModel
         /// <value>
         /// The refresh token.
         /// </value>
-        public string RefreshToken { get; set; }
+        public string? RefreshToken { get; set; }
 
         /// <summary>
         /// Gets or sets the refresh tokent expire.
@@ -30,6 +30,6 @@ namespace bs.Frmwrk.Auth.ViewModel
         /// <value>
         /// The refresh tokent expire.
         /// </value>
-        public DateTime RefreshTokenExpire { get; set; }
+        public DateTime? RefreshTokenExpire { get; set; }
     }
 }

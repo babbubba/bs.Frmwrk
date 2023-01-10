@@ -14,15 +14,16 @@ namespace bs.Frmwrk.Test.Repositories
         {
         }
 
-        public Task CreateUserAsync(IUserModel userModel)
+        public async Task CreatePermissionAsync(IPermissionModel model)
         {
-            throw new NotImplementedException();
+            await CreateAsync((PermissionModel)model);
         }
 
-        public IAuditFailedLoginModel GetInstanceOfAuditFailedLogModel()
+        public async Task UpdatePermissionAsync(IPermissionModel model)
         {
-            return new AuditFailedLoginBaseModel();
+            await UpdateAsync((PermissionModel)model);
         }
+
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
         {

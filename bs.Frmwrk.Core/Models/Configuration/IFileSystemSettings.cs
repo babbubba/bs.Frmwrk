@@ -27,7 +27,7 @@
         /// <value>
         /// The root path.
         /// </value>
-        string RootPath { get; set; }
+        string? RootPath { get; set; }
 
         /// <summary>
         /// Gets or sets the value length limit.

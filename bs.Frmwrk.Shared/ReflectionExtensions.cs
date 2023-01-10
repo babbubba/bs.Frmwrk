@@ -50,5 +50,25 @@ namespace bs.Frmwrk.Shared
             .SelectMany(s => s.GetTypes())
             .Where(p => interfaceType.IsAssignableFrom(p) && !p.IsAbstract && !p.IsInterface);
         }
+
+        /// <summary>
+        /// Gets the attribute of the memeber if the memeber has the attribute.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="member">The member.</param>
+        /// <returns></returns>
+        public static T? GetAttributeOfMember<T>(this object member) where T : System.Attribute
+        {
+            if (member == null) return null;
+            var type = member.GetType();
+            string? memberName = member.ToString();
+
+            if (memberName == null) return null;
+            var memInfo = type.GetMember(memberName);
+
+            if (memInfo == null || memInfo.Length == 0) return null;
+            var attributes = memInfo[0].GetCustomAttributes(typeof(T), false);
+            return (attributes.Length > 0) ? (T)attributes[0] : null;
+        }
     }
 }

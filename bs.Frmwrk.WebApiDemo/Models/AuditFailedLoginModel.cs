@@ -6,6 +6,8 @@ using NHibernate.Type;
 
 namespace bs.Frmwrk.WebApiDemo.Models
 {
+#pragma warning disable CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
+
     public class AuditFailedLoginModel : IAuditFailedLoginModel
     {
         public virtual string? ClientIp { get; set; }
@@ -33,4 +35,6 @@ namespace bs.Frmwrk.WebApiDemo.Models
             }
         }
     }
+#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
+
 }

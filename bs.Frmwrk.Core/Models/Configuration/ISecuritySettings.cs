@@ -1,4 +1,6 @@
-﻿namespace bs.Frmwrk.Core.Models.Configuration
+﻿using bs.Frmwrk.Core.Models.Security;
+
+namespace bs.Frmwrk.Core.Models.Configuration
 {
     /// <summary>
     ///
@@ -77,13 +79,6 @@
         /// </value>
         int? FailedAccessMaxAttempts { get; set; }
 
-        /// <summary>
-        /// Gets or sets the minimum length of the password.
-        /// </summary>
-        /// <value>
-        /// The minimum length of the password.
-        /// </value>
-        int? PasswordMinLength { get; set; }
 
         /// <summary>
         /// Gets or sets the validate token issuer.
@@ -100,5 +95,19 @@
         /// The validate token audience.
         /// </value>
         bool? ValidateTokenAudience { get; set; }
+        /// <summary>
+        /// Gets or sets the password complexity.
+        /// </summary>
+        /// <value>
+        /// The password complexity.
+        /// </value>
+        PasswordScore PasswordComplexity { get; set; }
+        /// <summary>
+        /// Gets a value indicating whether [verify email].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [verify email]; otherwise, <c>false</c>.
+        /// </value>
+        bool VerifyEmail { get; }
     }
 }
