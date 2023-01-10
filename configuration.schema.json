@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "Database": {
+      "type": "object",
+      "properties": {
+        "DatabaseEngineType": {
+          "type": "string"
+        },
+        "ConnectionString": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "DatabaseEngineType",
+        "ConnectionString"
+      ]
+    },
+    "Logging": {
+      "type": "object",
+      "properties": {
+        "SeqEndpoint": {
+          "type": "string"
+        },
+        "ApplicationName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "SeqEndpoint",
+        "ApplicationName"
+      ]
+    },
+    "Core": {
+      "type": "object",
+      "properties": {
+        "PublishUrl": {
+          "type": "string"
+        },
+        "SignalRHubs": {
+          "type": "object",
+          "properties": {
+            "bs.Frmwrk.Test.Hubs.TestHub": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "bs.Frmwrk.Test.Hubs.TestHub"
+          ]
+        }
+      },
+      "required": [
+        "PublishUrl",
+        "SignalRHubs"
+      ]
+    },
+    "Security": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "type": "string"
+        },
+        "PasswordComplexity": {
+          "type": "integer"
+        },
+        "VerifyEmail": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "secret",
+        "PasswordComplexity",
+        "VerifyEmail"
+      ]
+    },
+    "Mailing": {
+      "type": "object",
+      "properties": {
+        "From": {
+          "type": "string"
+        },
+        "FromDisplayName": {
+          "type": "string"
+        },
+        "SmtpServer": {
+          "type": "string"
+        },
+        "Port": {
+          "type": "integer"
+        },
+        "Username": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "From",
+        "FromDisplayName",
+        "SmtpServer",
+        "Port",
+        "Username",
+        "Password"
+      ]
+    }
+  },
+  "required": [
+    "Database",
+    "Logging",
+    "Core",
+    "Security",
+    "Mailing"
+  ]
+}
