@@ -28,7 +28,6 @@
         }
       },
       "required": [
-        "SeqEndpoint",
         "ApplicationName"
       ]
     },
@@ -51,8 +50,7 @@
         }
       },
       "required": [
-        "PublishUrl",
-        "SignalRHubs"
+        "PublishUrl"
       ]
     },
     "Security": {
@@ -69,9 +67,7 @@
         }
       },
       "required": [
-        "secret",
-        "PasswordComplexity",
-        "VerifyEmail"
+        "secret"
       ]
     },
     "Mailing": {
