@@ -49,4 +49,4 @@ jobs:
       uses: NuGet/setup-nuget@v1.0.5
 
     - name: Publish   
-      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -SkipDuplicate -ApiKey ${{secrets.NUGET_API_KEY}}
