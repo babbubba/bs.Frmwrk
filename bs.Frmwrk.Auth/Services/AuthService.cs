@@ -31,7 +31,6 @@ namespace bs.Frmwrk.Auth.Services
 
     public class AuthService : BsService, IAuthService, IInitializableService
     {
-        //TODO: Implementa cambia password
         //TODO: Implemnta registrazione (moderata)
 
         protected readonly IAuthRepository authRepository;
@@ -52,8 +51,9 @@ namespace bs.Frmwrk.Auth.Services
                 var administratorsRole = await CreateRoleIfNotExistsAsync(new CreateRoleDto(RolesCodes.ADMINISTRATOR, "Administrators"));
                 var usersRole = await CreateRoleIfNotExistsAsync(new CreateRoleDto(RolesCodes.USERS, "Users"));
 
-                await CreateUserIfNotExistsAsync(new CreateUserDto("admin", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }));
-                await CreateUserIfNotExistsAsync(new CreateUserDto("user", "Pa$$w0rd01!", new string[] { usersRole.Id.ToString() }));
+                
+                await CreateUserIfNotExistsAsync(new CreateUserDto("admin", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }) {Email = "admin@test.com" });
+                await CreateUserIfNotExistsAsync(new CreateUserDto("user", "Pa$$w0rd01!", new string[] { usersRole.Id.ToString() }) { Email = "user@test.com" });
 
                 await unitOfWork.TryCommitOrRollbackAsync();
             }
@@ -175,7 +175,31 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
-                if(await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == authRegisterDto.UserName))
+                if (string.IsNullOrWhiteSpace(authRegisterDto?.UserName))
+                {
+                    response.ErrorMessage = T("Il nome utente è obbligatorio!");
+                    response.ErrorCode = 2301100841;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (string.IsNullOrWhiteSpace(authRegisterDto?.Password))
+                {
+                    response.ErrorMessage = T("La password è obbligatoria!");
+                    response.ErrorCode = 2301100842;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (string.IsNullOrWhiteSpace(authRegisterDto?.Email))
+                {
+                    response.ErrorMessage = T("L'email è obbligatoria!");
+                    response.ErrorCode = 2301100843;
+                    response.Success = false;
+                    return response;
+                }
+
+                if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == authRegisterDto.UserName))
                 {
                     response.ErrorMessage = T("Il nome utente è già registrato!");
                     response.ErrorCode = 2212211648;
@@ -257,6 +281,14 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<IRefreshTokenViewModel>(async (response) =>
             {
+                if (string.IsNullOrWhiteSpace(refreshTokenRequest?.AccessToken))
+                {
+                    response.ErrorMessage = T("Il campo AccessToken è obbligatorio!");
+                    response.ErrorCode = 2301100845;
+                    response.Success = false;
+                    return response;
+                }
+
                 var principal = tokenService.GetPrincipalFromExpiredToken(refreshTokenRequest.AccessToken);
                 var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId is null)

@@ -296,12 +296,14 @@ namespace bs.Frmwrk.Security.Services
             if(securitySettings.VerifyEmail)
             {
                 //send email link
-                user.ConfirmationId= Guid.NewGuid();
-                var message = new MailMessageDto();
-                message.Subject = translateService.Translate($"Conferma email");
-                message.IsHtmlBody= true;
-                message.ToEmails = new string[] { user.Email };
-                message.Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}</p>";
+                user.ConfirmationId = Guid.NewGuid();
+                var message = new MailMessageDto
+                {
+                    Subject = translateService.Translate($"Conferma email"),
+                    IsHtmlBody = true,
+                    ToEmails = new string[] { user.Email },
+                    Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}</p>"
+                };
                 await mailingService.SendEmailAsync(message);
             }
         }
