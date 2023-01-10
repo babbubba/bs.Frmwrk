@@ -32,6 +32,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NHibernate.Engine.Loading;
 using Org.BouncyCastle.Asn1.Cmp;
 using Serilog;
 using Serilog.Core;
@@ -68,10 +69,10 @@ namespace bs.Frmwrk.Application
             builder.InitLogging();
             builder.SetLocalization();
             builder.SetMailing();
+            builder.LoadExternalDll();
             builder.InitORM();
             builder.SetAuthorization();
             builder.SetFileSystem();
-            builder.LoadExternalDll();
             builder.RegisterRepositories();
             builder.RegisterServices();
             builder.SetMapper();
@@ -273,6 +274,8 @@ namespace bs.Frmwrk.Application
         {
             var result = new Dictionary<string, IApiResponse>();
             var dllPaths = Directory.GetFiles(coreSettings?.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings?.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
+          
+            Log.Logger.Debug($"Loading external libraries: {string.Join(", ", dllPaths)}...");
             foreach (var dllPath in dllPaths)
             {
                 try
