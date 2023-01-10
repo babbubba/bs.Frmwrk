@@ -275,7 +275,7 @@ namespace bs.Frmwrk.Application
             var result = new Dictionary<string, IApiResponse>();
             var dllPaths = Directory.GetFiles(coreSettings?.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings?.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
           
-            Log.Logger.Debug($"Loading external libraries: {string.Join(", ", dllPaths)}...");
+            //Log.Logger.Debug($"Loading external libraries: {string.Join(", ", dllPaths)}...");
             foreach (var dllPath in dllPaths)
             {
                 try

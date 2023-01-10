@@ -37,6 +37,9 @@
         "PublishUrl": {
           "type": "string"
         },
+		"ExternalDllFilesSearchPattern": {
+		  "type": "string"
+		},
         "SignalRHubs": {
           "type": "object",
           "properties": {
