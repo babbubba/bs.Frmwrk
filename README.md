@@ -177,6 +177,44 @@ You must to implement the **IAuthRepository** interface in your repository to ha
 
 You need to implement the **ISecurityRepository** interface too (it is better if you use the same class for both IAuthRepository and ISecurityRepository to avoid some method duplication, by the way you are free to choose your preferred implementation).
 
+The following sample is the typical implementation for both repositories uinterfaces:
+
+```c#
+public class UsersRepository : Data.Repository, IAuthRepository, ISecurityRepository
+{
+    public UsersRepository(IUnitOfWork unitOfwork) : base(unitOfwork)
+    {
+    }
+    
+    public async Task CreatePermissionAsync(IPermissionModel model)
+    {
+        await CreateAsync((PermissionModel)model);
+    }
+
+    public async Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
+    {
+        return await GetByIdAsync<RoleModel>(roleId);
+    }
+
+    public async Task<IUserModel> GetUserByIdAsync(Guid userId)
+    {
+        return await GetByIdAsync<UserModel>(userId);
+    }
+
+    public async Task<IUserModel> GetUserByUserNameAsync(string userName)
+    {
+        return await Query<UserModel>().SingleOrDefaultAsync(u => u.UserName == userName);
+    }
+
+    public async Task UpdatePermissionAsync(IPermissionModel model)
+    {
+        await UpdateAsync((PermissionModel)model);
+    }
+}
+```
+
+N.B.: the *Data.Repository* base class that the repository implements it is related to bs.Data package that helps you to work with nHibernate in your application. When you use this base class you must to implement the constructor of repository passing in its parameters the unit of work.
+
 ### Using authentication
 
 Every action in the controler that you decorate with the attribute **Authorize** will automatically active the process of authentication that check the *JWT access token* passed in the request header. If the *access token* is not valid or it is expired the autentication  middleware automatically return a response with status code 401 to the consumer.
