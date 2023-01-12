@@ -43,7 +43,7 @@ The exceptions tell you that you have to implement some repositories or you have
 
 The first classes that you have to implements are models (see section [Models](#models)). The only mandatory model is **IUserModel**.
 
-After this you have to implements the two manatory repositories interfaces: **IAuthRepository** and **ISecurityRepository** (see section [Repository](#repository))
+After this you have to implements the two manatory repositories interfaces: **IAuthRepository** and **ISecurityRepository** (see section [Repository](#repository)).
 
 ## Configuration File
 
