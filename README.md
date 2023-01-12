@@ -9,6 +9,8 @@ It use different thirdy part components like: nHibernate and Automapper.
 
 ## Getting started
 
+### BootstrapFrmwk
+
 To use the framework in your entry point class (usually the program.cs file or the startup.cs file) you must to bootstrap the framework using the WebApplicationBuilder extension function like this:
 
 ```
@@ -33,9 +35,54 @@ The bootstrap function will execute the initialization in this order:
 14. Initialize the Swagger;
 15. Registers Signla R;
 
+### Basic implementation
+
+If you execute your project just after you addedd the bootstrap method in your application entry point  probably you will receive some exceptions (visible in console if you run the debug in console).
+
+The exceptions tell you that you have to implement some repositories or you have to set the config file and its properties.
+
+The first classes that you have to implements are models (see section [Models](#models)). The only mandatory model is **IUserModel**.
+
+After this you have to implements the two manatory repositories interfaces: **IAuthRepository** and **ISecurityRepository** (see section ...)
+
 ## Configuration File
 
 The configuration file is loaded at startup by the bootstrap function and the file fall to be in the root foolder of the project and has to be named: 'configuration.ENVIRONMENT.json' where environment is the environment variable settend by the compiler (usually 'development' in debug and 'production' in release).
+
+This is a sample of config file (this is the minimal configuration for bs.Frmwrk):
+
+```json
+{
+  "Database": {
+    "DatabaseEngineType": "sqlite",
+    "ConnectionString": "Data Source=.\\my-app.db;Version=3;BinaryGuid=False;"
+  },
+  "Logging": {
+    "ApplicationName": "My Application",
+    "Debug": true
+  },
+  "Core": {
+    "AppRoles": {
+      "administrators": "Administrators"
+    },
+    "ExternalDllFilesSearchPattern": "my.app.*.dll",
+    "PublishUrl": "http://localhost:5123"
+  },
+  "Security": {
+    "secret": "secret-key-to-change-in-production"
+  },
+  "Mailing": {
+    "From": "my-app@my-domain.com",
+    "FromDisplayName": "My App",
+    "SmtpServer": "smtp.my-domain.com",
+    "Port": 465,
+    "Username": "my-smtp-username",
+    "Password": "my-smtp-password"
+  }
+}
+```
+
+If you prefer using a schema to validate the configuration file you may use the schema at url: https://raw.githubusercontent.com/babbubba/bs.Frmwrk/main/configuration.schema.json.
 
 ### Sections
 
