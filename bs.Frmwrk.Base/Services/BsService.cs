@@ -119,6 +119,46 @@ namespace bs.Frmwrk.Base.Services
             return response;
         }
 
+        //public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, Task<IApiPagedResponse<TResponse>>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
+        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IQueryable<TSource>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
+        {
+            IApiPagedResponse<TResponse>? response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>));
+            if (response == null)
+            {
+                throw new BsException(2302061027, translateService.Translate("Impossibile costruire l'oggetto ApiPagedResponse"));
+            }
+
+            if (function == null)
+            {
+                throw new BsException(2302061028, translateService.Translate("Impossibile eseguire l'azione. La funzione non è valida."));
+            }
+
+            try
+            {
+                unitOfWork.BeginTransaction();
+                response = await PaginateAsync<TSource, TResponse>(pageRequest,  function.Invoke(), filterFuncion);
+                await unitOfWork.CommitAsync();
+            }
+            catch (BsException bex)
+            {
+                await unitOfWork.RollbackAsync();
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
+                response.ErrorCode = bex.ErrorCode;
+                response.Success = false;
+                logger.LogError(bex, response.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                await unitOfWork.RollbackAsync();
+                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
+                response.Success = false;
+                logger.LogError(ex, response.ErrorMessage);
+            }
+
+            return response;
+        }
+
+
         /// <summary>
         /// Executes the transaction asynchronous and autorollback in case of error.
         /// </summary>

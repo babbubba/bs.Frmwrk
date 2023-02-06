@@ -8,6 +8,16 @@ namespace bs.Frmwrk.Core.Services.Base
     /// </summary>
     public interface IBsService
     {
+        /// <summary>Executes the paginated transaction asynchronous.</summary>
+        /// <typeparam name="TSource">The type of the entity Model to query.</typeparam>
+        /// <typeparam name="TResponse">The type of the View Model corresponding to the entity model.</typeparam>
+        /// <param name="pageRequest">The page request DTO (in the Datatables.Net format).</param>
+        /// <param name="function">The function that returns the Queryable object of entities Models</param>
+        /// <param name="filterFuncion">The optional filter funcion that return the Queryable object of entities Models filtered.</param>
+        /// <param name="genericErrorMessage">The error message to return if exception occurrs.</param>
+        /// <returns>The ApiPagedResponse View Model containing paged data</returns>
+        Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IQueryable<TSource>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage);
+
         /// <summary>
         ///   <para>
         /// Executes the function in an asynchronous transaction and automatically commit at the end. </para>
