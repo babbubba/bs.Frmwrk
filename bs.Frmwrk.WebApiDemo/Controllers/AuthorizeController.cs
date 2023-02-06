@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bs.Frmwrk.WebApiDemo.Controllers
 {
+
     public class AuthorizeController : ApiControllerBase
     {
         private readonly IAuthService authService;

@@ -12,6 +12,7 @@
     "SignalRHubs": {
       "bs.Frmwrk.WebApiDemo.Hubs.TestHub": "testHub"
     },
+    "PublishUrl": "https://localhost:5001",
     "AppRoles": {
       "administrators": "Administrators"
     }
@@ -20,5 +21,14 @@
     "secret": "chiave-da-cambiare-in-produzione",
     //PasswordComplexity: 0 - Blank; 1 - VeryWeak; 2 - Weak; 3 - Medium; 4 - Strong; 5 - VeryStrong
     "PasswordComplexity": 2
+  },
+
+  "Mailing": {
+    "From": "sendm.todostore@italcomspa.biz",
+    "FromDisplayName": "BS Frmwrk",
+    "SmtpServer": "posta.italcom.biz",
+    "Port": 465,
+    "Username": "sendm.todostore@italcomspa.biz",
+    "Password": "rXI3s8w1&DO!"
   }
 }

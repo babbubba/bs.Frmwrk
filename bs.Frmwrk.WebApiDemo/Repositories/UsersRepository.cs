@@ -29,9 +29,9 @@ namespace bs.Frmwrk.WebApiDemo.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IUserModel> GetUserByIdAsync(Guid userId)
+        public async Task<IUserModel> GetUserByIdAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            return await GetByIdAsync<UserModel>(userId);
         }
 
         public async Task<IUserModel> GetUserByUserNameAsync(string userName)
