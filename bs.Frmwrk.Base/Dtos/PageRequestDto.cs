@@ -34,7 +34,7 @@ namespace bs.Frmwrk.Base.Dtos
         /// <value>
         /// The columns.
         /// </value>
-        public Column[] Columns { get; set; }
+        public Column[]? Columns { get; set; }
 
         /// <summary>
         /// Gets or sets the order.
@@ -42,7 +42,7 @@ namespace bs.Frmwrk.Base.Dtos
         /// <value>
         /// The order.
         /// </value>
-        public Order[] Order { get; set; }
+        public Order[]? Order { get; set; }
 
         /// <summary>
         /// Gets or sets the filters.

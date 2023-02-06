@@ -1,13 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.Dtos.Datatables
+﻿namespace bs.Frmwrk.Core.Dtos.Datatables
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IPageRequestDto
     {
+        /// <summary>
+        /// Gets or sets the columns.
+        /// </summary>
+        /// <value>
+        /// The columns.
+        /// </value>
+        Column[]? Columns { get; set; }
+
+        /// <summary>
+        /// Gets or sets the filters.
+        /// </summary>
+        /// <value>
+        /// The filters.
+        /// </value>
+        FilterDto[]? Data { get; set; }
+
         /// <summary>
         /// Gets or sets the draw.
         /// </summary>
@@ -17,14 +30,6 @@ namespace bs.Frmwrk.Core.Dtos.Datatables
         int Draw { get; set; }
 
         /// <summary>
-        /// Gets or sets the start.
-        /// </summary>
-        /// <value>
-        /// The start.
-        /// </value>
-        int Start { get; set; }
-
-        /// <summary>
         /// Gets or sets the length.
         /// </summary>
         /// <value>
@@ -32,14 +37,16 @@ namespace bs.Frmwrk.Core.Dtos.Datatables
         /// </value>
         int Length { get; set; }
 
+        /// <summary>Gets or sets the order.</summary>
+        /// <value>The order.</value>
+        Order[]? Order { get; set; }
+
         /// <summary>
-        /// Gets or sets the filters.
+        /// Gets or sets the start.
         /// </summary>
         /// <value>
-        /// The filters.
+        /// The start.
         /// </value>
-        FilterDto[]? Data { get; set; }
-        Column[] Columns { get; set; }
-        Order[] Order { get; set; }
+        int Start { get; set; }
     }
 }
