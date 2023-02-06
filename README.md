@@ -9,6 +9,8 @@ It use different thirdy part components like: nHibernate and Automapper.
 
 ## Getting started
 
+### BootstrapFrmwk
+
 To use the framework in your entry point class (usually the program.cs file or the startup.cs file) you must to bootstrap the framework using the WebApplicationBuilder extension function like this:
 
 ```
@@ -33,9 +35,54 @@ The bootstrap function will execute the initialization in this order:
 14. Initialize the Swagger;
 15. Registers Signla R;
 
+### Basic implementation
+
+If you execute your project just after you addedd the bootstrap method in your application entry point  probably you will receive some exceptions (visible in console if you run the debug in console).
+
+The exceptions tell you that you have to implement some repositories or you have to set the config file and its properties.
+
+The first classes that you have to implements are models (see section [Models](#models)). The only mandatory model is **IUserModel**.
+
+After this you have to implements the two manatory repositories interfaces: **IAuthRepository** and **ISecurityRepository** (see section [Repository](#repository)).
+
 ## Configuration File
 
 The configuration file is loaded at startup by the bootstrap function and the file fall to be in the root foolder of the project and has to be named: 'configuration.ENVIRONMENT.json' where environment is the environment variable settend by the compiler (usually 'development' in debug and 'production' in release).
+
+This is a sample of config file (this is the minimal configuration for bs.Frmwrk):
+
+```json
+{
+  "Database": {
+    "DatabaseEngineType": "sqlite",
+    "ConnectionString": "Data Source=.\\my-app.db;Version=3;BinaryGuid=False;"
+  },
+  "Logging": {
+    "ApplicationName": "My Application",
+    "Debug": true
+  },
+  "Core": {
+    "AppRoles": {
+      "administrators": "Administrators"
+    },
+    "ExternalDllFilesSearchPattern": "my.app.*.dll",
+    "PublishUrl": "http://localhost:5123"
+  },
+  "Security": {
+    "secret": "secret-key-to-change-in-production"
+  },
+  "Mailing": {
+    "From": "my-app@my-domain.com",
+    "FromDisplayName": "My App",
+    "SmtpServer": "smtp.my-domain.com",
+    "Port": 465,
+    "Username": "my-smtp-username",
+    "Password": "my-smtp-password"
+  }
+}
+```
+
+If you prefer using a schema to validate the configuration file you may use the schema at url: https://raw.githubusercontent.com/babbubba/bs.Frmwrk/main/configuration.schema.json.
 
 ### Sections
 
@@ -129,6 +176,44 @@ If you want to enable Keepalive you must to implements **IKeepedAliveUser** inte
 You must to implement the **IAuthRepository** interface in your repository to handle the persistence of the user.
 
 You need to implement the **ISecurityRepository** interface too (it is better if you use the same class for both IAuthRepository and ISecurityRepository to avoid some method duplication, by the way you are free to choose your preferred implementation).
+
+The following sample is the typical implementation for both repositories uinterfaces:
+
+```c#
+public class UsersRepository : Data.Repository, IAuthRepository, ISecurityRepository
+{
+    public UsersRepository(IUnitOfWork unitOfwork) : base(unitOfwork)
+    {
+    }
+    
+    public async Task CreatePermissionAsync(IPermissionModel model)
+    {
+        await CreateAsync((PermissionModel)model);
+    }
+
+    public async Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
+    {
+        return await GetByIdAsync<RoleModel>(roleId);
+    }
+
+    public async Task<IUserModel> GetUserByIdAsync(Guid userId)
+    {
+        return await GetByIdAsync<UserModel>(userId);
+    }
+
+    public async Task<IUserModel> GetUserByUserNameAsync(string userName)
+    {
+        return await Query<UserModel>().SingleOrDefaultAsync(u => u.UserName == userName);
+    }
+
+    public async Task UpdatePermissionAsync(IPermissionModel model)
+    {
+        await UpdateAsync((PermissionModel)model);
+    }
+}
+```
+
+N.B.: the *Data.Repository* base class that the repository implements it is related to bs.Data package that helps you to work with nHibernate in your application. When you use this base class you must to implement the constructor of repository passing in its parameters the unit of work.
 
 ### Using authentication
 

@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Core", "bs.Frmwrk
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Auth", "bs.Frmwrk.Auth\bs.Frmwrk.Auth.csproj", "{175A9B6B-02DE-425D-956B-0A50335BEB10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Datatables", "bs.Frmwrk.Datatables\bs.Frmwrk.Datatables.csproj", "{E75793BC-6BD8-4E3C-B818-9AEEAE185B4B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Shared", "bs.Frmwrk.Shared\bs.Frmwrk.Shared.csproj", "{CA2848ED-7790-423D-A8B1-778A5D80F329}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Base", "bs.Frmwrk.Base\bs.Frmwrk.Base.csproj", "{7347257D-5B6D-42DC-9610-ACA3D5783FBB}"
@@ -23,9 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Locale", "bs.Frmw
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Mailing", "bs.Frmwrk.Mailing\bs.Frmwrk.Mailing.csproj", "{4034D40A-D46D-4F0F-BC8C-EB47914BD869}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bs.Frmwrk.WebApiDemo", "bs.Frmwrk.WebApiDemo\bs.Frmwrk.WebApiDemo.csproj", "{20A11272-1347-4CDB-B8B5-89C3A76EC722}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.WebApiDemo", "bs.Frmwrk.WebApiDemo\bs.Frmwrk.WebApiDemo.csproj", "{20A11272-1347-4CDB-B8B5-89C3A76EC722}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bs.Frmwrk.Mapper", "bs.Frmwrk.Mapper\bs.Frmwrk.Mapper.csproj", "{785223CC-A162-4BB8-BDBA-08BFCAFB23FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Mapper", "bs.Frmwrk.Mapper\bs.Frmwrk.Mapper.csproj", "{785223CC-A162-4BB8-BDBA-08BFCAFB23FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +39,6 @@ Global
 		{175A9B6B-02DE-425D-956B-0A50335BEB10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{175A9B6B-02DE-425D-956B-0A50335BEB10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{175A9B6B-02DE-425D-956B-0A50335BEB10}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E75793BC-6BD8-4E3C-B818-9AEEAE185B4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E75793BC-6BD8-4E3C-B818-9AEEAE185B4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E75793BC-6BD8-4E3C-B818-9AEEAE185B4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E75793BC-6BD8-4E3C-B818-9AEEAE185B4B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA2848ED-7790-423D-A8B1-778A5D80F329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA2848ED-7790-423D-A8B1-778A5D80F329}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA2848ED-7790-423D-A8B1-778A5D80F329}.Release|Any CPU.ActiveCfg = Release|Any CPU

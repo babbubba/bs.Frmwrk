@@ -402,7 +402,7 @@ namespace bs.Frmwrk.Auth.Services
 
         private static bool CheckHashedPassword(IUserModel user, string clearPassword)
         {
-            var passwordHash = user.PasswordHash;
+            var passwordHash = user.PasswordHash ?? throw new BsException(2302060929, "The hash of the password cannot be null. Check the database record for the user.");
             /* Extract the bytes */
             byte[] hashBytes = Convert.FromBase64String(passwordHash);
             /* Get the salt */

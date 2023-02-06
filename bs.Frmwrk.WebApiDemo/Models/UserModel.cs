@@ -74,20 +74,6 @@ namespace bs.Frmwrk.WebApiDemo.Models
                     p.Class(typeof(UsersPermissionsModel));
                 }));
 
-                //Bag(x => x.Permissions, collectionMapping =>
-                //{
-                //    collectionMapping.Table("UsersPermissions");
-                //    collectionMapping.Cascade(Cascade.None);
-                //    collectionMapping.Key(k => k.Column("UserId"));
-                //},
-                //map => map.ManyToMany(p =>
-                //{
-                //    p.Column("PermissionId");
-                //    p.Class(typeof(PermissionModel));
-                //    p.ForeignKey("FK__Permissions_Users");
-                //}));
-
-
             }
         }
     }

@@ -74,7 +74,7 @@
         /// Initializes a new instance of the <see cref="ApiResponse{T}"/> class.
         /// </summary>
         /// <param name="value">The value.</param>
-        public ApiResponse(T? value)
+        public ApiResponse(T? value) : base()
         {
             Value = value;
         }
