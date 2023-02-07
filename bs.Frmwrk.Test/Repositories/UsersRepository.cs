@@ -1,7 +1,6 @@
 ﻿using bs.Data;
 using bs.Data.Interfaces;
 using bs.Frmwrk.Core.Models.Auth;
-using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Test.Models;
 using NHibernate.Linq;
@@ -23,7 +22,6 @@ namespace bs.Frmwrk.Test.Repositories
         {
             await UpdateAsync((PermissionModel)model);
         }
-
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
         {

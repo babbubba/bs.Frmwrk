@@ -1,14 +1,9 @@
 ﻿using bs.Frmwrk.Core.Models.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Core.Dtos.Security
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ICreatePermissionDto
     {

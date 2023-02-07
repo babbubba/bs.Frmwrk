@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IAuthRegisterDto
     {
@@ -20,6 +20,7 @@
         /// The password.
         /// </value>
         public string? Password { get; set; }
+
         /// <summary>
         /// Gets or sets the email.
         /// </summary>

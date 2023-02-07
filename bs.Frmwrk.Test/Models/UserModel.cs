@@ -4,7 +4,6 @@ using NHibernate;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Mapping.ByCode.Conformist;
 using NHibernate.Type;
-using System.Diagnostics.CodeAnalysis;
 
 namespace bs.Frmwrk.Test.Models
 {
@@ -26,8 +25,6 @@ namespace bs.Frmwrk.Test.Models
         public virtual Guid? ConfirmationId { get; set; }
 
         public virtual Guid? RecoveryPasswordId { get; set; }
-
-
 
         public class Map : ClassMapping<UserModel>
         {
@@ -68,7 +65,8 @@ namespace bs.Frmwrk.Test.Models
                     p.ForeignKey("FK__Roles_Users");
                 }));
 
-                Bag(x => x.UsersPermissions, collectionMapping => {
+                Bag(x => x.UsersPermissions, collectionMapping =>
+                {
                     collectionMapping.Inverse(true);
                     collectionMapping.Cascade(Cascade.All);
                     collectionMapping.Key(k => k.Column("UserId"));
@@ -88,11 +86,9 @@ namespace bs.Frmwrk.Test.Models
                 //    p.Class(typeof(PermissionModel));
                 //    p.ForeignKey("FK__Permissions_Users");
                 //}));
-
-
             }
         }
     }
-#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 
+#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 }

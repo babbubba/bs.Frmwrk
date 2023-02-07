@@ -66,10 +66,8 @@
 //                }
 //            }
 
-
 //            return new ValidationResult($"User is not autenticated and cannot be validate");
 //        }
 //    }
-
 
 //}

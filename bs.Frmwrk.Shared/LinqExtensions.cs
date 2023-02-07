@@ -35,7 +35,7 @@ namespace bs.Frmwrk.Shared
         }
 
         /// <summary>
-        ///  Dynamically order by Queryable object. It order the queryable object by the property provided in string format using reflection. 
+        ///  Dynamically order by Queryable object. It order the queryable object by the property provided in string format using reflection.
         ///  If you need a nested propertiy you have to provide the orderByPropery parameter hierarchy dot separated.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -94,7 +94,6 @@ namespace bs.Frmwrk.Shared
             return source.Provider.CreateQuery<TEntity>(resultExpression);
         }
 
-
         /// <summary>
         /// Gets the member expression.
         /// </summary>
@@ -111,7 +110,6 @@ namespace bs.Frmwrk.Shared
             var result = Expression.Lambda<Func<object>>(body);
             return result;
         }
-
 
         /// <summary>
         /// Creates the expression.
@@ -130,5 +128,4 @@ namespace bs.Frmwrk.Shared
             return Expression.Lambda(body, param);
         }
     }
-
 }

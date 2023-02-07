@@ -9,6 +9,5 @@ namespace bs.Frmwrk.Auth.Dtos
         public string PasswordConfirm { get; set; }
         public string? RecoveryPasswordId { get; set; }
         public string? OldPassword { get; set; }
-
     }
 }

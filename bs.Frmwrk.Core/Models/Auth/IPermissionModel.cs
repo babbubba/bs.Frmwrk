@@ -7,7 +7,6 @@ namespace bs.Frmwrk.Core.Models.Auth
     /// </summary>
     public interface IPermissionModel : IIdentified
     {
-
         /// <summary>
         /// Gets or sets the code.
         /// </summary>

@@ -14,7 +14,7 @@ namespace bs.Frmwrk.Test
 {
     public class ApiTest
     {
-        static string EMAIL_TEST = "fcavallari@bsoftsolutions.it";
+        private static string EMAIL_TEST = "fcavallari@bsoftsolutions.it";
 
         public async Task<IUserModel> GetCurrentUser()
         {
@@ -104,7 +104,6 @@ namespace bs.Frmwrk.Test
             log?.LogInformation("Testing permissions");
         }
 
-
         [Test]
         public async Task ChangePassword_Test()
         {
@@ -118,10 +117,9 @@ namespace bs.Frmwrk.Test
             var testUser = await uow.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == "user");
             Assert.That(testUser, Is.Not.Null, "Cannot find 'user' user in the database");
 
-            var r1 = await authService.ChangePasswordAsync(new ChangeUserPasswordDto { OldPassword = "Pa$$w0rd01!" , Password = "Pa$$w0rd02!",PasswordConfirm = "Pa$$w0rd02!", UserName = "user" }, testUser);
+            var r1 = await authService.ChangePasswordAsync(new ChangeUserPasswordDto { OldPassword = "Pa$$w0rd01!", Password = "Pa$$w0rd02!", PasswordConfirm = "Pa$$w0rd02!", UserName = "user" }, testUser);
             Assert.That(r1, Is.Not.Null, "ChangePasswordAsync doesnt work properly");
             Assert.That(r1.Success, Is.True, $"Cannot create the user: {r1.ErrorMessage} ({r1.ErrorCode})");
         }
-
     }
 }

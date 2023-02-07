@@ -3,6 +3,7 @@
 namespace bs.Frmwrk.WebApiDemo.ViewModels
 {
 #pragma warning disable CS8618
+
     public class UserViewModel : IUserViewModel
     {
         public string UserName { get; set; }
@@ -13,5 +14,6 @@ namespace bs.Frmwrk.WebApiDemo.ViewModels
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpire { get; set; }
     }
+
 #pragma warning restore CS8618
 }

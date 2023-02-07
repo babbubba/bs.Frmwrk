@@ -3,7 +3,7 @@
 namespace bs.Frmwrk.Core.ViewModels.Common
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <seealso cref="bs.Frmwrk.Core.ViewModels.Common.ISelectListItem" />
     public class SelectListItem : ISelectListItem
@@ -21,7 +21,7 @@ namespace bs.Frmwrk.Core.ViewModels.Common
             }
 
             Id = id;
-            Label = label??string.Empty;
+            Label = label ?? string.Empty;
         }
 
         /// <summary>
@@ -54,6 +54,7 @@ namespace bs.Frmwrk.Core.ViewModels.Common
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
         public bool Enabled { get; set; } = true;
+
         /// <summary>
         /// Gets or sets the extra value.
         /// </summary>
@@ -61,6 +62,7 @@ namespace bs.Frmwrk.Core.ViewModels.Common
         /// The extra value.
         /// </value>
         public IDictionary<string, string>? ExtraValue { get; set; }
+
         /// <summary>
         /// Gets or sets the identifier.
         /// </summary>
@@ -68,6 +70,7 @@ namespace bs.Frmwrk.Core.ViewModels.Common
         /// The identifier.
         /// </value>
         public string Id { get; set; }
+
         /// <summary>
         /// Gets or sets the label.
         /// </summary>

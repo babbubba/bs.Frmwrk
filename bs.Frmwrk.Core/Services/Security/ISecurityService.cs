@@ -1,5 +1,4 @@
 ﻿using bs.Frmwrk.Core.Dtos.Auth;
-using bs.Frmwrk.Core.Dtos.Mailing;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Services.Base;
@@ -62,18 +61,26 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
+
         /// <summary>
         /// Creates the permission if not exists asynchronous.
         /// </summary>
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
         Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto);
+
         /// <summary>
         /// Sends the registration confirm link via mail if is enabled the VerifyEmail check in settings
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
         Task SendRegistrationConfirmAsync(IUserModel model);
+
+        /// <summary>
+        /// Sends the recovery password link asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         Task SendRecoveryPasswordLinkAsync(IUserModel user);
     }
 }

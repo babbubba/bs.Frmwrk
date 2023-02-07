@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IConfirmEmailDto
     {
@@ -12,6 +12,7 @@
         /// The user identifier.
         /// </value>
         string UserId { get; set; }
+
         /// <summary>
         /// Gets or sets the confirmation identifier.
         /// </summary>

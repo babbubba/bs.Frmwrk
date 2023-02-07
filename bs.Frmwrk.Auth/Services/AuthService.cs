@@ -134,9 +134,9 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                if (currentUser is not null && !CheckHashedPassword(user, changeUserPasswordDto.OldPassword))
+                if (changeUserPasswordDto.OldPassword is null || (currentUser is not null && !CheckHashedPassword(user, changeUserPasswordDto.OldPassword)))
                 {
-                    response.ErrorMessage = T("Impossibile cambiare la password (password attuale non errata)");
+                    response.ErrorMessage = T("Impossibile cambiare la password (password attuale errata o non valida)");
                     response.ErrorCode = 2301091550;
                     response.Success = false;
                     return response;

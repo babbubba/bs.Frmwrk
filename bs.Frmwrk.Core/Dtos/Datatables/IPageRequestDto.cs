@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Datatables
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IPageRequestDto
     {

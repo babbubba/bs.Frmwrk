@@ -24,6 +24,5 @@
         /// The users registry
         /// </summary>
         public const string USERS_REGISTRY = "USERS_REGISTRY";
-   
     }
 }

@@ -3,15 +3,11 @@ using bs.Frmwrk.Core.Models.Auth;
 using NHibernate;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Mapping.ByCode.Conformist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Test.Models
 {
 #pragma warning disable CS8618
+
     public class RoleModel : IRoleModel, IPersistentEntity
     {
         public virtual Guid Id { get; set; }
@@ -39,5 +35,6 @@ namespace bs.Frmwrk.Test.Models
             }
         }
     }
+
 #pragma warning restore CS8618
 }

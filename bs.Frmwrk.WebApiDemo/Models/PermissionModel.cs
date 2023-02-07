@@ -10,10 +10,10 @@ namespace bs.Frmwrk.WebApiDemo
 
     public class PermissionModel : IPermissionModel, IPersistentEntity
     {
-        public virtual  Guid Id {get;set;}
-        public virtual string Code {get;set;}
-        public virtual string Name {get;set;}
-        public virtual bool Enabled {get;set;}
+        public virtual Guid Id { get; set; }
+        public virtual string Code { get; set; }
+        public virtual string Name { get; set; }
+        public virtual bool Enabled { get; set; }
 
         public class Map : ClassMapping<PermissionModel>
         {
@@ -37,5 +37,4 @@ namespace bs.Frmwrk.WebApiDemo
     }
 
 #pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
-
 }

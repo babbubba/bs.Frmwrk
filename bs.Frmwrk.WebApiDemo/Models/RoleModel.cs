@@ -7,6 +7,7 @@ using NHibernate.Mapping.ByCode.Conformist;
 namespace bs.Frmwrk.WebApiDemo.Models
 {
 #pragma warning disable CS8618
+
     public class RoleModel : IRoleModel, IPersistentEntity
     {
         public virtual Guid Id { get; set; }
@@ -34,5 +35,6 @@ namespace bs.Frmwrk.WebApiDemo.Models
             }
         }
     }
+
 #pragma warning restore CS8618
 }

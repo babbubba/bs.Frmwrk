@@ -8,9 +8,9 @@ namespace bs.Frmwrk.Test.Models
 
     public class UsersPermissionsModel : IUsersPermissionsModel, IPersistentEntity
     {
-        public virtual IUserModel User{get;set;}
-        public virtual IPermissionModel Permission {get;set;}
-        public virtual PermissionType Type {get;set;}
+        public virtual IUserModel User { get; set; }
+        public virtual IPermissionModel Permission { get; set; }
+        public virtual PermissionType Type { get; set; }
 
         public class Map : ClassMapping<UsersPermissionsModel>
         {
@@ -19,14 +19,13 @@ namespace bs.Frmwrk.Test.Models
                 Table("UsersPermissions");
 
                 Property(x => x.Type);
-            
+
                 ManyToOne(x => x.User, map =>
                 {
                     map.Column("UserId");
                     map.NotNullable(true);
                     map.Class(typeof(UserModel));
                     map.UniqueKey("UQ_UsersPermissions");
-
                 });
 
                 ManyToOne(x => x.Permission, map =>
@@ -36,10 +35,9 @@ namespace bs.Frmwrk.Test.Models
                     map.Class(typeof(PermissionModel));
                     map.UniqueKey("UQ_UsersPermissions");
                 });
-
             }
         }
     }
-#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 
+#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 }
