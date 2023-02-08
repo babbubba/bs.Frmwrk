@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bs.Frmwrk.Core.Dtos.Mailing
+﻿namespace bs.Frmwrk.Core.Dtos.Mailing
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IMailMessageDto
     {
@@ -18,6 +12,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The attachments.
         /// </value>
         string[]? Attachments { get; set; }
+
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
@@ -25,6 +20,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The body.
         /// </value>
         string Body { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether [body HTML].
         /// </summary>
@@ -32,6 +28,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         ///   <c>true</c> if [body HTML]; otherwise, <c>false</c>.
         /// </value>
         bool BodyHtml { get; set; }
+
         /// <summary>
         /// Gets or sets the cc emails.
         /// </summary>
@@ -39,6 +36,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The cc emails.
         /// </value>
         string[]? CcEmails { get; set; }
+
         /// <summary>
         /// Gets or sets the CCN emails.
         /// </summary>
@@ -46,6 +44,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The CCN emails.
         /// </value>
         string[]? CcnEmails { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this instance is HTML body.
         /// </summary>
@@ -53,6 +52,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         ///   <c>true</c> if this instance is HTML body; otherwise, <c>false</c>.
         /// </value>
         bool IsHtmlBody { get; set; }
+
         /// <summary>
         /// Gets or sets the display name of the sender.
         /// </summary>
@@ -60,6 +60,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The display name of the sender.
         /// </value>
         string? SenderDisplayName { get; set; }
+
         /// <summary>
         /// Gets or sets the sender email.
         /// </summary>
@@ -67,6 +68,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The sender email.
         /// </value>
         string SenderEmail { get; set; }
+
         /// <summary>
         /// Gets or sets the subject.
         /// </summary>
@@ -74,6 +76,7 @@ namespace bs.Frmwrk.Core.Dtos.Mailing
         /// The subject.
         /// </value>
         string Subject { get; set; }
+
         /// <summary>
         /// Converts to emails.
         /// </summary>

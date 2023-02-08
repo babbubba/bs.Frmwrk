@@ -40,7 +40,7 @@ namespace bs.Frmwrk.Base.Services
             var filteredQuery = filterFuncion?.Invoke(source) ?? source;
 
             // Set order
-            if (dto?.Order != null && dto.Order.Length > 0)
+            if (dto?.Order != null && dto.Order.Length > 0 && dto.Columns != null)
             {
                 var columnPropertyName = dto.Columns[dto.Order[0].Column].Name;
                 var orderDescending = dto.Order[0].Dir.ToLower() == "asc" ? false : true;
@@ -65,7 +65,6 @@ namespace bs.Frmwrk.Base.Services
                 RecordsTotal = totalRecords,
             };
         }
-
 
         /// <summary>
         /// Executes the transaction asynchronous and autorollback in case of error.
@@ -136,7 +135,7 @@ namespace bs.Frmwrk.Base.Services
             try
             {
                 unitOfWork.BeginTransaction();
-                response = await PaginateAsync<TSource, TResponse>(pageRequest,  function.Invoke(), filterFuncion);
+                response = await PaginateAsync<TSource, TResponse>(pageRequest, function.Invoke(), filterFuncion);
                 await unitOfWork.CommitAsync();
             }
             catch (BsException bex)
@@ -157,7 +156,6 @@ namespace bs.Frmwrk.Base.Services
 
             return response;
         }
-
 
         /// <summary>
         /// Executes the transaction asynchronous and autorollback in case of error.

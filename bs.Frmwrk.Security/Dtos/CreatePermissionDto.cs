@@ -30,7 +30,6 @@ namespace bs.Frmwrk.Security.Dtos
         /// </value>
         public bool Enabled { get; set; }
 
-
         /// <summary>
         /// Gets or sets the name.
         /// </summary>

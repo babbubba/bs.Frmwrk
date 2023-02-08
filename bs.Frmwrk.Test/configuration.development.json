@@ -17,7 +17,7 @@
     "secret": "chiave-da-cambiare-in-produzione",
     //PasswordComplexity: 0 - Blank; 1 - VeryWeak; 2 - Weak; 3 - Medium; 4 - Strong; 5 - VeryStrong
     "PasswordComplexity": 2,
-    "VerifyEmail":  true
+    "VerifyEmail": true
   },
   "Mailing": {
     "From": "sendm.todostore@italcomspa.biz",

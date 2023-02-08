@@ -27,13 +27,13 @@ The bootstrap function will execute the initialization in this order:
 6. Configures the Authorization and Token services and registers them, sets the JWT token handler for API and SIgnalR requests and registers the authorization policy profiles for roles;
 7. Configures the File System for file uploading and downloading and sets the upload limits;
 8. Loads external dll files for pluginable applications;
-9. Registers all the repositories in the DI;
+9. Registers all the Repositories in the DI;
 10. Registers all the Service in the DI;
 11. Configures the mapper (Automapper) and load profiles form the Current Domain Assemblies;
 12. Sets the CORS policy;
 13. Registers the API controllers;
 14. Initialize the Swagger;
-15. Registers Signla R;
+15. Registers SignalR;
 
 ### Basic implementation
 
@@ -131,6 +131,86 @@ Every service class that you implements in this way will be automatically regist
 > ```
 
 The service needs the instance of Logger, Translate Service, Mapper and Unit Of Work (for data transactions) that will be accessible in your class by the fields named: logger, translateService, mapper and unitOfWork;
+
+#### Methods
+
+The BsService implements the followind function that help you to quickly develop services in your application.
+
+##### ExecutePaginatedTransactionAsync
+
+This helps you to return a paginated list of entities from a Queryable datasource. It handle an ORM transaction (that will be automatically rolled back in case of exception) and a safe asyncronous execution.
+
+The first parameter required by this method is *pageRequest* (of type IPageRequestDto) parameter that is designed to be compatible with the Datatbles.Net Jquery plugin (https://datatables.net) APIs. This help you to consume the response of this method in a Datatables.Net implementation in your frontend. By the way you can populate the pageRequest manually to retrieve your data paginated.
+
+For example you can populate only the fields *start* and *lenght* of the *pageRequest* object to retrieve the desired page of data.
+
+The method implements sorting usinng the *Order* field of the parameter *pageRequest* that indicates the column number and the sorting direction. To use sorting you have to populate the array field Columns so backend can find the right property names to order by. the field in the Column object that has to match with the property name in the backend is the filed Name. Remeber that sorting is automatically handled by Datatables.NET if you want to avoid manual implementation.
+
+The second parameter is the datasource (of type IQUeryable<TSource> where TSource is the generic type of the entity model).
+
+The third parameter is optional and can be null, it is the function to filter the datasource. This function have to return a filtered IQueryable<TSource>. This is needed because the response contains summaries on total, filtered and displayed rows (if this parameter will be null the total rows and the filtered rows will have same value).
+
+The last parameter is a string that will contain the error message to returns in case of exception occurs during the method execution.
+
+The method return the IApiPagedResponse<TResponse> object that is the standard way of consume paginated data in the framework.
+
+Example of implementation of this method:
+
+```c#
+  return await ExecutePaginatedTransactionAsync<IProjectModel, IProjectPreviewViewModel>(pageRequest,
+                () => projectsRepository.GetProjectsQuery(),
+                (source) => source.Where(p => p.CreatedBy.Id == currentUser.Id),
+                "Error retrieving projects for the current user"
+                );
+```
+
+In this example the pageRequest may come from the following json data:
+
+```json
+{
+  "draw": 0,
+  "start": 0,
+  "length": 10
+}
+```
+
+The second parameter`projectsRepository.GetProjectsQuery()` returns a IQueryable<IProjectModel> object (IProjectModel is the interface of the entity model in this example).
+
+The third parameter `(source) => source.Where(p => p.CreatedBy.Id == currentUser.Id)` is the filter on the IQueryable<IProjectModel> object.
+
+The last parameter is the message in case of exception.
+
+In this case the response (parsed as json) would be:
+
+```json
+{
+  "data": [
+​    {
+​      "description": "Progetto di test Nr.: 1. Creato tanto per provare a regime può essere eleiminato.",
+​      "isValid": false,
+​      "label": "Progetto Test 1",
+​      "id": "94c1f2d3-d5b7-4401-ad05-afa100e09f58",
+​      "confirmedByUserName": null,
+​      "confirmedDate": "0001-01-01T00:00:00Z",
+​      "createdByUserName": "admin",
+​      "createdDate": "2023-02-06T14:37:48.6551709+01:00",
+​      "statusLabel": null,
+​      "updateDate": null
+​    }
+  ],
+  "draw": 0,
+  "recordsFiltered": 1,
+  "recordsTotal": 1,
+  "errorCode": null,
+  "errorMessage": null,
+  "success": true,
+  "warnMessage": null
+}
+```
+
+##### ExecuteTransactionAsync
+
+[WIP]
 
 ### Repository class
 

@@ -1,11 +1,6 @@
 ﻿using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.ViewModels.Common;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bs.Frmwrk.Shared
 {
@@ -46,13 +41,11 @@ namespace bs.Frmwrk.Shared
 
         public static T ToEnum<T>(this string value) where T : Enum
         {
-            if(int.TryParse(value, out var result))
+            if (int.TryParse(value, out var result))
             {
                 return result.ToEnum<T>();
             }
             throw new BsException(2212200858, $"Impossibile convertire il valore stringa in intero (valore '{value}')");
-
         }
-
     }
 }

@@ -1,8 +1,6 @@
 ﻿using bs.Frmwrk.Application.Controllers;
-using bs.Frmwrk.Auth.Services;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.ViewModels.Api;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bs.Frmwrk.WebApiDemo.Controllers

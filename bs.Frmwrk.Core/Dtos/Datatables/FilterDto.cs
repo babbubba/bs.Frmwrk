@@ -1,5 +1,8 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Datatables
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class FilterDto
     {
         /// <summary>
@@ -9,6 +12,7 @@
         /// The name.
         /// </value>
         public string Name { get; set; }
+
         /// <summary>
         /// Gets or sets the value.
         /// </summary>

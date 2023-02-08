@@ -26,7 +26,6 @@ namespace bs.Frmwrk.WebApiDemo.Models
 
         public virtual Guid? RecoveryPasswordId { get; set; }
 
-
         public class Map : ClassMapping<UserModel>
         {
             public Map()
@@ -65,7 +64,8 @@ namespace bs.Frmwrk.WebApiDemo.Models
                     p.ForeignKey("FK__Roles_Users");
                 }));
 
-                Bag(x => x.UsersPermissions, collectionMapping => {
+                Bag(x => x.UsersPermissions, collectionMapping =>
+                {
                     collectionMapping.Inverse(true);
                     collectionMapping.Cascade(Cascade.All);
                     collectionMapping.Key(k => k.Column("UserId"));
@@ -73,7 +73,6 @@ namespace bs.Frmwrk.WebApiDemo.Models
                 {
                     p.Class(typeof(UsersPermissionsModel));
                 }));
-
             }
         }
     }

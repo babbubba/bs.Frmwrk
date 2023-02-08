@@ -25,6 +25,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.WebApiDemo", "bs.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bs.Frmwrk.Mapper", "bs.Frmwrk.Mapper\bs.Frmwrk.Mapper.csproj", "{785223CC-A162-4BB8-BDBA-08BFCAFB23FA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{78B694E6-CF66-4C84-8754-DB2AC5958B66}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,7 +1,7 @@
 ﻿namespace bs.Frmwrk.Core.Models.Auth
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface IUsersPermissionsModel
     {
@@ -12,6 +12,7 @@
         /// The user.
         /// </value>
         IUserModel User { get; set; }
+
         /// <summary>
         /// Gets or sets the permission.
         /// </summary>
@@ -19,6 +20,7 @@
         /// The permission.
         /// </value>
         IPermissionModel Permission { get; set; }
+
         /// <summary>
         /// Gets or sets the type.
         /// </summary>

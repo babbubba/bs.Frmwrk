@@ -37,18 +37,16 @@ namespace bs.Frmwrk.Mapper.Profiles
             CreateMap<TDestinationInterface, TSourceClass>();
         }
 
-        public void CreateMapping<TSourceInterface, TDestinationInterface>() 
+        public void CreateMapping<TSourceInterface, TDestinationInterface>()
         {
             IMappingExpression<TSourceInterface, TDestinationInterface> baseMapping = CreateMap<TSourceInterface, TDestinationInterface>();
 
             var concreteClass = typeof(TDestinationInterface).GetTypeFromInterface();
-            if(concreteClass is not null)
+            if (concreteClass is not null)
             {
                 baseMapping.As(concreteClass);
                 CreateMap(typeof(TSourceInterface), concreteClass);
             }
         }
     }
-
-  
 }

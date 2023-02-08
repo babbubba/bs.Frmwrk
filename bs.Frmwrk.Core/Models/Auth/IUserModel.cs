@@ -77,7 +77,6 @@
         /// </value>
         string? LastIp { get; set; }
 
-
         /// <summary>
         /// Gets or sets the confirmation identifier.
         /// </summary>
@@ -85,6 +84,7 @@
         /// The confirmation identifier.
         /// </value>
         Guid? ConfirmationId { get; set; }
+
         /// <summary>
         /// Gets or sets the recovery password identifier.
         /// </summary>

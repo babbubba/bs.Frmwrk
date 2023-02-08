@@ -1,19 +1,15 @@
 ﻿using bs.Frmwrk.Application.Controllers;
-using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.ViewModels.Api;
-using bs.Frmwrk.Core.ViewModels.Auth;
 using bs.Frmwrk.WebApiDemo.Dtos;
-using bs.Frmwrk.WebApiDemo.Models;
 using bs.Frmwrk.WebApiDemo.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bs.Frmwrk.WebApiDemo.Controllers
 {
-
     public class AuthorizeController : ApiControllerBase
     {
         private readonly IAuthService authService;

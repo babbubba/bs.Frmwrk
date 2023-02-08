@@ -18,5 +18,5 @@ namespace bs.Frmwrk.Security.Models
         public bool? ValidateTokenAudience { get; set; }
         public PasswordScore PasswordComplexity { get; set; } = PasswordScore.Weak;
         public bool VerifyEmail { get; set; } = false;
-}
+    }
 }

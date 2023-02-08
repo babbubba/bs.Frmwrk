@@ -32,7 +32,6 @@ namespace bs.Frmwrk.Mailing.Models
         /// </value>
         public string? SmtpServer { get; set; }
 
-
         /// <summary>
         /// Gets or sets the port.
         /// </summary>

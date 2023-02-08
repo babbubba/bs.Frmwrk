@@ -1,5 +1,4 @@
 ﻿using bs.Frmwrk.Core.Models.Auth;
-using bs.Frmwrk.Core.Models.Security;
 
 namespace bs.Frmwrk.Core.Repositories
 {
@@ -21,6 +20,7 @@ namespace bs.Frmwrk.Core.Repositories
         /// <param name="userName">Name of the user.</param>
         /// <returns></returns>
         Task<IUserModel> GetUserByUserNameAsync(string userName);
+
         /// <summary>
         /// Updates the permission asynchronous.
         /// </summary>

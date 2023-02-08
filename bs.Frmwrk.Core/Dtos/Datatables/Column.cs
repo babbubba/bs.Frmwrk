@@ -1,5 +1,8 @@
 ﻿namespace bs.Frmwrk.Core.Dtos.Datatables
 {
+    /// <summary>
+    ///
+    /// </summary>
     public class Column
     {
         /// <summary>
@@ -19,7 +22,7 @@
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="Column"/> is orderable.
+        /// Gets or sets a value indicating whether this <see cref="Column" /> is orderable.
         /// </summary>
         /// <value>
         ///   <c>true</c> if orderable; otherwise, <c>false</c>.
@@ -35,7 +38,7 @@
         public Search Search { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="Column"/> is searchable.
+        /// Gets or sets a value indicating whether this <see cref="Column" /> is searchable.
         /// </summary>
         /// <value>
         ///   <c>true</c> if searchable; otherwise, <c>false</c>.

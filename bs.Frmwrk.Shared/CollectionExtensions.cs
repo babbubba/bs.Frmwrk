@@ -19,14 +19,13 @@ namespace bs.Frmwrk.Shared
             {
                 throw new BsException(2212211504, "Parameter is mandatory");
             }
-      
 
-            if (!collection.Any(v =>  parameter(v).Equals(parameter(itemToAdd))))
+#pragma warning disable CS8602 // Dereferenziamento di un possibile riferimento Null.
+            if (!collection.Any(v => parameter(v).Equals(parameter(itemToAdd))))
             {
                 collection.Add(itemToAdd);
             }
-
+#pragma warning restore CS8602 // Dereferenziamento di un possibile riferimento Null.
         }
     }
-
 }

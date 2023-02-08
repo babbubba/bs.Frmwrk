@@ -79,7 +79,6 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// </value>
         int? FailedAccessMaxAttempts { get; set; }
 
-
         /// <summary>
         /// Gets or sets the validate token issuer.
         /// </summary>
@@ -95,6 +94,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The validate token audience.
         /// </value>
         bool? ValidateTokenAudience { get; set; }
+
         /// <summary>
         /// Gets or sets the password complexity.
         /// </summary>
@@ -102,6 +102,7 @@ namespace bs.Frmwrk.Core.Models.Configuration
         /// The password complexity.
         /// </value>
         PasswordScore PasswordComplexity { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether [verify email].
         /// </summary>
