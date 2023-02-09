@@ -1,4 +1,5 @@
 ﻿using bs.Data.Interfaces.BaseEntities;
+using bs.Data.Mapping;
 using bs.Frmwrk.Core.Models.Auth;
 using NHibernate;
 using NHibernate.Mapping.ByCode;
@@ -26,53 +27,24 @@ namespace bs.Frmwrk.WebApiDemo.Models
 
         public virtual Guid? RecoveryPasswordId { get; set; }
 
-        public class Map : ClassMapping<UserModel>
+        public class Map : BsClassMapping<UserModel>
         {
             public Map()
             {
                 Table("Users");
-
-                Id(x => x.Id, x =>
-                {
-                    x.Generator(Generators.GuidComb);
-                    x.Type(NHibernateUtil.Guid);
-                    x.Column("Id");
-                    x.UnsavedValue(Guid.Empty);
-                });
-
+                GuidId(p => p.Id);
                 Property(x => x.Email);
                 Property(x => x.Enabled);
                 Property(x => x.LastIp);
                 Property(x => x.ConfirmationId);
-                Property(x => x.LastLogin, map => map.Type<UtcDateTimeType>());
+                PropertyUtcDate(x => x.LastLogin);
                 Property(x => x.PasswordHash);
                 Property(x => x.RecoveryPasswordId);
                 Property(x => x.RefreshToken);
-                Property(x => x.RefreshTokenExpire, map => map.Type<UtcDateTimeType>());
-                Property(x => x.UserName, m => m.UniqueKey("UQ__UserName"));
-
-                Bag(x => x.Roles, collectionMapping =>
-                {
-                    collectionMapping.Table("UsersRoles");
-                    collectionMapping.Cascade(Cascade.None);
-                    collectionMapping.Key(k => k.Column("UserId"));
-                },
-                map => map.ManyToMany(p =>
-                {
-                    p.Column("RoleId");
-                    p.Class(typeof(RoleModel));
-                    p.ForeignKey("FK__Roles_Users");
-                }));
-
-                Bag(x => x.UsersPermissions, collectionMapping =>
-                {
-                    collectionMapping.Inverse(true);
-                    collectionMapping.Cascade(Cascade.All);
-                    collectionMapping.Key(k => k.Column("UserId"));
-                }, map => map.OneToMany(p =>
-                {
-                    p.Class(typeof(UsersPermissionsModel));
-                }));
+                PropertyUtcDate(x => x.RefreshTokenExpire);
+                PropertyUnique(x => x.UserName, "UQ__UserName");
+                SetManyToMany(x => x.Roles, "UsersRoles", "UserId", "RoleId", typeof(RoleModel), false);
+                SetOneToMany(x => x.UsersPermissions, "UserId", typeof(UsersPermissionsModel),true,true);
             }
         }
     }

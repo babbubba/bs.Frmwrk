@@ -1,4 +1,5 @@
 ﻿using bs.Data.Interfaces.BaseEntities;
+using bs.Data.Mapping;
 using bs.Frmwrk.Core.Models.Auth;
 using NHibernate;
 using NHibernate.Mapping.ByCode;
@@ -15,20 +16,12 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual string Label { get; set; }
         public virtual bool Enabled { get; set; }
 
-        public class Map : ClassMapping<RoleModel>
+        public class Map : BsClassMapping<RoleModel>
         {
             public Map()
             {
                 Table("Roles");
-
-                Id(x => x.Id, x =>
-                {
-                    x.Generator(Generators.GuidComb);
-                    x.Type(NHibernateUtil.Guid);
-                    x.Column("Id");
-                    x.UnsavedValue(Guid.Empty);
-                });
-
+                GuidId(p => p.Id);
                 Property(x => x.Code);
                 Property(x => x.Enabled);
                 Property(x => x.Label);

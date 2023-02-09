@@ -1,4 +1,5 @@
 ﻿using bs.Data.Interfaces.BaseEntities;
+using bs.Data.Mapping;
 using bs.Frmwrk.Core.Models.Auth;
 using NHibernate.Mapping.ByCode.Conformist;
 
@@ -12,29 +13,43 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual IPermissionModel Permission { get; set; }
         public virtual PermissionType Type { get; set; }
 
-        public class Map : ClassMapping<UsersPermissionsModel>
+        public class Map : BsClassMapping<UsersPermissionsModel>
         {
             public Map()
             {
                 Table("UsersPermissions");
-
                 Property(x => x.Type);
-
-                ManyToOne(x => x.User, map =>
+                SetManyToOne(p => p.User, "UserId", "FK__UsersPermissions_Users", mto =>
                 {
-                    map.Column("UserId");
-                    map.NotNullable(true);
-                    map.Class(typeof(UserModel));
-                    map.UniqueKey("UQ_UsersPermissions");
+                    mto.NotNullable(true);
+                    mto.Class(typeof(UserModel));
+                    mto.UniqueKey("UQ_UsersPermissions");
                 });
 
-                ManyToOne(x => x.Permission, map =>
+                //ManyToOne(x => x.User, map =>
+                //{
+                //    map.Column("UserId");
+                //    map.NotNullable(true);
+                //    map.Class(typeof(UserModel));
+                //    map.UniqueKey("UQ_UsersPermissions");
+                //});
+
+
+
+                SetManyToOne(p => p.Permission, "PermissionId", "FK__UsersPermissions_Permissions", mto =>
                 {
-                    map.Column("PermissionId");
-                    map.NotNullable(true);
-                    map.Class(typeof(PermissionModel));
-                    map.UniqueKey("UQ_UsersPermissions");
+                    mto.NotNullable(true);
+                    mto.Class(typeof(PermissionModel));
+                    mto.UniqueKey("UQ_UsersPermissions");
                 });
+
+                //ManyToOne(x => x.Permission, map =>
+                //{
+                //    map.Column("PermissionId");
+                //    map.NotNullable(true);
+                //    map.Class(typeof(PermissionModel));
+                //    map.UniqueKey("UQ_UsersPermissions");
+                //});
             }
         }
     }

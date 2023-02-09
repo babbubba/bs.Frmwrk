@@ -1,4 +1,5 @@
-﻿using bs.Frmwrk.Core.Models.Security;
+﻿using bs.Data.Mapping;
+using bs.Frmwrk.Core.Models.Security;
 using NHibernate;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Mapping.ByCode.Conformist;
@@ -15,22 +16,14 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual Guid Id { get; set; }
         public virtual string UserName { get; set; }
 
-        public class AuditFailedLoginModelMap : ClassMapping<AuditFailedLoginModel>
+        public class AuditFailedLoginModelMap : BsClassMapping<AuditFailedLoginModel>
         {
             public AuditFailedLoginModelMap()
             {
                 Table("AuditFailedLogins");
-
-                Id(x => x.Id, x =>
-                {
-                    x.Generator(Generators.GuidComb);
-                    x.Type(NHibernateUtil.Guid);
-                    x.Column("Id");
-                    x.UnsavedValue(Guid.Empty);
-                });
-
+                GuidId(p=>p.Id);
                 Property(x => x.ClientIp);
-                Property(x => x.EventDate, map => map.Type<UtcDateTimeType>());
+                PropertyUtcDate(p => p.EventDate);
                 Property(x => x.UserName);
             }
         }
