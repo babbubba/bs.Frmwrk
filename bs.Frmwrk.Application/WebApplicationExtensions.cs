@@ -1,4 +1,5 @@
-﻿using bs.Frmwrk.Application.Middlewares;
+﻿using AutoMapper.Configuration.Annotations;
+using bs.Frmwrk.Application.Middlewares;
 using bs.Frmwrk.Core.Globals.Config;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Base;
@@ -113,7 +114,14 @@ namespace bs.Frmwrk.Application
                 }
             }
 
-            //TODO: Gestici il log delle inizializzazioni
+            if(result.Any(r=>!r.Value.Success ))
+            {
+                foreach(var errorMessage in  result.Where(r => !r.Value.Success).Select(r => $"Error initalizing service '{r.Key}': {r.Value.ErrorMessage}"))
+                {
+                    Log.Error(errorMessage);
+                }
+
+            }
         }
 
         internal static void MapSignalRHubs(this WebApplication app)
