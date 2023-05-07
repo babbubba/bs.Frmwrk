@@ -6,6 +6,7 @@ using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Models.Auth;
+using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Base;
@@ -31,12 +32,14 @@ namespace bs.Frmwrk.Auth.Services
 
         protected readonly IAuthRepository authRepository;
         private readonly ITokenService tokenService;
+        private readonly ISecuritySettings securitySettings;
 
         public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork,
-            IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork, securityService)
+            IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService, ISecuritySettings securitySettings) : base(logger, translateService, mapper, unitOfWork, securityService)
         {
             this.authRepository = authRepository;
             this.tokenService = tokenService;
+            this.securitySettings = securitySettings;
         }
 
         public event EventHandler<IAuthEventDto>? AuthEvent;
@@ -368,6 +371,13 @@ namespace bs.Frmwrk.Auth.Services
                 }
 
                 model.PasswordHash = HashPassword(authRegisterDto.Password);
+
+                // If Email autentication is not active enable user now
+                if(!securitySettings.VerifyEmail)
+                {
+                    model.Enabled = true;
+                }
+
                 await unitOfWork.Session.SaveAsync(model);
 
                 await securityService.SendRegistrationConfirmAsync(model);
