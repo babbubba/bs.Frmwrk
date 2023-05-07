@@ -15,7 +15,10 @@
     "PublishUrl": "https://localhost:5001",
     "AppRoles": {
       "administrators": "Administrators"
-    }
+    },
+    "FrontendOrigins": [
+      "http://localhost:4200"
+    ]
   },
   "Security": {
     "secret": "chiave-da-cambiare-in-produzione",
