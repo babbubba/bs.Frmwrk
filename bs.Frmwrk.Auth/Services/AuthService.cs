@@ -200,11 +200,13 @@ namespace bs.Frmwrk.Auth.Services
             if (existingModel != null)
             {
                 mapper.Map(dto, existingModel);
+                existingModel.Enabled = true;
                 await unitOfWork.Session.UpdateAsync(existingModel);
             }
             else
             {
                 existingModel = mapper.Map<IRoleModel>(dto);
+                existingModel.Enabled = true;
                 await unitOfWork.Session.SaveAsync(existingModel);
             }
 
@@ -223,7 +225,7 @@ namespace bs.Frmwrk.Auth.Services
             {
                 existingModel = mapper.Map<IUserModel>(dto);
                 await unitOfWork.Session.SaveAsync(existingModel);
-            }
+            }            
 
             await AddRolesToUser(dto, existingModel);
 
@@ -422,6 +424,8 @@ namespace bs.Frmwrk.Auth.Services
         {
             if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
             {
+                roledUser.Roles ??= new List<IRoleModel>();
+
                 foreach (var roleId in dto.RolesIds)
                 {
                     roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId.ToGuid()), r => r.Id);
