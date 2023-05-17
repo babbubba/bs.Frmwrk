@@ -13,7 +13,7 @@ namespace bs.Frmwrk.Shared
         /// <param name="itemToAdd">The item to add if not exists in the collection yet.</param>
         /// <param name="parameter">The property used to compare the collection with the item to add.</param>
         /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2212211504 - Parameter is mandatory</exception>
-        public static void AddIfNotExists<T, R>(this ICollection<T> collection, T itemToAdd, Func<T, R> parameter)
+        public static bool AddIfNotExists<T, R>(this ICollection<T> collection, T itemToAdd, Func<T, R> parameter)
         {
             if (parameter is null)
             {
@@ -24,7 +24,9 @@ namespace bs.Frmwrk.Shared
             if (!collection.Any(v => parameter(v).Equals(parameter(itemToAdd))))
             {
                 collection.Add(itemToAdd);
+                return true;
             }
+            return false;
 #pragma warning restore CS8602 // Dereferenziamento di un possibile riferimento Null.
         }
     }

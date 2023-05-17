@@ -1,5 +1,6 @@
 using bs.Data.Interfaces;
 using bs.Frmwrk.Auth.Dtos;
+using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Services.Auth;
@@ -43,7 +44,7 @@ namespace bs.Frmwrk.Test
             //Create user
             log?.LogInformation("Registering new user (user 'test')");
             var newUser = new AuthRegisterDto { UserName = "test", Password = "Passw0rdDiProva@", Email = EMAIL_TEST };
-            var r7 = await authService.RegisterNewUserAsync(newUser);
+            var r7 = await authService.RegisterNewUserAsync(newUser, new string[]{ PermissionsCodes.USERS_REGISTRY, PermissionsCodes.ROLES_REGISTRY} );
 
             Assert.That(r7, Is.Not.Null, "CreateUserAsync doesnt work properly");
             Assert.That(r7.Success, Is.True, $"Cannot create the user: {r7.ErrorMessage} ({r7.ErrorCode})");

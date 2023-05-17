@@ -41,7 +41,7 @@ namespace bs.Frmwrk.Mapper.Profiles
         {
             IMappingExpression<TSourceInterface, TDestinationInterface> baseMapping = CreateMap<TSourceInterface, TDestinationInterface>();
 
-            var concreteClass = typeof(TDestinationInterface).GetTypeFromInterface();
+            var concreteClass = typeof(TDestinationInterface).GetImplTypeFromInterface();
             if (concreteClass is not null)
             {
                 baseMapping.As(concreteClass);

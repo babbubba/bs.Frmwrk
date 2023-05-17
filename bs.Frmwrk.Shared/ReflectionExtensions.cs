@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Core.Models.Auth;
 
 namespace bs.Frmwrk.Shared
 {
@@ -32,9 +33,9 @@ namespace bs.Frmwrk.Shared
            .SingleOrDefault();
         }
 
-        public static Type? GetTypeFromInterface(this Type interfaceType)
+        public static Type? GetImplTypeFromInterface(this Type interfaceType)
         {
-            var result = interfaceType.GetTypesFromInterface();
+            var result = interfaceType.GetImplTypesFromInterface();
 
             if (result is not null && result.Count() > 1)
             {
@@ -44,7 +45,23 @@ namespace bs.Frmwrk.Shared
             return result?.SingleOrDefault();
         }
 
-        public static IEnumerable<Type?> GetTypesFromInterface(this Type interfaceType)
+        public static T GetImplInstanceFromInterface<T>(this Type interfaceType) where T : class
+        {
+            var implType = interfaceType.GetImplTypeFromInterface();
+            if (implType == null)
+            {
+                throw new BsException(2212141235, $"There are no a valid implementation of the interface or base class: '{interfaceType.FullName}'");
+            }
+            var result = (T?)Activator.CreateInstance(implType);
+            if(result==null)
+            {
+                throw new BsException(2212141235, $"Cannot init the implementation of the interface or base class: '{interfaceType.FullName}'");
+            }
+            return result;
+
+        }
+
+        public static IEnumerable<Type?> GetImplTypesFromInterface(this Type interfaceType)
         {
             return AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(s => s.GetTypes())

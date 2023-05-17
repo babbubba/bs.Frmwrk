@@ -1,9 +1,11 @@
-﻿namespace bs.Frmwrk.Core.Models.Auth
+﻿using bs.Frmwrk.Core.Mapper.Profiles;
+
+namespace bs.Frmwrk.Core.Models.Auth
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IUsersPermissionsModel
+    public interface IUsersPermissionsModel : IIdentified
     {
         /// <summary>
         /// Gets or sets the user.
