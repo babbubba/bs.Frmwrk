@@ -12,6 +12,7 @@ namespace bs.Frmwrk.Security.Dtos
         {
             Code = code;
             Label = name;
+            Enabled = true;
         }
 
         /// <summary>
