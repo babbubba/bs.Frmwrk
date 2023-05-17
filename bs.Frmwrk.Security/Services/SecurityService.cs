@@ -106,14 +106,14 @@ namespace bs.Frmwrk.Security.Services
         {
             if (string.IsNullOrWhiteSpace(password))
             {
-                errorMessage = translateService.Translate("La password è vuota.");
+                errorMessage = translateService.Translate("La password è vuota");
                 return false;
             }
 
             var currentPasswordScore = PasswordAdvisor.CheckStrength(password);
             if (currentPasswordScore <= securitySettings.PasswordComplexity)
             {
-                errorMessage = translateService.Translate("La password non è sufficientemente complessita (la complessità della password è '{1}' ma è richiesto '{0}').", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString());
+                errorMessage = translateService.Translate("La password non è sufficientemente complessa, la complessità della password è '{1}' ma è richiesto '{0}'", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString());
                 return false;
             }
 
@@ -179,12 +179,12 @@ namespace bs.Frmwrk.Security.Services
 
             if (user == null)
             {
-                throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo."));
+                throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo"));
             }
 
             if (roleCode == null)
             {
-                throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo."));
+                throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo"));
             }
             var result = user.Roles.Any(r => r.Code == roleCode);
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
@@ -218,7 +218,7 @@ namespace bs.Frmwrk.Security.Services
                 {
                     usernameToDisable.Enabled = false;
                     OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp??"*");
-                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}'. L'utente è stato disabilitato!", username.ToLower()));
+                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}', l'utente è stato disabilitato", username.ToLower()));
                 }
             }
 
@@ -227,8 +227,8 @@ namespace bs.Frmwrk.Security.Services
                 var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
                 if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
                 {
-                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);
-                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp?.ToLower() ?? "*"));
+                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip '{0}", clientIp), SecurityEventSeverity.Danger, username, clientIp);
+                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'", clientIp?.ToLower() ?? "*"));
                 }
             }
            
