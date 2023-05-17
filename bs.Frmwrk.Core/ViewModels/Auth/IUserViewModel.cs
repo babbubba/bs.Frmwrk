@@ -1,4 +1,6 @@
-﻿namespace bs.Frmwrk.Core.ViewModels.Auth
+﻿using bs.Frmwrk.Core.Mapper.Profiles;
+
+namespace bs.Frmwrk.Core.ViewModels.Auth
 {
     /// <summary>
     ///
@@ -61,4 +63,5 @@
         /// </value>
         DateTime RefreshTokenExpire { get; set; }
     }
+
 }
