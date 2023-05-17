@@ -20,10 +20,10 @@
     "VerifyEmail": false
   },
   "Mailing": {
-    "From": "usr",
+    "From": "BS Frmwrk",
     "FromDisplayName": "BS Frmwrk",
-    "SmtpServer": "smtp.gmail.com",
-    "Port": 465,
+    "SmtpServer": "127.0.0.1",
+    "Port": 1025,
     "Username": "usr",
     "Password": "pwd"
   }
