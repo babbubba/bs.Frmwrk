@@ -20,7 +20,7 @@
     "VerifyEmail": false
   },
   "Mailing": {
-    "From": "BS Frmwrk",
+    "From": "usr@mydomain.com",
     "FromDisplayName": "BS Frmwrk",
     "SmtpServer": "127.0.0.1",
     "Port": 1025,
