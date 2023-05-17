@@ -22,7 +22,7 @@
   "Mailing": {
     "From": "usr@mydomain.com",
     "FromDisplayName": "BS Frmwrk",
-    "SmtpServer": "127.0.0.1",
+    "SmtpServer": "localhost",
     "Port": 1025,
     "Username": "usr",
     "Password": "pwd"
