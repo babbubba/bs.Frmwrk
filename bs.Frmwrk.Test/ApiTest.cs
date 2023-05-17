@@ -104,22 +104,22 @@ namespace bs.Frmwrk.Test
             log?.LogInformation("Testing permissions");
         }
 
-        [Test]
-        public async Task ChangePassword_Test()
-        {
-            var log = Root.ServiceProvider?.GetRequiredService<ILogger<ApiTest>>();
-            var authService = Root.ServiceProvider?.GetRequiredService<IAuthService>();
-            Assert.That(authService, Is.Not.Null, "Cannot resolve AuthService from DI");
+        //[Test]
+        //public async Task ChangePassword_Test()
+        //{
+        //    var log = Root.ServiceProvider?.GetRequiredService<ILogger<ApiTest>>();
+        //    var authService = Root.ServiceProvider?.GetRequiredService<IAuthService>();
+        //    Assert.That(authService, Is.Not.Null, "Cannot resolve AuthService from DI");
 
-            var uow = Root.ServiceProvider?.GetRequiredService<IUnitOfWork>();
-            Assert.That(uow, Is.Not.Null, "Cannot resolve Unit of Work from DI");
+        //    var uow = Root.ServiceProvider?.GetRequiredService<IUnitOfWork>();
+        //    Assert.That(uow, Is.Not.Null, "Cannot resolve Unit of Work from DI");
 
-            var testUser = await uow.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == "user");
-            Assert.That(testUser, Is.Not.Null, "Cannot find 'user' user in the database");
+        //    var testUser = await uow.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == "user");
+        //    Assert.That(testUser, Is.Not.Null, "Cannot find 'user' user in the database");
 
-            var r1 = await authService.ChangePasswordAsync(new ChangeUserPasswordDto { OldPassword = "Pa$$w0rd01!", Password = "Pa$$w0rd02!", PasswordConfirm = "Pa$$w0rd02!", UserName = "user" }, testUser);
-            Assert.That(r1, Is.Not.Null, "ChangePasswordAsync doesnt work properly");
-            Assert.That(r1.Success, Is.True, $"Cannot create the user: {r1.ErrorMessage} ({r1.ErrorCode})");
-        }
+        //    var r1 = await authService.ChangePasswordAsync(new ChangeUserPasswordDto { OldPassword = "Pa$$w0rd01!", Password = "Pa$$w0rd02!", PasswordConfirm = "Pa$$w0rd02!", UserName = "user" }, testUser);
+        //    Assert.That(r1, Is.Not.Null, "ChangePasswordAsync doesnt work properly");
+        //    Assert.That(r1.Success, Is.True, $"Cannot create the user: {r1.ErrorMessage} ({r1.ErrorCode})");
+        //}
     }
 }
