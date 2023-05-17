@@ -292,7 +292,7 @@ namespace bs.Frmwrk.Application
         internal static void RegisterRepositories(this WebApplicationBuilder builder)
         {
             var result = new Dictionary<string, ApiResponse>();
-            var repositories = typeof(IRepository).GetTypesFromInterface();
+            var repositories = typeof(IRepository).GetImplTypesFromInterface();
 
             foreach (var repository in repositories)
             {
@@ -329,7 +329,7 @@ namespace bs.Frmwrk.Application
         internal static void RegisterServices(this WebApplicationBuilder builder)
         {
             var result = new Dictionary<string, ApiResponse>();
-            var services = typeof(IBsService).GetTypesFromInterface();
+            var services = typeof(IBsService).GetImplTypesFromInterface();
 
             foreach (var service in services)
             {
@@ -370,13 +370,13 @@ namespace bs.Frmwrk.Application
 
         internal static void SetAuthorization(this WebApplicationBuilder builder)
         {
-            var authRepository = typeof(IAuthRepository).GetTypeFromInterface();
+            var authRepository = typeof(IAuthRepository).GetImplTypeFromInterface();
             if (authRepository == null)
             {
                 throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface");
             }
 
-            var securityRepository = typeof(ISecurityRepository).GetTypeFromInterface(); ;
+            var securityRepository = typeof(ISecurityRepository).GetImplTypeFromInterface(); ;
             if (securityRepository == null)
             {
                 throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface");

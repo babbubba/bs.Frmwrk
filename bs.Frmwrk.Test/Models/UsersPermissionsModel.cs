@@ -1,5 +1,8 @@
 ﻿using bs.Data.Interfaces.BaseEntities;
+using bs.Data.Mapping;
 using bs.Frmwrk.Core.Models.Auth;
+using NHibernate.Mapping.ByCode;
+using NHibernate;
 using NHibernate.Mapping.ByCode.Conformist;
 
 namespace bs.Frmwrk.Test.Models
@@ -8,6 +11,7 @@ namespace bs.Frmwrk.Test.Models
 
     public class UsersPermissionsModel : IUsersPermissionsModel, IPersistentEntity
     {
+        public virtual Guid Id { get; set; } 
         public virtual IUserModel User { get; set; }
         public virtual IPermissionModel Permission { get; set; }
         public virtual PermissionType Type { get; set; }
@@ -17,6 +21,15 @@ namespace bs.Frmwrk.Test.Models
             public Map()
             {
                 Table("UsersPermissions");
+
+
+                Id(x => x.Id, x =>
+                {
+                    x.Generator(Generators.GuidComb);
+                    x.Type(NHibernateUtil.Guid);
+                    x.Column("Id");
+                    x.UnsavedValue(Guid.Empty);
+                });
 
                 Property(x => x.Type);
 

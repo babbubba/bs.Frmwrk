@@ -76,8 +76,10 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// Creates the user asynchronous and return the new created user's id.
         /// </summary>
         /// <param name="authRegisterDto">The authentication register dto.</param>
+        /// <param name="permissionsCodes">The permissions codes.</param>
         /// <returns></returns>
-        Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto);
+        //Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto);
+        Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto, string[]? permissionsCodes);
 
         /// <summary>
         /// Recoveries the user password asynchronous.

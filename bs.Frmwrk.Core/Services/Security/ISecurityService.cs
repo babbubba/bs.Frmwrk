@@ -82,5 +82,13 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="user">The user.</param>
         /// <returns></returns>
         Task SendRecoveryPasswordLinkAsync(IUserModel user);
+        /// <summary>
+        /// Adds the permission to user asynchronous.
+        /// </summary>
+        /// <param name="permissionCode">The permission code.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <returns></returns>
+        Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType);
     }
 }

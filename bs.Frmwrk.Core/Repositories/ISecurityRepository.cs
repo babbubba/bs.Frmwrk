@@ -13,7 +13,6 @@ namespace bs.Frmwrk.Core.Repositories
         /// <param name="model">The model.</param>
         /// <returns></returns>
         Task CreatePermissionAsync(IPermissionModel model);
-
         /// <summary>
         /// Gets the user by user name asynchronous.
         /// </summary>

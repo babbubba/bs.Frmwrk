@@ -81,7 +81,7 @@ namespace bs.Frmwrk.Application
         {
             var result = new Dictionary<string, IApiResponse>();
 
-            var initializableServices = typeof(IInitializableService).GetTypesFromInterface();
+            var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface();
 
             foreach (var initializableService in initializableServices)
             {

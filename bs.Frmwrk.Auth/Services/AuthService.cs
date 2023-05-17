@@ -316,7 +316,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore durante il rinnovo del token");
         }
 
-        public virtual async Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto)
+        public virtual async Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto, string[]? permissionsCodes)
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
@@ -346,7 +346,7 @@ namespace bs.Frmwrk.Auth.Services
 
                 if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == authRegisterDto.UserName))
                 {
-                    response.ErrorMessage = T("Il nome utente è già registrato!");
+                    response.ErrorMessage = T("Il nome utente è già registrato");
                     response.ErrorCode = 2212211648;
                     response.Success = false;
                     return response;
@@ -354,7 +354,7 @@ namespace bs.Frmwrk.Auth.Services
 
                 if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.Email == authRegisterDto.Email))
                 {
-                    response.ErrorMessage = T("L'indirizzo email è già registrato!");
+                    response.ErrorMessage = T("L'indirizzo email è già registrato");
                     response.ErrorCode = 2212211649;
                     response.Success = false;
                     return response;
@@ -365,7 +365,7 @@ namespace bs.Frmwrk.Auth.Services
                 if (!securityService.CheckPasswordValidity(authRegisterDto.Password, out string? passwordCheckingError))
                 {
                     response.Success = false;
-                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'.", passwordCheckingError ?? "N/D");
+                    response.ErrorMessage = T("La password non soddisfa i criteri di sicurezza: '{0}'", passwordCheckingError ?? "N/D");
                     response.ErrorCode = 2212042300;
                     return response;
                 }
@@ -379,6 +379,16 @@ namespace bs.Frmwrk.Auth.Services
                 }
 
                 await unitOfWork.Session.SaveAsync(model);
+
+                if (permissionsCodes!=null && permissionsCodes.Any() &&  model is IPermissionedUser pUser )
+                {
+                    foreach(var permissionCode in permissionsCodes)
+                    {
+                        await securityService.AddPermissionToUserAsync(permissionCode, pUser, PermissionType.None);
+                    }
+                }
+
+
 
                 await securityService.SendRegistrationConfirmAsync(model);
 

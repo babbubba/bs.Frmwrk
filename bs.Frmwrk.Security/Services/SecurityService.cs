@@ -24,9 +24,9 @@ using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 
-#pragma warning disable CS1998
 
 namespace bs.Frmwrk.Security.Services
 {
@@ -37,10 +37,16 @@ namespace bs.Frmwrk.Security.Services
     /// <seealso cref="bs.Frmwrk.Core.Services.Security.ISecurityService" />
     public class SecurityService : ISecurityService
     {
+        private readonly ICoreSettings coreSettings;
+
         /// <summary>
         /// The logger
         /// </summary>
         private readonly ILogger<SecurityService> logger;
+
+        private readonly IMailingService mailingService;
+
+        private readonly IMapperService mapper;
 
         /// <summary>
         /// The security repository
@@ -56,10 +62,6 @@ namespace bs.Frmwrk.Security.Services
         /// The translate service
         /// </summary>
         private readonly ITranslateService translateService;
-        private readonly IMapperService mapper;
-        private readonly ICoreSettings coreSettings;
-        private readonly IMailingService mailingService;
-
         /// <summary>
         /// The unit of work
         /// </summary>
@@ -96,6 +98,21 @@ namespace bs.Frmwrk.Security.Services
         public event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
 
+        public async Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType)
+        {
+            if (user is null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            IUsersPermissionsModel userPermission = user.UsersPermissions.SingleOrDefault(up=>up.Permission.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
+            userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
+            userPermission.User ??= (IUserModel)user;//  await unitOfWork.Session.LoadAsync<IUserModel>(((IUserModel)user).Id);
+            userPermission.Type = permissionType ?? PermissionType.None;
+            await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
+            user.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code);
+        }
+
         /// <summary>
         /// Checks the password validity.
         /// </summary>
@@ -106,30 +123,19 @@ namespace bs.Frmwrk.Security.Services
         {
             if (string.IsNullOrWhiteSpace(password))
             {
-                errorMessage = translateService.Translate("La password è vuota.");
+                errorMessage = translateService.Translate("La password è vuota");
                 return false;
             }
 
             var currentPasswordScore = PasswordAdvisor.CheckStrength(password);
             if (currentPasswordScore <= securitySettings.PasswordComplexity)
             {
-                errorMessage = translateService.Translate("La password non è sufficientemente complessita (la complessità della password è '{1}' ma è richiesto '{0}').", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString());
+                errorMessage = translateService.Translate("La password non è sufficientemente complessa, la complessità della password è '{1}' ma è richiesto '{0}'", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString());
                 return false;
             }
 
             errorMessage = null;
             return true;
-        }
-
-        public IApiResponse<ISelectListItem> GetPasswordScore(string password)
-        {
-            PasswordScore score = 0;
-            if (!string.IsNullOrWhiteSpace(password))
-            {
-                score = PasswordAdvisor.CheckStrength(password);
-            }
-
-            return  new ApiResponse<ISelectListItem>(new SelectListItem(((int)score).ToString(), score.ToString()));
         }
 
         /// <summary>
@@ -179,16 +185,109 @@ namespace bs.Frmwrk.Security.Services
 
             if (user == null)
             {
-                throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo."));
+                throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo"));
             }
 
             if (roleCode == null)
             {
-                throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo."));
+                throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo"));
             }
             var result = user.Roles.Any(r => r.Code == roleCode);
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
             return result;
+        }
+
+        public async Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto)
+        {
+            IPermissionModel? existingPermission = await unitOfWork.Session.Query<IPermissionModel>().SingleOrDefaultAsync(p => p.Code == dto.Code);
+            if (existingPermission != null)
+            {
+                mapper.Map(dto, existingPermission);
+                await securityRepository.UpdatePermissionAsync(existingPermission);
+            }
+            else
+            {
+                existingPermission = mapper.Map<IPermissionModel>(dto);
+                await securityRepository.CreatePermissionAsync(existingPermission);
+            }
+
+            return existingPermission;
+        }
+
+        public string GetConfirmRegistrationUrl(string userId, string confirmationId)
+        {
+            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/ConfirmEmail?UserId={userId}&ConfirmationId={confirmationId}";
+        }
+
+        public IApiResponse<ISelectListItem> GetPasswordScore(string password)
+        {
+            PasswordScore score = 0;
+            if (!string.IsNullOrWhiteSpace(password))
+            {
+                score = PasswordAdvisor.CheckStrength(password);
+            }
+
+            return  new ApiResponse<ISelectListItem>(new SelectListItem(((int)score).ToString(), score.ToString()));
+        }
+        public string GetRecoveryPasswordUrl(string userId, string recoveryPasswordId)
+        {
+            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/RecoveryPassword?UserId={userId}&RecoveryPasswordId={recoveryPasswordId}";
+        }
+
+        public async Task<IApiResponse> InitServiceAsync()
+        {
+            // Create the default permission
+            try
+            {
+                unitOfWork.BeginTransaction();
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.USERS_REGISTRY, "Anagrafica utenti"));
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.ROLES_REGISTRY, "Anagrafica ruoli"));
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.PERMISSIONS_REGISTRY, "Anagrafica permessi"));
+                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.USERS_MODERATION, "Moderazione utenti"));
+
+                await unitOfWork.TryCommitOrRollbackAsync();
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(false, ex.GetBaseException().Message);
+            }
+            return new ApiResponse();
+        }
+
+        public async Task SendRecoveryPasswordLinkAsync(IUserModel user)
+        {
+            if (user.Enabled)
+            {
+                //send email link
+                user.RecoveryPasswordId = Guid.NewGuid();
+                var message = new MailMessageDto();
+                message.Subject = translateService.Translate($"Ripristino password");
+                message.IsHtmlBody = true;
+                message.ToEmails = new string[] { user.Email };
+                message.Body = @$"<p>Clicca <a href=""{GetRecoveryPasswordUrl(user.Id.ToString(), user.RecoveryPasswordId.ToString())}""> qui </a> per ripristinare la password.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetRecoveryPasswordUrl(user.Id.ToString(), user.RecoveryPasswordId.ToString())}</p>";
+                await mailingService.SendEmailAsync(message);
+            }
+            else
+            {
+
+            }
+        }
+
+        public async Task SendRegistrationConfirmAsync(IUserModel user)
+        {
+            if (securitySettings.VerifyEmail)
+            {
+                //send email link
+                user.ConfirmationId = Guid.NewGuid();
+                var message = new MailMessageDto
+                {
+                    Subject = translateService.Translate($"Conferma email"),
+                    IsHtmlBody = true,
+                    ToEmails = new string[] { user.Email },
+                    Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}</p>"
+                };
+                await mailingService.SendEmailAsync(message);
+            }
         }
 
         /// <summary>
@@ -198,7 +297,7 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="clientIp">The client ip.</param>
         public virtual async Task TrackLoginFailAsync(string username, string? clientIp)
         {
-            var modelType = typeof(IAuditFailedLoginModel).GetTypeFromInterface() ?? throw new BsException(2212191126, translateService.Translate("Impossibile trovare una implementazione del modello 'IAuditFailedLoginModel'"));
+            var modelType = typeof(IAuditFailedLoginModel).GetImplTypeFromInterface() ?? throw new BsException(2212191126, translateService.Translate("Impossibile trovare una implementazione del modello 'IAuditFailedLoginModel'"));
 
             IAuditFailedLoginModel newEntry = (IAuditFailedLoginModel)Activator.CreateInstance(modelType)!;
             newEntry.ClientIp = clientIp;
@@ -218,7 +317,7 @@ namespace bs.Frmwrk.Security.Services
                 {
                     usernameToDisable.Enabled = false;
                     OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp??"*");
-                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}'. L'utente è stato disabilitato!", username.ToLower()));
+                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}', l'utente è stato disabilitato", username.ToLower()));
                 }
             }
 
@@ -227,8 +326,8 @@ namespace bs.Frmwrk.Security.Services
                 var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
                 if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
                 {
-                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip", username), SecurityEventSeverity.Danger, username, clientIp);
-                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'.", clientIp?.ToLower() ?? "*"));
+                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip '{0}", clientIp), SecurityEventSeverity.Danger, username, clientIp);
+                    logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'", clientIp?.ToLower() ?? "*"));
                 }
             }
            
@@ -253,92 +352,7 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="clientIp">The client ip.</param>
         protected void OnTooManyAttemptsEvent(string message, SecurityEventSeverity severity, string userName, string? clientIp = null) =>
                                                     TooManyAttemptsEvent?.Invoke(this, new SecurityEventDto(message, severity, userName, clientIp));
-
-        public async Task<IApiResponse> InitServiceAsync()
-        {
-            // Create the default permission
-            try
-            {
-                unitOfWork.BeginTransaction();
-                await CreatePermissionIfNotExistsAsync(new  CreatePermissionDto(PermissionsCodes.USERS_REGISTRY, "Anagrafica utenti"));
-                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.ROLES_REGISTRY, "Anagrafica ruoli"));
-                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.PERMISSIONS_REGISTRY, "Anagrafica permessi"));
-                await CreatePermissionIfNotExistsAsync(new CreatePermissionDto(PermissionsCodes.USERS_MODERATION, "Moderazione utenti"));
-
-                await unitOfWork.TryCommitOrRollbackAsync();
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse(false, ex.GetBaseException().Message);
-            }
-            return new ApiResponse();
-        }
-
-        public async Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto)
-        {
-            IPermissionModel? existingPermission = await unitOfWork.Session.Query<IPermissionModel>().SingleOrDefaultAsync(p=>p.Code == dto.Code);
-            if (existingPermission != null)
-            {
-                mapper.Map(dto, existingPermission);
-                await securityRepository.UpdatePermissionAsync(existingPermission);
-            }
-            else
-            {
-                existingPermission = mapper.Map<IPermissionModel>(dto);
-                await securityRepository.CreatePermissionAsync(existingPermission);
-            }
-           
-            return existingPermission;
-        }
-
-        public async Task SendRegistrationConfirmAsync(IUserModel user)
-        {
-            if(securitySettings.VerifyEmail)
-            {
-                //send email link
-                user.ConfirmationId = Guid.NewGuid();
-                var message = new MailMessageDto
-                {
-                    Subject = translateService.Translate($"Conferma email"),
-                    IsHtmlBody = true,
-                    ToEmails = new string[] { user.Email },
-                    Body = @$"<p>Clicca <a href=""{GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}""> qui </a> per confermare il tuo indirizzo email.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetConfirmRegistrationUrl(user.Id.ToString(), user.ConfirmationId.ToString())}</p>"
-                };
-                await mailingService.SendEmailAsync(message);
-            }
-        }
-
-        public async Task SendRecoveryPasswordLinkAsync(IUserModel user)
-        {
-            if (user.Enabled)
-            {
-                //send email link
-                user.RecoveryPasswordId = Guid.NewGuid();
-                var message = new MailMessageDto();
-                message.Subject = translateService.Translate($"Ripristino password");
-                message.IsHtmlBody = true;
-                message.ToEmails = new string[] { user.Email };
-                message.Body = @$"<p>Clicca <a href=""{GetRecoveryPasswordUrl(user.Id.ToString(), user.RecoveryPasswordId.ToString())}""> qui </a> per ripristinare la password.</p></br><p>Se il link non funziona copia ed incolla nel browser il seguente url: {GetRecoveryPasswordUrl(user.Id.ToString(), user.RecoveryPasswordId.ToString())}</p>";
-                await mailingService.SendEmailAsync(message);
-            }
-            else
-            {
-
-            }
-        }
-
-        public string GetConfirmRegistrationUrl(string userId, string confirmationId)
-        {
-            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/ConfirmEmail?UserId={userId}&ConfirmationId={confirmationId}";
-        }
-
-        public string GetRecoveryPasswordUrl(string userId, string recoveryPasswordId)
-        {
-            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/RecoveryPassword?UserId={userId}&RecoveryPasswordId={recoveryPasswordId}";
-        }
-
     }
 
 }
 
-#pragma warning restore CS1998

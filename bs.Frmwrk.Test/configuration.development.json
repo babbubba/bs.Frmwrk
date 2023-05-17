@@ -17,14 +17,14 @@
     "secret": "chiave-da-cambiare-in-produzione",
     //PasswordComplexity: 0 - Blank; 1 - VeryWeak; 2 - Weak; 3 - Medium; 4 - Strong; 5 - VeryStrong
     "PasswordComplexity": 2,
-    "VerifyEmail": true
+    "VerifyEmail": false
   },
   "Mailing": {
-    "From": "sendm.todostore@italcomspa.biz",
+    "From": "usr@mydomain.com",
     "FromDisplayName": "BS Frmwrk",
-    "SmtpServer": "posta.italcom.biz",
-    "Port": 465,
-    "Username": "sendm.todostore@italcomspa.biz",
-    "Password": "rXI3s8w1&DO!"
+    "SmtpServer": "localhost",
+    "Port": 1025,
+    "Username": "usr",
+    "Password": "pwd"
   }
 }

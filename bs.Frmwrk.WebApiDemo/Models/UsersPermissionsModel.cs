@@ -9,6 +9,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
 
     public class UsersPermissionsModel : IUsersPermissionsModel, IPersistentEntity
     {
+        public virtual Guid Id { get; set; }
         public virtual IUserModel User { get; set; }
         public virtual IPermissionModel Permission { get; set; }
         public virtual PermissionType Type { get; set; }
@@ -18,6 +19,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
             public Map()
             {
                 Table("UsersPermissions");
+                Id(x=>x.Id);
                 Property(x => x.Type);
                 SetManyToOne(p => p.User, "UserId", "FK__UsersPermissions_Users", mto =>
                 {
