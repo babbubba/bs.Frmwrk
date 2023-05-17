@@ -5,7 +5,6 @@ using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Shared;
-using bs.Frmwrk.Test.Dtos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
