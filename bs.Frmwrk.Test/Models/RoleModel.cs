@@ -15,6 +15,11 @@ namespace bs.Frmwrk.Test.Models
         public virtual string Label { get; set; }
         public virtual bool Enabled { get; set; }
 
+        public override string ToString()
+        {
+            return Code;
+        }
+
         public class Map : ClassMapping<RoleModel>
         {
             public Map()

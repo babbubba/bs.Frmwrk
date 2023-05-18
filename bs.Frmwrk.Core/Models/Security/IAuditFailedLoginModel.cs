@@ -1,9 +1,11 @@
-﻿namespace bs.Frmwrk.Core.Models.Security
+﻿using bs.Frmwrk.Core.Mapper.Profiles;
+
+namespace bs.Frmwrk.Core.Models.Security
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IAuditFailedLoginModel
+    public interface IAuditFailedLoginModel : IIdentified
     {
         /// <summary>
         /// Gets or sets the client ip.
@@ -20,14 +22,6 @@
         /// The event date.
         /// </value>
         DateTime EventDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        Guid Id { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the user.

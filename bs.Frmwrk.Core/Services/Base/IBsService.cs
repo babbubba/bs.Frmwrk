@@ -48,7 +48,7 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="source">The Queryable entities used as source.</param>
         /// <param name="filterFuncion">Optional filter function. If null no filter will be applied.</param>
         /// <returns>It returns the paginated view model of the mapped entity in the format valid for datatables.net</returns>
-        Task<IApiPagedResponse<TViewModel>> PaginateAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion);
+        Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion);
 
         /// <summary>
         /// Translates the string.
@@ -64,5 +64,21 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="objs">The objs.</param>
         /// <returns></returns>
         string T(string text, params object[] objs);
+
+        /// <summary>
+        /// Executes the asynchronous.
+        /// </summary>
+        /// <typeparam name="TResponse">The type of the response.</typeparam>
+        /// <param name="function">The function.</param>
+        /// <param name="genericErrorMessage">The generic error message.</param>
+        /// <returns></returns>
+        Task<IApiResponse<TResponse>> _ExecuteAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string? genericErrorMessage = null);
+        /// <summary>
+        /// Executes the asynchronous.
+        /// </summary>
+        /// <param name="function">The function.</param>
+        /// <param name="genericErrorMessage">The generic error message.</param>
+        /// <returns></returns>
+        Task<IApiResponse> _ExecuteAsync(Func<IApiResponse, Task<IApiResponse>> function, string? genericErrorMessage = null);
     }
 }

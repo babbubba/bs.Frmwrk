@@ -10,6 +10,7 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace bs.Frmwrk.Base.Services
 {
@@ -17,8 +18,8 @@ namespace bs.Frmwrk.Base.Services
     {
         protected readonly ILogger logger;
         protected readonly IMapperService mapper;
-        protected readonly IUnitOfWork unitOfWork;
         protected readonly ISecurityService securityService;
+        protected readonly IUnitOfWork unitOfWork;
         private readonly ITranslateService translateService;
 
         public BsService(ILogger logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork, ISecurityService securityService)
@@ -30,8 +31,59 @@ namespace bs.Frmwrk.Base.Services
             this.securityService = securityService;
         }
 
-        public async Task<IApiPagedResponse<TViewModel>> PaginateAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion)
+        public async Task<IApiResponse<TResponse>> _ExecuteAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string? genericErrorMessage = null)
         {
+            IApiResponse<TResponse> response = (IApiResponse<TResponse>?)Activator.CreateInstance(typeof(ApiResponse<TResponse>)) ?? throw new BsException(2305180955, T("Impossibile costruire l'oggetto ApiResponse"));
+
+            if (function == null)
+            {
+                return response.SetError(((genericErrorMessage != null) ? T(genericErrorMessage) + ": " : "") + T("Impossibile eseguire l'azione... la funzione non è valida."), 2305180956, logger);
+            }
+
+            try
+            {
+                response = await function.Invoke(response);
+            }
+            catch (BsException bex)
+            {
+                response = response.SetError(((genericErrorMessage != null) ? T(genericErrorMessage) + ": " : "") + bex.GetBaseException().Message, bex.ErrorCode, logger, bex);
+            }
+            catch (Exception ex)
+            {
+                response = response.SetError(((genericErrorMessage != null) ? T(genericErrorMessage) + ": " : "") + ex.GetBaseException().Message, null, logger, ex);
+            }
+
+            return response;
+        }
+
+        public async Task<IApiResponse> _ExecuteAsync(Func<IApiResponse, Task<IApiResponse>> function, string? genericErrorMessage = null)
+        {
+            IApiResponse response = (IApiResponse?)Activator.CreateInstance(typeof(ApiResponse)) ?? throw new BsException(2305180959, T("Impossibile costruire l'oggetto ApiResponse"));
+            if (function == null)
+            {
+                return response.SetError(((genericErrorMessage != null) ? T(genericErrorMessage) + ": " : "") + T("Impossibile eseguire l'azione... la funzione non è valida."), 2305180957, logger);
+            }
+
+            try
+            {
+                response = await function.Invoke(response);
+            }
+            catch (BsException bex)
+            {
+                response = response.SetError(((genericErrorMessage != null) ? T(genericErrorMessage) + ": " : "") + bex.GetBaseException().Message, bex.ErrorCode, logger, bex);
+            }
+            catch (Exception ex)
+            {
+                response = response.SetError(((genericErrorMessage != null) ? T(genericErrorMessage) + ": " : "") + ex.GetBaseException().Message, null, logger, ex);
+            }
+
+            return response;
+        }
+
+        public async Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion)
+        {
+            IApiPagedResponse<TViewModel> response = (IApiPagedResponse<TViewModel>?)Activator.CreateInstance(typeof(ApiPagedResponse<TViewModel>)) ?? throw new BsException(2302061027, translateService.Translate("Impossibile costruire l'oggetto ApiPagedResponse"));
+
             var dto = pageRequest as PageRequestDto;
 
             var totalRecords = source.Count();
@@ -42,28 +94,68 @@ namespace bs.Frmwrk.Base.Services
             // Set order
             if (dto?.Order != null && dto.Order.Length > 0 && dto.Columns != null)
             {
-                var columnPropertyName = dto.Columns[dto.Order[0].Column].Name;
-                var orderDescending = dto.Order[0].Dir.ToLower() == "asc" ? false : true;
                 try
                 {
+                    var columnPropertyName = dto.Columns[dto.Order[0].Column].Name;
+                    var orderDescending = dto.Order[0].Dir.ToLower() == "asc" ? false : true;
                     filteredQuery = filteredQuery.DynamicOrderNestedBy(columnPropertyName, orderDescending);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, T("Errore eseguendo l'ordinamento dinamico della tabella"));
+                    return response.SetError(T("Errore eseguendo l'ordinamento dinamico della tabella: '{0}'", ex.GetBaseException().Message), 2305180940, logger, ex);
                 }
             }
-            filteredQuery = filteredQuery.Distinct();
 
-            var data = await filteredQuery.Skip(pageRequest.Start).Take(pageRequest.Length).ToListAsync();
-
-            return new ApiPagedResponse<TViewModel>
+            //Retrieving data
+            try
             {
-                Data = mapper.Map<IEnumerable<TViewModel>>(data),
-                Draw = pageRequest.Draw,
-                RecordsFiltered = filteredQuery.Count(),
-                RecordsTotal = totalRecords,
-            };
+                filteredQuery = filteredQuery.Distinct();
+                response.Data = mapper.Map<IEnumerable<TViewModel>>(await filteredQuery.Skip(pageRequest.Start).Take(pageRequest.Length).ToListAsync());
+                response.Draw = pageRequest.Draw;
+                response.RecordsFiltered = filteredQuery.Count();
+                response.RecordsTotal = totalRecords;
+            }
+            catch (Exception ex)
+            {
+                response =  response.SetError(T("Errore ottenendo i dati della tabella: '{0}'", ex.GetBaseException().Message), 2305180941, logger, ex);
+            }
+
+            return response;
+        }
+
+        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IQueryable<TSource>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
+        {
+            IApiPagedResponse<TResponse> response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>)) ?? throw new BsException(2305180942, T("Impossibile costruire l'oggetto ApiPagedResponse"));
+
+            if (function == null)
+            {
+                return response.SetError(T(genericErrorMessage) + ": " + T("Impossibile eseguire l'azione... la funzione non è valida."), 2305180943, logger);
+            }
+
+            try
+            {
+                unitOfWork.BeginTransaction();
+                response = await _ExecutePaginatedAsync<TSource, TResponse>(pageRequest, function.Invoke(), filterFuncion);
+                if (response.Success)
+                {
+                    await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    await unitOfWork.RollbackAsync();
+                }
+            }
+            catch (BsException bex)
+            {
+                await unitOfWork.RollbackAsync();
+                response = response.SetError(T(genericErrorMessage) + ": " + bex.GetBaseException().Message, bex.ErrorCode, logger, bex);
+            }
+            catch (Exception ex)
+            {
+                response = response.SetError(T(genericErrorMessage) + ": " + ex.GetBaseException().Message, null, logger, ex);
+            }
+
+            return response;
         }
 
         /// <summary>
@@ -79,79 +171,33 @@ namespace bs.Frmwrk.Base.Services
         /// </exception>
         public async Task<IApiResponse> ExecuteTransactionAsync(Func<IApiResponse, Task<IApiResponse>> function, string genericErrorMessage)
         {
-            unitOfWork.BeginTransaction();
-
-            IApiResponse? response = (IApiResponse?)Activator.CreateInstance(typeof(ApiResponse));
-
-            if (response == null)
-            {
-                throw new BsException(2212071645, translateService.Translate("Impossibile costruire l'oggetto ApiResponse."));
-            }
-
-            if (function == null)
-            {
-                throw new BsException(2212071646, translateService.Translate("Impossibile eseguire l'azione. La funzione non è valida."));
-            }
-
-            try
-            {
-                // try executing the operation method
-                response = await function.Invoke(response);//.ConfigureAwait(false);
-                await unitOfWork.CommitAsync();
-            }
-            catch (BsException bex)
-            {
-                await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
-                response.ErrorCode = bex.ErrorCode;
-                response.Success = false;
-                logger.LogError(bex, response.ErrorMessage);
-            }
-            catch (Exception ex)
-            {
-                await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
-                response.Success = false;
-                logger.LogError(ex, response.ErrorMessage);
-            }
-
-            return response;
-        }
-
-        //public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, Task<IApiPagedResponse<TResponse>>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
-        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IQueryable<TSource>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
-        {
-            IApiPagedResponse<TResponse>? response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>));
-            if (response == null)
-            {
-                throw new BsException(2302061027, translateService.Translate("Impossibile costruire l'oggetto ApiPagedResponse"));
-            }
-
-            if (function == null)
-            {
-                throw new BsException(2302061028, translateService.Translate("Impossibile eseguire l'azione. La funzione non è valida."));
-            }
+            IApiResponse response = (IApiResponse?)Activator.CreateInstance(typeof(ApiResponse)) ?? throw new BsException(2305180951, T("Impossibile costruire l'oggetto ApiResponse"));
 
             try
             {
                 unitOfWork.BeginTransaction();
-                response = await PaginateAsync<TSource, TResponse>(pageRequest, function.Invoke(), filterFuncion);
-                await unitOfWork.CommitAsync();
+
+                // try executing the operation method
+                response = await _ExecuteAsync(function, genericErrorMessage);
+
+                if (response.Success)
+                {
+                    await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    await unitOfWork.RollbackAsync();
+                }
             }
             catch (BsException bex)
             {
+                response = response.SetError(T(genericErrorMessage) + ": " + bex.GetBaseException().Message, bex.ErrorCode, logger, bex);
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
-                response.ErrorCode = bex.ErrorCode;
-                response.Success = false;
-                logger.LogError(bex, response.ErrorMessage);
             }
             catch (Exception ex)
             {
+                response = response.SetError(T(genericErrorMessage) + ": " + ex.GetBaseException().Message, null, logger, ex);
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
-                response.Success = false;
-                logger.LogError(ex, response.ErrorMessage);
             }
 
             return response;
@@ -171,37 +217,31 @@ namespace bs.Frmwrk.Base.Services
         /// </exception>
         public async Task<IApiResponse<TResponse>> ExecuteTransactionAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string genericErrorMessage)
         {
-            IApiResponse<TResponse>? response = (IApiResponse<TResponse>?)Activator.CreateInstance(typeof(ApiResponse<TResponse>));
-            if (response == null)
-            {
-                throw new BsException(2212071647, translateService.Translate("Impossibile costruire l'oggetto ApiResponse"));
-            }
-
-            if (function == null)
-            {
-                throw new BsException(2212071646, translateService.Translate("Impossibile eseguire l'azione. La funzione non è valida."));
-            }
+            IApiResponse<TResponse> response = (IApiResponse<TResponse>?)Activator.CreateInstance(typeof(ApiResponse<TResponse>)) ?? throw new BsException(2305180953, T("Impossibile costruire l'oggetto ApiResponse"));
 
             try
             {
                 unitOfWork.BeginTransaction();
-                response = await function.Invoke(response);
-                await unitOfWork.CommitAsync();
+                response = await _ExecuteAsync(function, genericErrorMessage);
+                if (response.Success)
+                {
+                    await unitOfWork.CommitAsync();
+                }
+                else
+                {
+                    await unitOfWork.RollbackAsync();
+                }
             }
             catch (BsException bex)
             {
+                response = response.SetError(T(genericErrorMessage) + ": " + bex.GetBaseException().Message, bex.ErrorCode, logger, bex);
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + bex.GetBaseException().Message;
-                response.ErrorCode = bex.ErrorCode;
-                response.Success = false;
-                logger.LogError(bex, response.ErrorMessage);
+            
             }
             catch (Exception ex)
             {
+                response = response.SetError(T(genericErrorMessage) + ": " + ex.GetBaseException().Message,null, logger, ex);
                 await unitOfWork.RollbackAsync();
-                response.ErrorMessage = translateService.Translate(genericErrorMessage) + ": " + ex.GetBaseException().Message;
-                response.Success = false;
-                logger.LogError(ex, response.ErrorMessage);
             }
 
             return response;

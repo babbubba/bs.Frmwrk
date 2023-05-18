@@ -6,7 +6,6 @@ using NHibernate.Mapping.ByCode.Conformist;
 
 namespace bs.Frmwrk.Test.Models
 {
-#pragma warning disable CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 
     public class PermissionModel : IPermissionModel, IPersistentEntity
     {
@@ -36,5 +35,4 @@ namespace bs.Frmwrk.Test.Models
         }
     }
 
-#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 }

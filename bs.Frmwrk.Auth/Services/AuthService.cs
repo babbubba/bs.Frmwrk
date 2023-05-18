@@ -24,15 +24,13 @@ using System.Security.Cryptography;
 
 namespace bs.Frmwrk.Auth.Services
 {
-#pragma warning disable CS1998
-
     public class AuthService : BsService, IAuthService, IInitializableService
     {
         //TODO: Implemnta registrazione (moderata)
 
         protected readonly IAuthRepository authRepository;
-        private readonly ITokenService tokenService;
         private readonly ISecuritySettings securitySettings;
+        private readonly ITokenService tokenService;
 
         public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork,
             IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService, ISecuritySettings securitySettings) : base(logger, translateService, mapper, unitOfWork, securityService)
@@ -228,7 +226,7 @@ namespace bs.Frmwrk.Auth.Services
             {
                 existingModel = mapper.Map<IUserModel>(dto);
                 await unitOfWork.Session.SaveAsync(existingModel);
-            }            
+            }
 
             await AddRolesToUser(dto, existingModel);
 
@@ -373,22 +371,20 @@ namespace bs.Frmwrk.Auth.Services
                 model.PasswordHash = HashPassword(authRegisterDto.Password);
 
                 // If Email autentication is not active enable user now
-                if(!securitySettings.VerifyEmail)
+                if (!securitySettings.VerifyEmail)
                 {
                     model.Enabled = true;
                 }
 
                 await unitOfWork.Session.SaveAsync(model);
 
-                if (permissionsCodes!=null && permissionsCodes.Any() &&  model is IPermissionedUser pUser )
+                if (permissionsCodes != null && permissionsCodes.Any() && model is IPermissionedUser pUser)
                 {
-                    foreach(var permissionCode in permissionsCodes)
+                    foreach (var permissionCode in permissionsCodes)
                     {
                         await securityService.AddPermissionToUserAsync(permissionCode, pUser, PermissionType.None);
                     }
                 }
-
-
 
                 await securityService.SendRegistrationConfirmAsync(model);
 
@@ -496,6 +492,4 @@ namespace bs.Frmwrk.Auth.Services
             return passwordHash;
         }
     }
-
-#pragma warning restore CS1998
 }

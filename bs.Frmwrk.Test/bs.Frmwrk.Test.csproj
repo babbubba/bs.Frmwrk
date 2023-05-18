@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\bs.Frmwrk.Application\bs.Frmwrk.Application.csproj" />
     <ProjectReference Include="..\bs.Frmwrk.Core\bs.Frmwrk.Core.csproj" />
+    <ProjectReference Include="..\bs.Frmwrk.Navigation\bs.Frmwrk.Navigation.csproj" />
   </ItemGroup>
 
 </Project>
