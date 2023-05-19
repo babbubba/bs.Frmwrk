@@ -1,6 +1,7 @@
 ﻿using bs.Data.Interfaces;
 using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Navigation;
+using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Navigation;
 using bs.Frmwrk.Core.Services.Base;
@@ -33,6 +34,11 @@ namespace bs.Frmwrk.Navigation.Services
         {
             return await _ExecuteAsync<IMenuViewModel>(async (response) =>
             {
+                if (!await securityService.CheckUserPermissionAsync(currentUser as IPermissionedUser, PermissionsCodes.MENUS_REGISTRY))
+                {
+                    return response.SetError(T("Autorizzazioni non sufficenti per creare/modificare un  menu"), 2305191148, logger);
+                }
+
                 IMenuModel? model = (dto.Id != null)
                 ? await unitOfWork.Session.Query<IMenuModel>().SingleOrDefaultAsync(x => x.Id == dto.Id.ToGuid())
                 : await unitOfWork.Session.Query<IMenuModel>().FirstOrDefaultAsync(x => x.Code == dto.Code);
@@ -77,6 +83,12 @@ namespace bs.Frmwrk.Navigation.Services
         {
             return await _ExecuteAsync<IMenuItemViewModel>(async (response) =>
             {
+                if(! await securityService.CheckUserPermissionAsync(currentUser as IPermissionedUser, PermissionsCodes.MENU_ITEMS_REGISTRY))
+                {
+                    return response.SetError(T("Autorizzazioni non sufficenti per creare/modificare una voce di menu"), 2305191149, logger);
+                }
+
+
                 IMenuItemModel? model = (dto.Id == null)
                 ? await unitOfWork.Session.Query<IMenuItemModel>().SingleOrDefaultAsync(x => x.Code == dto.Code && x.ParentMenu.Code == dto.ParentMenuCode)
                 : await unitOfWork.Session.Query<IMenuItemModel>().SingleOrDefaultAsync(x => x.Id == dto.Id.ToGuid());
