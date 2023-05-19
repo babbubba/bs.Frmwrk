@@ -65,7 +65,19 @@ namespace bs.Frmwrk.Core.Services.Navigation
         /// <param name="currentUser">The current user.</param>
         /// <returns></returns>
         Task<IApiResponse<IMenuItemViewModel[]?>> GetMenuItemsByMenuCodeAsync(string menuCode, IUserModel currentUser);
+        /// <summary>
+        /// Creates the update menu asynchronous.
+        /// </summary>
+        /// <param name="menu">The menu.</param>
+        /// <param name="currentUser">The current user.</param>
+        /// <returns></returns>
         Task<IApiResponse<IMenuViewModel>> _CreateUpdateMenuAsync(ICreateMenuDto menu, IUserModel currentUser);
+        /// <summary>
+        /// Creates the update menu item asynchronous.
+        /// </summary>
+        /// <param name="menuItem">The menu item.</param>
+        /// <param name="currentUser">The current user.</param>
+        /// <returns></returns>
         Task<IApiResponse<IMenuItemViewModel>> _CreateUpdateMenuItemAsync(ICreateMenuItemDto menuItem, IUserModel currentUser);
     }
 }
