@@ -32,9 +32,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MySqlX.XDevAPI.Common;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Extensions.Logging;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -53,10 +55,11 @@ namespace bs.Frmwrk.Application
 
         public static void BootstrapFrmwrk(this WebApplicationBuilder builder)
         {
-            Log.Logger = new LoggerConfiguration()
+            var lc = new LoggerConfiguration()
                .WriteTo.Console()
-               .MinimumLevel.ControlledBy(new LoggingLevelSwitch(LogEventLevel.Verbose))
-               .CreateBootstrapLogger();
+               .MinimumLevel.ControlledBy(new LoggingLevelSwitch(LogEventLevel.Verbose));
+
+            Log.Logger = lc.CreateBootstrapLogger();
 
             Log.Debug("Framework initialization...");
 
@@ -199,7 +202,6 @@ namespace bs.Frmwrk.Application
                 Log.Debug($"Service is running in debug mode. You can disable this in the configuration file setting the 'EnableDebug' property in the 'AppConfiguration' section to false.");
             }
             Log.Logger = loggerConfiguration.CreateLogger();
-
             builder.Host.UseSerilog(Log.Logger);
         }
 
@@ -269,7 +271,7 @@ namespace bs.Frmwrk.Application
 
         internal static void LoadExternalDll(this WebApplicationBuilder builder)
         {
-            var result = new Dictionary<string, IApiResponse>();
+            var result = new Dictionary<string, ApiResponse>();
             var dllPaths = Directory.GetFiles(coreSettings?.ExternalDllFilesRootPath ?? builder.Environment.ContentRootPath, coreSettings?.ExternalDllFilesSearchPattern ?? $"*.dll", SearchOption.AllDirectories);
 
             //Log.Logger.Debug($"Loading external libraries: {string.Join(", ", dllPaths)}...");
@@ -285,8 +287,6 @@ namespace bs.Frmwrk.Application
                     result.Add(dllPath, new ApiResponse(false, ex.Message));
                 }
             }
-
-            //TODO: Log dei risultati dell'importazione delle librerie dinamiche
         }
 
         internal static void RegisterRepositories(this WebApplicationBuilder builder)
@@ -323,7 +323,6 @@ namespace bs.Frmwrk.Application
                     result.Add(repository.FullName ?? repository.Name, new ApiResponse(false, ex.Message));
                 }
             }
-            //TODO: Log dei risultati della registrazione dei repositories
         }
 
         internal static void RegisterServices(this WebApplicationBuilder builder)
@@ -360,7 +359,6 @@ namespace bs.Frmwrk.Application
                     result.Add(service.FullName ?? service.Name, new ApiResponse(false, ex.Message));
                 }
             }
-            //TODO: Log dei risultati della registrazione dei services
         }
 
         internal static void RegisterSignalR(this WebApplicationBuilder builder)

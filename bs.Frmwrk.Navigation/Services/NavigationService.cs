@@ -13,14 +13,11 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Navigation;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
-using Mysqlx.Session;
-using MySqlX.XDevAPI.Common;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Util;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace bs.Frmwrk.Navigation.Services
 {
@@ -63,36 +60,18 @@ namespace bs.Frmwrk.Navigation.Services
             });
         }
 
-        public async Task<IApiResponse<IMenuViewModel>> CreateUpdateMenuAsync(ICreateMenuDto menu, IUserModel currentUser)
-        {
-            return await ExecuteTransactionAsync<IMenuViewModel>(async (response) =>
-            {
-                return await _CreateUpdateMenuAsync(menu, currentUser);
-            }, "Errore creando o aggiornando il menu");
-        }
-
-        public async Task<IApiResponse<IMenuItemViewModel>> CreateUpdateMenuItemAsync(ICreateMenuItemDto menuItem, IUserModel currentUser)
-        {
-            return await ExecuteTransactionAsync<IMenuItemViewModel>(async (response) =>
-            {
-                return await _CreateUpdateMenuItemAsync(menuItem, currentUser);
-            }, "Errore creando o aggiornando la voce di menu");
-        }
-
         public async Task<IApiResponse<IMenuItemViewModel>> _CreateUpdateMenuItemAsync(ICreateMenuItemDto dto, IUserModel currentUser)
         {
             return await _ExecuteAsync<IMenuItemViewModel>(async (response) =>
             {
-                if(! await securityService.CheckUserPermissionAsync(currentUser as IPermissionedUser, PermissionsCodes.MENU_ITEMS_REGISTRY))
+                if (!await securityService.CheckUserPermissionAsync(currentUser as IPermissionedUser, PermissionsCodes.MENU_ITEMS_REGISTRY))
                 {
                     return response.SetError(T("Autorizzazioni non sufficenti per creare/modificare una voce di menu"), 2305191149, logger);
                 }
 
-
                 IMenuItemModel? model = (dto.Id == null)
                 ? await unitOfWork.Session.Query<IMenuItemModel>().SingleOrDefaultAsync(x => x.Code == dto.Code && x.ParentMenu.Code == dto.ParentMenuCode)
                 : await unitOfWork.Session.Query<IMenuItemModel>().SingleOrDefaultAsync(x => x.Id == dto.Id.ToGuid());
-
 
                 if (model == null)
                 {
@@ -149,6 +128,22 @@ namespace bs.Frmwrk.Navigation.Services
             });
         }
 
+        public async Task<IApiResponse<IMenuViewModel>> CreateUpdateMenuAsync(ICreateMenuDto menu, IUserModel currentUser)
+        {
+            return await ExecuteTransactionAsync<IMenuViewModel>(async (response) =>
+            {
+                return await _CreateUpdateMenuAsync(menu, currentUser);
+            }, "Errore creando o aggiornando il menu");
+        }
+
+        public async Task<IApiResponse<IMenuItemViewModel>> CreateUpdateMenuItemAsync(ICreateMenuItemDto menuItem, IUserModel currentUser)
+        {
+            return await ExecuteTransactionAsync<IMenuItemViewModel>(async (response) =>
+            {
+                return await _CreateUpdateMenuItemAsync(menuItem, currentUser);
+            }, "Errore creando o aggiornando la voce di menu");
+        }
+
         public Task<IApiResponse> DeleteMenuAsync(string menuItemId, IUserModel currentUser)
         {
             throw new NotImplementedException();
@@ -196,12 +191,17 @@ namespace bs.Frmwrk.Navigation.Services
                     }
                 }
 
-
                 response.Value = mapper.Map<IMenuItemViewModel[]>(query);
 
                 return response;
-
             }), "Errore ottenendo l'elenco delle voci di menu");
+        }
+
+        public async Task<IApiResponse> InitServiceAsync()
+        {
+            return new ApiResponse();
+            //throw new NotImplementedException();
+            //TODO: Implementa
         }
 
         private static void RemoveForbiddenMenuItems(ICollection<IMenuItemModel> query, IPermissionedUser permissionedUser)
@@ -251,12 +251,6 @@ namespace bs.Frmwrk.Navigation.Services
                     }
                 }
             }
-        }
-        public async Task<IApiResponse> InitServiceAsync()
-        {
-            return new ApiResponse();
-            //throw new NotImplementedException();
-            //TODO: Implementa
         }
     }
 }
