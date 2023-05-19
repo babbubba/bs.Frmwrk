@@ -22,7 +22,7 @@ namespace bs.Frmwrk.Test.Models
         public virtual ICollection<IRoleModel> Roles { get; set; } = new List<IRoleModel>();
         public virtual string UserName { get; set; }
         public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; } = new List<IUsersPermissionsModel>();
-        public bool? IsSystemUser { get; set; }
+        public virtual bool? IsSystemUser { get; set; }
 
         public class Map : ClassMapping<UserModel>
         {

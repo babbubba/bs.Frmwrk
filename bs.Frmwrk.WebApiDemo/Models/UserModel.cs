@@ -10,7 +10,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
         public virtual string Email { get; set; }
         public virtual bool Enabled { get; set; }
         public virtual Guid Id { get; set; }
-        public bool? IsSystemUser { get; set; }
+        public virtual bool? IsSystemUser { get; set; }
         public virtual string? LastIp { get; set; }
         public virtual DateTime? LastLogin { get; set; }
         public virtual string PasswordHash { get; set; }
