@@ -7,9 +7,11 @@ namespace bs.Frmwrk.Shared
     {
         public static void ToLog(this Dictionary<string, ApiResponse> resultList, ILogger? logger = null)
         {
-            foreach(var result in resultList)
+            foreach (var result in resultList)
             {
-                (result.Value.Success) ? logger?.LogDebug($"'{result.Key}' registered succeffulli in DI container") : logger?.LogError($"'{result.Key}' error registering service in DI container: {result.Value.ErrorMessage}")
+                if (result.Value.Success)
+                { logger?.LogDebug($"'{result.Key}' registered succeffulli in DI container"); }
+                else { logger?.LogError($"'{result.Key}' error registering service in DI container: {result.Value.ErrorMessage}"); }
             }
         }
 

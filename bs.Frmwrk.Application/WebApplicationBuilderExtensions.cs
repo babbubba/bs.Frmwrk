@@ -52,7 +52,6 @@ namespace bs.Frmwrk.Application
         private static IFileSystemSettings? fileSystemSettings;
         private static ILoggingSettings? loggingSettings;
         private static ISecuritySettings? securitySettings;
-        private static Microsoft.Extensions.Logging.ILogger logger;
 
         public static void BootstrapFrmwrk(this WebApplicationBuilder builder)
         {
@@ -61,10 +60,6 @@ namespace bs.Frmwrk.Application
                .MinimumLevel.ControlledBy(new LoggingLevelSwitch(LogEventLevel.Verbose));
 
             Log.Logger = lc.CreateBootstrapLogger();
-
-
-            var loggerFactory = lc.CreateLogger();
-            logger = new SerilogLoggerFactory(loggerFactory).CreateLogger("ApplicationInit");
 
             Log.Debug("Framework initialization...");
 
@@ -207,10 +202,6 @@ namespace bs.Frmwrk.Application
                 Log.Debug($"Service is running in debug mode. You can disable this in the configuration file setting the 'EnableDebug' property in the 'AppConfiguration' section to false.");
             }
             Log.Logger = loggerConfiguration.CreateLogger();
-
-            var loggerFactory = loggerConfiguration.CreateLogger();
-            logger = new SerilogLoggerFactory(loggerFactory).CreateLogger("ApplicationInit");
-
             builder.Host.UseSerilog(Log.Logger);
         }
 
@@ -296,9 +287,6 @@ namespace bs.Frmwrk.Application
                     result.Add(dllPath, new ApiResponse(false, ex.Message));
                 }
             }
-
-            result.ToLog(logger);
-
         }
 
         internal static void RegisterRepositories(this WebApplicationBuilder builder)
@@ -335,9 +323,6 @@ namespace bs.Frmwrk.Application
                     result.Add(repository.FullName ?? repository.Name, new ApiResponse(false, ex.Message));
                 }
             }
-
-            result.ToLog(logger);
-
         }
 
         internal static void RegisterServices(this WebApplicationBuilder builder)
@@ -374,8 +359,6 @@ namespace bs.Frmwrk.Application
                     result.Add(service.FullName ?? service.Name, new ApiResponse(false, ex.Message));
                 }
             }
-           
-            result.ToLog(logger);
         }
 
         internal static void RegisterSignalR(this WebApplicationBuilder builder)
