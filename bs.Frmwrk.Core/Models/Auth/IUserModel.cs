@@ -92,5 +92,12 @@
         /// The recovery password identifier.
         /// </value>
         Guid? RecoveryPasswordId { get; set; }
+        /// <summary>
+        /// Gets or sets if this is a system user.
+        /// </summary>
+        /// <value>
+        /// The is system user.
+        /// </value>
+        bool? IsSystemUser { get; set; }
     }
 }

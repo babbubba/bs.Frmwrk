@@ -2,6 +2,7 @@
 using bs.Frmwrk.Base.Dtos;
 using bs.Frmwrk.Core.Dtos.Datatables;
 using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Mapping;
@@ -29,6 +30,11 @@ namespace bs.Frmwrk.Base.Services
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
             this.securityService = securityService;
+        }
+
+        public async Task<IUserModel?> _GetSystemUser()
+        {
+            return await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.IsSystemUser != null && u.IsSystemUser == true);
         }
 
         public async Task<IApiResponse<TResponse>> _ExecuteAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string? genericErrorMessage = null)

@@ -22,6 +22,7 @@ namespace bs.Frmwrk.Test.Models
         public virtual ICollection<IRoleModel> Roles { get; set; } = new List<IRoleModel>();
         public virtual string UserName { get; set; }
         public virtual ICollection<IUsersPermissionsModel> UsersPermissions { get; set; } = new List<IUsersPermissionsModel>();
+        public virtual bool? IsSystemUser { get; set; }
 
         public class Map : ClassMapping<UserModel>
         {
@@ -43,6 +44,7 @@ namespace bs.Frmwrk.Test.Models
                 Property(x => x.LastLogin, map => map.Type<UtcDateTimeType>());
                 Property(x => x.PasswordHash);
                 Property(x => x.RecoveryPasswordId);
+                Property(x => x.IsSystemUser);
 
                 Property(x => x.ConfirmationId);
                 Property(x => x.RefreshToken);

@@ -146,8 +146,13 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="type">The type.</param>
         /// <returns></returns>
         /// <exception cref="System.NotImplementedException"></exception>
-        public async Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string permissionCode, PermissionType type = PermissionType.None)
+        public async Task<bool> CheckUserPermissionAsync(IPermissionedUser? user, string permissionCode, PermissionType type = PermissionType.None)
         {
+            if (user is null)
+            {
+                return false;
+            }
+
             bool result = false;
 
             // Administrator are allowed always

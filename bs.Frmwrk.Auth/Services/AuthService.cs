@@ -214,7 +214,7 @@ namespace bs.Frmwrk.Auth.Services
             return existingModel;
         }
 
-        public async Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto)
+        public async Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto, bool isSystemUser = false)
         {
             IUserModel? existingModel = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(p => p.UserName == dto.UserName);
             if (existingModel != null)
@@ -232,6 +232,8 @@ namespace bs.Frmwrk.Auth.Services
 
             existingModel.PasswordHash = HashPassword(dto.Password);
 
+            existingModel.IsSystemUser = isSystemUser;
+
             return existingModel;
         }
 
@@ -245,6 +247,10 @@ namespace bs.Frmwrk.Auth.Services
 
                 await CreateUserIfNotExistsAsync(new CreateUserDto("admin", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }) { Email = "admin@test.com" });
                 await CreateUserIfNotExistsAsync(new CreateUserDto("user", "Pa$$w0rd01!", new string[] { usersRole.Id.ToString() }) { Email = "user@test.com" });
+
+                // Create System User
+                await CreateUserIfNotExistsAsync(new CreateUserDto("system", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }) { Email = "system@test.com" }, true);
+
 
                 await unitOfWork.TryCommitOrRollbackAsync();
             }

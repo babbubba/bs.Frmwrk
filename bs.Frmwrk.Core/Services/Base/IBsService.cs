@@ -1,4 +1,5 @@
 ﻿using bs.Frmwrk.Core.Dtos.Datatables;
+using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.ViewModels.Api;
 
 namespace bs.Frmwrk.Core.Services.Base
@@ -80,5 +81,6 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="genericErrorMessage">The generic error message.</param>
         /// <returns></returns>
         Task<IApiResponse> _ExecuteAsync(Func<IApiResponse, Task<IApiResponse>> function, string? genericErrorMessage = null);
+        Task<IUserModel?> _GetSystemUser();
     }
 }

@@ -24,5 +24,14 @@
         /// The users registry
         /// </summary>
         public const string USERS_REGISTRY = "USERS_REGISTRY";
+
+        /// <summary>
+        /// The user can create or delete menu 
+        /// </summary>
+        public const string MENUS_REGISTRY = "MENUS_REGISTRY";
+        /// <summary>
+        /// The user can create or delete menu items
+        /// </summary>
+        public const string MENU_ITEMS_REGISTRY = "MENUS_REGISTRY";
     }
 }

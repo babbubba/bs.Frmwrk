@@ -46,7 +46,7 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="permissionCode">The permission code.</param>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string permissionCode, PermissionType type = PermissionType.None);
+        Task<bool> CheckUserPermissionAsync(IPermissionedUser? user, string permissionCode, PermissionType type = PermissionType.None);
         ///// <summary>
         ///// Checks the user permission asynchronous.
         ///// </summary>
