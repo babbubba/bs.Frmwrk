@@ -54,8 +54,9 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// Creates the user if not exists asynchronous.
         /// </summary>
         /// <param name="dto">The dto.</param>
+        /// <param name="isSystemUser">if set to <c>true</c> [is system user].</param>
         /// <returns></returns>
-        Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto);
+        Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto, bool isSystemUser = false);
 
         /// <summary>
         /// Keeps alive the user setting last ping to current date time (UTC).
