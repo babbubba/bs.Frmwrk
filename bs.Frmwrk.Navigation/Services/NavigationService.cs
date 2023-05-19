@@ -4,7 +4,6 @@ using bs.Frmwrk.Core.Dtos.Navigation;
 using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Navigation;
-using bs.Frmwrk.Core.Services.Base;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Navigation;
@@ -21,7 +20,7 @@ using NHibernate.Util;
 
 namespace bs.Frmwrk.Navigation.Services
 {
-    public class NavigationService : BsService, INavigationService, IInitializableService
+    public class NavigationService : BsService, INavigationService
     {
         public NavigationService(ILogger<NavigationService> logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork, securityService)
         {
@@ -195,13 +194,6 @@ namespace bs.Frmwrk.Navigation.Services
 
                 return response;
             }), "Errore ottenendo l'elenco delle voci di menu");
-        }
-
-        public async Task<IApiResponse> InitServiceAsync()
-        {
-            return new ApiResponse();
-            //throw new NotImplementedException();
-            //TODO: Implementa
         }
 
         private static void RemoveForbiddenMenuItems(ICollection<IMenuItemModel> query, IPermissionedUser permissionedUser)
