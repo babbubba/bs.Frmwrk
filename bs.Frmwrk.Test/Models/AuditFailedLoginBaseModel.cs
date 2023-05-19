@@ -1,4 +1,5 @@
-﻿using bs.Frmwrk.Core.Models.Security;
+﻿using bs.Data.Interfaces.BaseEntities;
+using bs.Frmwrk.Core.Models.Security;
 using NHibernate;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Mapping.ByCode.Conformist;
@@ -8,7 +9,7 @@ namespace bs.Frmwrk.Test.Models
 {
 #pragma warning disable CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
 
-    public class AuditFailedLoginBaseModel : IAuditFailedLoginModel
+    public class AuditFailedLoginBaseModel : IAuditFailedLoginModel, IPersistentEntity
     {
         public virtual string? ClientIp { get; set; }
         public virtual DateTime EventDate { get; set; }

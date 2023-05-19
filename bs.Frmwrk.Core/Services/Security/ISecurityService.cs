@@ -23,11 +23,13 @@ namespace bs.Frmwrk.Core.Services.Security
         event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
         /// <summary>
-        /// Gets the password score.
+        /// Adds the permission to user asynchronous.
         /// </summary>
-        /// <param name="password">The password.</param>
+        /// <param name="permissionCode">The permission code.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
         /// <returns></returns>
-        IApiResponse<ISelectListItem> GetPasswordScore(string password);
+        Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType);
 
         /// <summary>
         /// Checks the password validity.
@@ -45,6 +47,14 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="type">The type.</param>
         /// <returns></returns>
         Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string permissionCode, PermissionType type = PermissionType.None);
+        ///// <summary>
+        ///// Checks the user permission asynchronous.
+        ///// </summary>
+        ///// <param name="user">The user.</param>
+        ///// <param name="requiredPermissionsCodes">The required permissions codes.</param>
+        ///// <param name="type">The type.</param>
+        ///// <returns></returns>
+        //Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string[] requiredPermissionsCodes, PermissionType type = PermissionType.None);
 
         /// <summary>
         /// Checks the user role asynchronous.
@@ -55,19 +65,25 @@ namespace bs.Frmwrk.Core.Services.Security
         Task<bool> CheckUserRoleAsync(IRoledUser user, string roleCode);
 
         /// <summary>
-        /// Tracks the login fail asynchronous.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="clientIp">The client ip.</param>
-        /// <returns></returns>
-        Task TrackLoginFailAsync(string username, string? clientIp);
-
-        /// <summary>
         /// Creates the permission if not exists asynchronous.
         /// </summary>
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
         Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto);
+
+        /// <summary>
+        /// Gets the password score.
+        /// </summary>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        IApiResponse<ISelectListItem> GetPasswordScore(string password);
+
+        /// <summary>
+        /// Sends the recovery password link asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        Task SendRecoveryPasswordLinkAsync(IUserModel user);
 
         /// <summary>
         /// Sends the registration confirm link via mail if is enabled the VerifyEmail check in settings
@@ -77,18 +93,11 @@ namespace bs.Frmwrk.Core.Services.Security
         Task SendRegistrationConfirmAsync(IUserModel model);
 
         /// <summary>
-        /// Sends the recovery password link asynchronous.
+        /// Tracks the login fail asynchronous.
         /// </summary>
-        /// <param name="user">The user.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
-        Task SendRecoveryPasswordLinkAsync(IUserModel user);
-        /// <summary>
-        /// Adds the permission to user asynchronous.
-        /// </summary>
-        /// <param name="permissionCode">The permission code.</param>
-        /// <param name="user">The user.</param>
-        /// <param name="permissionType">Type of the permission.</param>
-        /// <returns></returns>
-        Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType);
+        Task TrackLoginFailAsync(string username, string? clientIp);
     }
 }

@@ -171,6 +171,12 @@ namespace bs.Frmwrk.Security.Services
             return result;
         }
 
+
+        //public async Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string[] requiredPermissionsCodes, PermissionType type = PermissionType.None)
+        //{
+
+        //}
+
         /// <summary>
         /// Checks the user role asynchronous.
         /// </summary>
