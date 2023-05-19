@@ -180,7 +180,7 @@ namespace bs.Frmwrk.Test
             log?.LogInformation("Testing menu item update");
 
             menuItemD.Id = menuItemVm.Value.Id;
-            menuItemD.RequiredPermissionsCode = new[] { PermissionsCodes.USERS_REGISTRY };
+            menuItemD.RequiredPermissionsCode = new[] { PermissionsCodes.USERS_REGISTRY, PermissionsCodes.ROLES_REGISTRY };
             menuItemD.Label = "Elemento 1 (padre) [modificato]";
 
             var menuItemVmUpdated = await navigationService.CreateUpdateMenuItemAsync(menuItemD, await GetCurrentUser());
@@ -209,6 +209,48 @@ namespace bs.Frmwrk.Test
             var nestedMenuItemVM = await navigationService.CreateUpdateMenuItemAsync(nestedMenuItemD, await GetCurrentUser());
             Assert.That(menuItemVm, Is.Not.Null, "CreateUpdateMenuItemAsync doesnt work properly");
             Assert.That(menuItemVm.Success, Is.True, "Creating nested menu item fails");
+
+
+
+            log?.LogInformation("Testing retrieving menu (with permission and role check)");
+            var miItem2 = new CreateMenuItemDto
+            {
+                ParentMenuCode = "MainSidebar",
+                Code = "item-2",
+                AuthorizedRolesCode = new[] { Core.Globals.Auth.RolesCodes.ADMINISTRATOR, Core.Globals.Auth.RolesCodes.USERS },
+                IsEnabled = true,
+                Label = "Elemento 2",
+                IsTreeView = true,
+                Path = "/route/item-2",
+                Position = 1,
+                ToolTip = "Questa è la voce di menu 2 che conterra altre voci di menu annidate"
+
+            };
+
+            var r22 =  await navigationService.CreateUpdateMenuItemAsync(miItem2, await GetCurrentUser());
+
+            var miItem2Sub1 = new CreateMenuItemDto
+            {
+                ParentMenuCode = "MainSidebar",
+                Code = "item-2-sub-1",
+                AuthorizedRolesCode = new[] { Core.Globals.Auth.RolesCodes.ADMINISTRATOR, Core.Globals.Auth.RolesCodes.USERS },
+                RequiredPermissionsCode = new[] {PermissionsCodes.ROLES_REGISTRY },
+                IsEnabled = true,
+                Label = "Figlio 1",
+                IsTreeView = false,
+                Path = "/route/item-2-sub-1",
+                Position = 1,
+                ParentItemCode = r22.Value.Code,
+
+            };
+
+            await navigationService.CreateUpdateMenuItemAsync(miItem2Sub1, await GetCurrentUser());
+
+
+            var getMenuItemsByMenuCodeResponse = await navigationService.GetMenuItemsByMenuCodeAsync("MainSidebar", await GetCurrentUser());
+
+            Assert.That(getMenuItemsByMenuCodeResponse, Is.Not.Null, "GetMenuItemsByMenuCodeAsync doesnt work properly");
+            Assert.That(getMenuItemsByMenuCodeResponse.Success, Is.True, "Retrieving menu items fails");
         }
     }
 }

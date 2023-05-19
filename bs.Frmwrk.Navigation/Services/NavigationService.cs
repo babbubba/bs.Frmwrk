@@ -12,8 +12,14 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Navigation;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
+using Mysqlx.Session;
+using MySqlX.XDevAPI.Common;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
+using NHibernate.SqlCommand;
+using NHibernate.Util;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace bs.Frmwrk.Navigation.Services
 {
@@ -27,8 +33,8 @@ namespace bs.Frmwrk.Navigation.Services
         {
             return await _ExecuteAsync<IMenuViewModel>(async (response) =>
             {
-                IMenuModel? model = (dto.Id != null) 
-                ? await unitOfWork.Session.Query<IMenuModel>().SingleOrDefaultAsync(x => x.Id == dto.Id.ToGuid()) 
+                IMenuModel? model = (dto.Id != null)
+                ? await unitOfWork.Session.Query<IMenuModel>().SingleOrDefaultAsync(x => x.Id == dto.Id.ToGuid())
                 : await unitOfWork.Session.Query<IMenuModel>().FirstOrDefaultAsync(x => x.Code == dto.Code);
 
                 if (model == null)
@@ -112,7 +118,7 @@ namespace bs.Frmwrk.Navigation.Services
                 {
                     var roles = await unitOfWork.Session.QueryOver<IRoleModel>().Where(x => x.Code.IsIn(dto.AuthorizedRolesCode)).ListAsync();
                     model.AuthorizedRoles ??= new List<IRoleModel>();
-                    model.AuthorizedRoles.UpdateLists(roles, r=>r.Code);
+                    model.AuthorizedRoles.UpdateLists(roles, r => r.Code);
                 }
 
                 // *RequiredPermissions
@@ -120,7 +126,7 @@ namespace bs.Frmwrk.Navigation.Services
                 {
                     var permissions = await unitOfWork.Session.QueryOver<IPermissionModel>().Where(x => x.Code.IsIn(dto.RequiredPermissionsCode)).ListAsync();
                     model.RequiredPermissions ??= new List<IPermissionModel>();
-                    model.RequiredPermissions.UpdateLists(permissions, p=>p.Code);
+                    model.RequiredPermissions.UpdateLists(permissions, p => p.Code);
                 }
 
                 await unitOfWork.Session.SaveOrUpdateAsync(model);
@@ -151,11 +157,89 @@ namespace bs.Frmwrk.Navigation.Services
             throw new NotImplementedException();
         }
 
-        public Task<IApiResponse<IMenuItemViewModel[]?>> GetMenuItemsByMenuCodeAsync(string menuCode, IUserModel currentUser)
+        public async Task<IApiResponse<IMenuItemViewModel[]?>> GetMenuItemsByMenuCodeAsync(string menuCode, IUserModel currentUser)
         {
-            throw new NotImplementedException();
+            return await ExecuteTransactionAsync((Func<IApiResponse<IMenuItemViewModel[]?>, Task<IApiResponse<IMenuItemViewModel[]?>>>)(async (response) =>
+            {
+                IMenuItemModel menuItem = null;
+                IMenuModel parentMenu = null;
+                IPermissionModel permission = null;
+                var menuItems = await unitOfWork.Session.QueryOver<IMenuItemModel>(() => menuItem)
+                 .JoinAlias(x => x.ParentMenu, () => parentMenu, JoinType.LeftOuterJoin)
+                 .JoinAlias(x => x.RequiredPermissions, () => permission, JoinType.LeftOuterJoin)
+                 .Fetch(SelectMode.Fetch, x => x.RequiredPermissions)
+                 .Where(() => parentMenu.Code == menuCode && menuItem.ParentItem == null).ListAsync();
+
+                var query = menuItems
+                .Where(m => m.IsEnabled).ToList();
+
+                if (!currentUser.IsAdmin())
+                {
+                    if (currentUser is IPermissionedUser permissionedUser)
+                        RemoveForbiddenMenuItems(query, permissionedUser);
+
+                    if (currentUser is IRoledUser roledUser)
+                    {
+                        RemoveUnAuthorizedMenuItems(query, roledUser);
+                    }
+                }
+
+
+                response.Value = mapper.Map<IMenuItemViewModel[]>(query);
+
+                return response;
+
+            }), "Errore ottenendo l'elenco delle voci di menu");
         }
 
+        private static void RemoveForbiddenMenuItems(ICollection<IMenuItemModel> query, IPermissionedUser permissionedUser)
+        {
+            var currentUserPermissionsCodes = permissionedUser.UsersPermissions.Where(up => up.Permission.Enabled).Select(up => up.Permission.Code);
+
+            foreach (IMenuItemModel menuItem in query.ToList())
+            {
+                var menuItemRequiredPermissions = menuItem.RequiredPermissions.Where(rp => rp.Enabled).Select(rp => rp.Code);
+                var notSatisfiedPErmissions = menuItem.RequiredPermissions.Where(rp => !currentUserPermissionsCodes.Any(code => menuItemRequiredPermissions.Contains(code))).Where(n => n.Enabled);
+
+                if (notSatisfiedPErmissions.Any())
+                {
+                    // not permissions enough ... remove the menu item
+                    query.Remove(menuItem);
+                }
+                else
+                {
+                    // Check if this item has nested sub items
+                    if (menuItem.IsTreeView == true && menuItem.SubItems != null && menuItem.SubItems.Any())
+                    {
+                        RemoveForbiddenMenuItems(menuItem.SubItems, permissionedUser);
+                    }
+                }
+            }
+        }
+
+        private static void RemoveUnAuthorizedMenuItems(ICollection<IMenuItemModel> query, IRoledUser roledUser)
+        {
+            var currentUserRolesCodes = roledUser.Roles.Where(r => r.Enabled).Select(up => up.Code);
+
+            foreach (IMenuItemModel menuItem in query.ToList())
+            {
+                var menuItemRequiredRoles = menuItem.AuthorizedRoles.Where(r => r.Enabled).Select(r => r.Code);
+
+                if (!menuItemRequiredRoles.Any(m => currentUserRolesCodes.Contains(m)))
+                {
+                    // not member of any role ... remove the menu item
+                    query.Remove(menuItem);
+                }
+                else
+                {
+                    // Check if this item has nested sub items
+                    if (menuItem.IsTreeView == true && menuItem.SubItems != null && menuItem.SubItems.Any())
+                    {
+                        RemoveUnAuthorizedMenuItems(menuItem.SubItems, roledUser);
+                    }
+                }
+            }
+        }
         public async Task<IApiResponse> InitServiceAsync()
         {
             return new ApiResponse();
