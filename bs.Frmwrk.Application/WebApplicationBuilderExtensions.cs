@@ -323,6 +323,8 @@ namespace bs.Frmwrk.Application
                     result.Add(repository.FullName ?? repository.Name, new ApiResponse(false, ex.Message));
                 }
             }
+
+            result.ToLog(Log.Debug, Log.Error);
         }
 
         internal static void RegisterServices(this WebApplicationBuilder builder)
@@ -359,6 +361,9 @@ namespace bs.Frmwrk.Application
                     result.Add(service.FullName ?? service.Name, new ApiResponse(false, ex.Message));
                 }
             }
+
+            result.ToLog(Log.Debug, Log.Error);
+
         }
 
         internal static void RegisterSignalR(this WebApplicationBuilder builder)
