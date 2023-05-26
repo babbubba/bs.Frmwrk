@@ -15,14 +15,14 @@ namespace bs.Frmwrk.Shared
             }
         }
 
-        public static void ToLog(this Dictionary<string, ApiResponse> resultList, Action<string> logSuccess = null, Action<string> logError = null)
+        public static void ToLog(this Dictionary<string, ApiResponse> resultList, Action<string> logSuccess = null, Action<string> logError = null, string successMessage = "registered succeffulli in DI container", string errorMessage= "error registering service in DI container")
         {
             foreach (var result in resultList)
             {
                 if (result.Value.Success)
-                    logSuccess?.Invoke($"'{result.Key}' registered succeffulli in DI container");
+                    logSuccess?.Invoke($"'{result.Key}' {successMessage}");
                 else { 
-                    logSuccess?.Invoke($"'{result.Key}' error registering service in DI container: {result.Value.ErrorMessage}");
+                    logSuccess?.Invoke($"'{result.Key}' {errorMessage}: {result.Value.ErrorMessage}");
                 }
             }
         }
