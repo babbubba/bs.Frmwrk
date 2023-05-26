@@ -287,6 +287,8 @@ namespace bs.Frmwrk.Application
                     result.Add(dllPath, new ApiResponse(false, ex.Message));
                 }
             }
+
+            result.ToLog(Log.Debug, Log.Error, "loaded successfully in current domain", "error loading dll");
         }
 
         internal static void RegisterRepositories(this WebApplicationBuilder builder)

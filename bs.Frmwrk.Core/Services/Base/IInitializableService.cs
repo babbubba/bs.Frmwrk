@@ -12,5 +12,13 @@ namespace bs.Frmwrk.Core.Services.Base
         /// </summary>
         /// <returns></returns>
         Task<IApiResponse> InitServiceAsync();
+
+        /// <summary>
+        /// Gets the initialize priority.
+        /// </summary>
+        /// <value>
+        /// The initialize priority.
+        /// </value>
+        static int InitPriority => 0;
     }
 }

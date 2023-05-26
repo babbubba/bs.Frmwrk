@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Formats.Asn1;
+using System.Linq;
 using System.Reflection;
 
 namespace bs.Frmwrk.Application
@@ -81,10 +83,17 @@ namespace bs.Frmwrk.Application
         {
             var result = new Dictionary<string, IApiResponse>();
 
-            var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface();
+            //var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface();
+            var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface().Select(x=>new Tuple<int,Type?>((int?)x?.GetProperty("InitPriority")?.GetValue(null, null)??0, x));
 
-            foreach (var initializableService in initializableServices)
+
+
+
+            foreach (var initializableServiceTuple in initializableServices.OrderBy(s=>s.Item1))
             {
+
+                var initializableService = initializableServiceTuple.Item2;
+
                 if (initializableService is null) continue;
                 using (var scope = app.Services.CreateScope())
                 {

@@ -27,6 +27,7 @@ namespace bs.Frmwrk.Auth.Services
     public class AuthService : BsService, IAuthService, IInitializableService
     {
         //TODO: Implemnta registrazione (moderata)
+        public static int InitPriority => -10;
 
         protected readonly IAuthRepository authRepository;
         private readonly ISecuritySettings securitySettings;
