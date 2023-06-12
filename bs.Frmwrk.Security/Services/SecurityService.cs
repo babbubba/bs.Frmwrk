@@ -107,7 +107,8 @@ namespace bs.Frmwrk.Security.Services
 
             IUsersPermissionsModel userPermission = user.UsersPermissions.SingleOrDefault(up=>up.Permission.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
             userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
-            userPermission.User ??= (IUserModel)user;//  await unitOfWork.Session.LoadAsync<IUserModel>(((IUserModel)user).Id);
+            userPermission.User ??= (IUserModel)user ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente")); 
+            //  await unitOfWork.Session.LoadAsync<IUserModel>(((IUserModel)user).Id);
             userPermission.Type = permissionType ?? PermissionType.None;
             await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
             user.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code);
@@ -130,7 +131,8 @@ namespace bs.Frmwrk.Security.Services
             var currentPasswordScore = PasswordAdvisor.CheckStrength(password);
             if (currentPasswordScore <= securitySettings.PasswordComplexity)
             {
-                errorMessage = translateService.Translate("La password non è sufficientemente complessa, la complessità della password è '{1}' ma è richiesto '{0}'", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString());
+                var errordetail = PasswordAdvisor.GetPasswordScoreTips(securitySettings.PasswordComplexity);
+                errorMessage = translateService.Translate("La password non è sufficientemente complessa, la complessità della password è '{1}' ma è richiesto un livello superiore a '{0}'. {2}", securitySettings.PasswordComplexity.ToString(), currentPasswordScore.ToString(), errordetail);
                 return false;
             }
 

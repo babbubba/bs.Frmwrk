@@ -1,5 +1,6 @@
 ﻿using bs.Frmwrk.Core.Models.Security;
 using bs.Frmwrk.Shared;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.RegularExpressions;
 
 namespace bs.Frmwrk.Security.Utilities
@@ -29,5 +30,25 @@ namespace bs.Frmwrk.Security.Utilities
 
             return score <= 5 ? score.ToEnum<PasswordScore>() : PasswordScore.VeryStrong;
         }
+
+        public static string GetPasswordScoreTips(PasswordScore passwordScore)
+        {
+            switch (passwordScore)
+            {
+                case PasswordScore.Blank:
+                    return "Password vuota";
+                case PasswordScore.VeryWeak:
+                    return "Password estremamente corta";
+                case PasswordScore.Weak:
+                case PasswordScore.Medium:
+                case PasswordScore.Strong:
+                case PasswordScore.VeryStrong:
+                    return "Rendi la password piu complessa: maggiore di 8 caratteri ed includi maiuscole e segni di punteggiatura";
+                default:
+                    return "Password non valida";
+            }
+        }
     }
+
+
 }
