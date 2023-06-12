@@ -21,6 +21,21 @@ namespace bs.Frmwrk.Core.Services.Auth
         event EventHandler<IAuthEventDto>? LoginEvent;
 
         /// <summary>
+        /// Adds the roles to user.
+        /// </summary>
+        /// <param name="rolesCode">The roles code.</param>
+        /// <param name="existingModel">The existing model.</param>
+        /// <returns></returns>
+        Task AddRolesToUser(string[]? rolesCode, IUserModel? existingModel);
+        /// <summary>
+        /// Adds the roles to user.
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        /// <param name="existingModel">The existing model.</param>
+        /// <returns></returns>
+        Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel);
+
+        /// <summary>
         /// Authenticates the user with the provided password and returns the user data and tokens.
         /// </summary>
         /// <param name="authRequest">The authentication request.</param>
@@ -77,10 +92,10 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// Creates the user asynchronous and return the new created user's id.
         /// </summary>
         /// <param name="authRegisterDto">The authentication register dto.</param>
-        /// <param name="permissionsCodes">The permissions codes.</param>
+        /// <param name="permissionsCode">The optional permissions code array string.</param>
+        /// <param name="rolesCode">The optional roles code array string.</param>
         /// <returns></returns>
-        //Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto);
-        Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto, string[]? permissionsCodes);
+        Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto, string[]? permissionsCode = null, string[]? rolesCode = null);
 
         /// <summary>
         /// Recoveries the user password asynchronous.
