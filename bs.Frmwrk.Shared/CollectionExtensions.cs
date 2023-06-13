@@ -14,7 +14,7 @@ namespace bs.Frmwrk.Shared
         /// <param name="itemToAdd">The item to add if not exists in the collection yet.</param>
         /// <param name="matchingField">The property used to compare the collection with the item to add.</param>
         /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2212211504 - Parameter is mandatory</exception>
-        public static bool AddIfNotExists<T, R>(this ICollection<T> collection, T itemToAdd, Func<T, R> matchingField)
+        public static bool AddIfNotExists<T, R>(this ICollection<T>? collection, T itemToAdd, Func<T, R> matchingField)
         {
             if (matchingField == null)
             {

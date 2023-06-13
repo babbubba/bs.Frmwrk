@@ -378,9 +378,10 @@ namespace bs.Frmwrk.Auth.Services
                 model.PasswordHash = HashPassword(authRegisterDto.Password);
 
                 // If Email autentication is not active enable user now
-                if (!securitySettings.VerifyEmail)
+                model.Enabled = !securitySettings.VerifyEmail;
+                if(securitySettings.VerifyEmail)
                 {
-                    model.Enabled = true;
+                    logger.LogDebug(T("Created disabled user '{0}' needing email confirmation", model.UserName));
                 }
 
                 await unitOfWork.Session.SaveAsync(model);
@@ -445,15 +446,18 @@ namespace bs.Frmwrk.Auth.Services
             return true;
         }
 
-        public async Task AddRolesToUser(string[]? rolesCode, IUserModel? existingModel)
+        public async Task AddRolesToUser(string[]? rolesCode, IUserModel? user)
         {
-            if (rolesCode != null && existingModel is IRoledUser roledUser)
+            if (rolesCode != null && user is IRoledUser roledUser)
             {
                 roledUser.Roles ??= new List<IRoleModel>();
 
                 foreach (var code in rolesCode)
                 {
-                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r=>r.Code == code).FirstOrDefaultAsync(), r=>r.Code);
+                    if(roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r=>r.Code == code).FirstOrDefaultAsync(), r=>r.Id))
+                    {
+                        logger.LogDebug(T("Added role '{0}' to user '{1}'", code, user.UserName));
+                    }
                 }
             }
         }
