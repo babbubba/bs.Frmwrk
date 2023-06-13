@@ -116,7 +116,6 @@ namespace bs.Frmwrk.Security.Services
             IUsersPermissionsModel userPermission = user.UsersPermissions?.FirstOrDefault(up=>up?.Permission?.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
             userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
             userPermission.User ??= (IUserModel)user ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente")); 
-            //  await unitOfWork.Session.LoadAsync<IUserModel>(((IUserModel)user).Id);
             userPermission.Type = permissionType ?? PermissionType.None;
             await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
             user.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code);
