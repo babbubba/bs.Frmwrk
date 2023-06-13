@@ -16,10 +16,12 @@ namespace bs.Frmwrk.Shared
         /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2212211504 - Parameter is mandatory</exception>
         public static bool AddIfNotExists<T, R>(this ICollection<T> collection, T itemToAdd, Func<T, R> matchingField)
         {
-            if (matchingField is null)
+            if (matchingField == null)
             {
                 throw new BsException(2212211504, "Parameter is mandatory");
             }
+
+            collection ??= new List<T>();
 
             if (!collection.Any(v => matchingField(v).Equals(matchingField(itemToAdd))))
             {
