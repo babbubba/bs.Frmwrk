@@ -98,14 +98,22 @@ namespace bs.Frmwrk.Security.Services
         public event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
 
+        /// <summary>
+        /// Adds the permission to user asynchronous.
+        /// </summary>
+        /// <param name="permissionCode">The permission code.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission (default is None).</param>
+        /// <exception cref="System.ArgumentNullException">user</exception>
+        /// <exception cref="System.Exception"></exception>
         public async Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType)
         {
             if (user is null)
             {
-                throw new ArgumentNullException(nameof(user));
+                throw new ArgumentNullException(nameof(user), translateService.Translate("L'utente non può essere null"));
             }
 
-            IUsersPermissionsModel userPermission = user.UsersPermissions.SingleOrDefault(up=>up.Permission.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
+            IUsersPermissionsModel userPermission = user.UsersPermissions?.FirstOrDefault(up=>up?.Permission?.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
             userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
             userPermission.User ??= (IUserModel)user;//  await unitOfWork.Session.LoadAsync<IUserModel>(((IUserModel)user).Id);
             userPermission.Type = permissionType ?? PermissionType.None;

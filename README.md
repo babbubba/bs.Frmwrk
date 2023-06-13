@@ -132,9 +132,37 @@ Every service class that you implements in this way will be automatically regist
 
 The service needs the instance of Logger, Translate Service, Mapper and Unit Of Work (for data transactions) that will be accessible in your class by the fields named: logger, translateService, mapper and unitOfWork;
 
+#### IInitializableService interface
+
+You can execute an init procedure for every service you implement. This interface forces you to implement the method InitServiceAsync(). This will be executed automatically every time the application starts.
+
+For example this Initialization will be executed every time the application starts:
+
+```c#
+   public async Task<IApiResponse> InitServiceAsync()
+    {
+        return await ExecuteTransactionAsync<ICompanyViewModel>(async (response) =>
+        {
+            var defaultCompany = await companiesRepositories.GetCompanyByCodeAsync("1");
+            if (defaultCompany == null)
+            {
+                await companiesRepositories.CreateCompanyAsync(new CompanyModel
+                {
+                    Code = "1",
+                    ExternalCode = "1",
+                    Name = "ACME",
+                });
+            }
+            return response;
+        }, "Errore inizializzando le aziende");
+    }
+```
+
+If you need to handle the inizialization order of the services, for example you want to execute the initialization of the "Companies" service before the "Employee" service, you can set the order popluating the property 'InitOrder' that returns ant int value. If you dont implement the property 'InitOrder' the default value is 0 for all services except the Authentication Service that has a value of -10 for the property 'InitOrder'.
+
 #### Methods
 
-The BsService implements the followind function that help you to quickly develop services in your application.
+The BsService implements the following functions that help you to quickly develop services in your application.
 
 ##### ExecutePaginatedTransactionAsync
 
@@ -153,6 +181,8 @@ The third parameter is optional and can be null, it is the function to filter th
 The last parameter is a string that will contain the error message to returns in case of exception occurs during the method execution.
 
 The method return the IApiPagedResponse<TResponse> object that is the standard way of consume paginated data in the framework.
+
+The returning table is stored in the 'data' property.
 
 Example of implementation of this method:
 
@@ -210,7 +240,22 @@ In this case the response (parsed as json) would be:
 
 ##### ExecuteTransactionAsync
 
-[WIP]
+This helps you to return an IApiResponse<TResult>. It handle an ORM transaction (that will be automatically rolled back in case of exception) and a safe asyncronous execution. The returning value is stored in the 'value' property.
+
+In this example the return value is a string but it can be any class (or better interface) you prefer (usually a View Model).
+
+```c#
+   public async Task<IApiResponse<string>> CreateSiteAsync(ISiteDto dto)
+    {
+        return await ExecuteTransactionAsync<string>(async (response) =>
+        {
+            var model = mapper.Map<ISite>(dto);
+            await sitesRepository.CreateSiteAsync(model);
+            response.Value = model.Id.ToString();
+            return response;
+        }, "Errore creando il sito");
+    }
+```
 
 ### Repository class
 
@@ -231,7 +276,7 @@ The base class implements the common methods to access data like:
 
 If you need to use the advanced fuction of nHibernate you can acces to the nHibernate Session object using the unitOfWork object instanced by the DI in the constructor (but you need to assign it to a field in your repository class because the base reference to instance is not public) then you will find the *Session* object in the Session property of UnitOfWork instance (for ex.: *unitOfwork.Session*).
 
-N.B.: All entity model class need to implements the IPersistentEntity interface to be used in the repositories and to be registered by the O.R.M. bootstrap.
+N.B.: All entity model class need to implements the IPersistentEntity interface to be used in the repositories and to be registered by the O.R.M.'s bootstrap.
 
 ## Authentication
 
