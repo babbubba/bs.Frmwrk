@@ -321,7 +321,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore durante il rinnovo del token");
         }
 
-        public virtual async Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto, string[]? permissionsCodes)
+        public virtual async Task<IApiResponse<string>> RegisterNewUserAsync(IAuthRegisterDto authRegisterDto, string[]? permissionsCode = null, string[]? rolesCode = null)
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
@@ -385,13 +385,15 @@ namespace bs.Frmwrk.Auth.Services
 
                 await unitOfWork.Session.SaveAsync(model);
 
-                if (permissionsCodes != null && permissionsCodes.Any() && model is IPermissionedUser pUser)
+                if (permissionsCode != null && permissionsCode.Any() && model is IPermissionedUser pUser)
                 {
-                    foreach (var permissionCode in permissionsCodes)
+                    foreach (var permissionCode in permissionsCode)
                     {
                         await securityService.AddPermissionToUserAsync(permissionCode, pUser, PermissionType.None);
                     }
                 }
+             
+                await AddRolesToUser(rolesCode, model);
 
                 await securityService.SendRegistrationConfirmAsync(model);
 
@@ -443,7 +445,20 @@ namespace bs.Frmwrk.Auth.Services
             return true;
         }
 
-        private async Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel)
+        public async Task AddRolesToUser(string[]? rolesCode, IUserModel? existingModel)
+        {
+            if (rolesCode != null && existingModel is IRoledUser roledUser)
+            {
+                roledUser.Roles ??= new List<IRoleModel>();
+
+                foreach (var code in rolesCode)
+                {
+                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r=>r.Code == code).FirstOrDefaultAsync(), r=>r.Code);
+                }
+            }
+        }
+
+        public async Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel)
         {
             if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
             {
