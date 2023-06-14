@@ -30,7 +30,7 @@ namespace bs.Frmwrk.Navigation.Services
         {
             return await _ExecuteAsync<IMenuViewModel>(async (response) =>
             {
-                if (!await securityService.CheckUserPermissionAsync(currentUser as IPermissionedUser, PermissionsCodes.MENUS_REGISTRY))
+                if (!await securityService.CheckUserPermissionAsync(currentUser, PermissionsCodes.MENUS_REGISTRY))
                 {
                     return response.SetError(T("Autorizzazioni non sufficenti per creare/modificare un  menu"), 2305191148, logger);
                 }
@@ -63,7 +63,7 @@ namespace bs.Frmwrk.Navigation.Services
         {
             return await _ExecuteAsync<IMenuItemViewModel>(async (response) =>
             {
-                if (!await securityService.CheckUserPermissionAsync(currentUser as IPermissionedUser, PermissionsCodes.MENU_ITEMS_REGISTRY))
+                if (!await securityService.CheckUserPermissionAsync(currentUser, PermissionsCodes.MENU_ITEMS_REGISTRY))
                 {
                     return response.SetError(T("Autorizzazioni non sufficenti per creare/modificare una voce di menu"), 2305191149, logger);
                 }

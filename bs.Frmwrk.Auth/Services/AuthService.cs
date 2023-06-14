@@ -5,6 +5,7 @@ using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
+using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
@@ -26,15 +27,14 @@ namespace bs.Frmwrk.Auth.Services
 {
     public class AuthService : BsService, IAuthService, IInitializableService
     {
-        //TODO: Implemnta registrazione (moderata)
-        public static int InitPriority => -10;
-
         protected readonly IAuthRepository authRepository;
+
         private readonly ISecuritySettings securitySettings;
+
         private readonly ITokenService tokenService;
 
         public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapperService mapper, IUnitOfWork unitOfWork,
-            IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService, ISecuritySettings securitySettings) : base(logger, translateService, mapper, unitOfWork, securityService)
+                    IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService, ISecuritySettings securitySettings) : base(logger, translateService, mapper, unitOfWork, securityService)
         {
             this.authRepository = authRepository;
             this.tokenService = tokenService;
@@ -44,6 +44,47 @@ namespace bs.Frmwrk.Auth.Services
         public event EventHandler<IAuthEventDto>? AuthEvent;
 
         public event EventHandler<IAuthEventDto>? LoginEvent;
+
+        //TODO: Implemnta registrazione (moderata)
+        /// <summary>
+        /// The initialize priority (at startup servcies are registered in order ascending using this static field).
+        /// </summary>
+        /// <value>
+        /// The initialize priority.
+        /// </value>
+        public static int InitPriority => -10;
+
+        //public virtual async Task AddRolesToUser(string[]? rolesCode, IUserModel? user)
+        //{
+        //    if (rolesCode != null && user is IRoledUser roledUser)
+        //    {
+        //        roledUser.Roles ??= new List<IRoleModel>();
+
+        //        foreach (var code in rolesCode)
+        //        {
+        //            if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r => r.Code == code).FirstOrDefaultAsync(), r => r.Id))
+        //            {
+        //                logger.LogDebug(T("Added role code '{0}' to user '{1}'", code, user.UserName));
+        //            }
+        //        }
+        //    }
+        //}
+
+        //public virtual async Task AddRolesToUser(Guid[]? rolesId, IUserModel? user)
+        //{
+        //    if (rolesId != null && user is IRoledUser roledUser)
+        //    {
+        //        roledUser.Roles ??= new List<IRoleModel>();
+
+        //        foreach (var roleId in rolesId)
+        //        {
+        //            if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId), r => r.Id))
+        //            {
+        //                logger.LogDebug(T("Added role id '{0}' to user '{1}'", roleId, user.UserName));
+        //            }
+        //        }
+        //    }
+        //}
 
         public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
         {
@@ -99,7 +140,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore in autenticazione");
         }
 
-        public async Task<IApiResponse> ChangePasswordAsync(IChangeUserPasswordDto changeUserPasswordDto, IUserModel? currentUser)
+        public virtual async Task<IApiResponse> ChangePasswordAsync(IChangeUserPasswordDto changeUserPasswordDto, IUserModel? currentUser)
         {
             return await ExecuteTransactionAsync(async (response) =>
             {
@@ -196,7 +237,7 @@ namespace bs.Frmwrk.Auth.Services
             }, "Errore durante la conferma della email dell'utente");
         }
 
-        public async Task<IRoleModel> CreateRoleIfNotExistsAsync(ICreateRoleDto dto)
+        public virtual async Task<IRoleModel> CreateRoleIfNotExistsAsync(ICreateRoleDto dto)
         {
             IRoleModel? existingModel = await unitOfWork.Session.Query<IRoleModel>().SingleOrDefaultAsync(p => p.Code == dto.Code);
             if (existingModel != null)
@@ -215,7 +256,7 @@ namespace bs.Frmwrk.Auth.Services
             return existingModel;
         }
 
-        public async Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto, bool isSystemUser = false)
+        public virtual async Task<IUserModel> CreateUserIfNotExistsAsync(ICreateUserDto dto, bool isSystemUser = false)
         {
             IUserModel? existingModel = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(p => p.UserName == dto.UserName);
             if (existingModel != null)
@@ -229,7 +270,7 @@ namespace bs.Frmwrk.Auth.Services
                 await unitOfWork.Session.SaveAsync(existingModel);
             }
 
-            await AddRolesToUser(dto, existingModel);
+            await securityService.AddRolesToUser(dto.RolesIds.ToGuid(), existingModel);
 
             existingModel.PasswordHash = HashPassword(dto.Password);
 
@@ -238,7 +279,7 @@ namespace bs.Frmwrk.Auth.Services
             return existingModel;
         }
 
-        public async Task<IApiResponse> InitServiceAsync()
+        public virtual async Task<IApiResponse> InitServiceAsync()
         {
             try
             {
@@ -251,7 +292,6 @@ namespace bs.Frmwrk.Auth.Services
 
                 // Create System User
                 await CreateUserIfNotExistsAsync(new CreateUserDto("system", "Pa$$w0rd01!", new string[] { administratorsRole.Id.ToString() }) { Email = "system@test.com" }, true);
-
 
                 await unitOfWork.TryCommitOrRollbackAsync();
             }
@@ -365,7 +405,7 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                var model = mapper.Map<IUserModel>(authRegisterDto);
+                var userModel = mapper.Map<IUserModel>(authRegisterDto);
 
                 if (!securityService.CheckPasswordValidity(authRegisterDto.Password, out string? passwordCheckingError))
                 {
@@ -375,35 +415,29 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                model.PasswordHash = HashPassword(authRegisterDto.Password);
+                userModel.PasswordHash = HashPassword(authRegisterDto.Password);
 
                 // If Email autentication is not active enable user now
-                model.Enabled = !securitySettings.VerifyEmail;
-                if(securitySettings.VerifyEmail)
+                userModel.Enabled = !securitySettings.VerifyEmail;
+                if (securitySettings.VerifyEmail)
                 {
-                    logger.LogDebug(T("Created disabled user '{0}' needing email confirmation", model.UserName));
+                    logger.LogDebug(T("L'utente creato '{0}' è stato disattivaso in attesa della conferma della email di registrazione", userModel.UserName));
                 }
 
-                await unitOfWork.Session.SaveAsync(model);
+                await unitOfWork.Session.SaveAsync(userModel);
 
-                if (permissionsCode != null && permissionsCode.Any() && model is IPermissionedUser pUser)
-                {
-                    foreach (var permissionCode in permissionsCode)
-                    {
-                        await securityService.AddPermissionToUserAsync(permissionCode, pUser, PermissionType.None);
-                    }
-                }
-             
-                await AddRolesToUser(rolesCode, model);
+                await securityService.AddPermissionsToUserAsync(permissionsCode, userModel, PermissionType.None);
 
-                await securityService.SendRegistrationConfirmAsync(model);
+                await securityService.AddRolesToUser(rolesCode, userModel);
 
-                response.Value = model.Id.ToString();
+                await securityService.SendRegistrationConfirmAsync(userModel);
+
+                response.Value = userModel.Id.ToString();
                 return response;
             }, "Errore durante la registrazione dell'utente");
         }
 
-        public async Task<IApiResponse> RequestRecoveryUserPasswordLinkAsync(IRequestRecoveryUserPasswordLinkDto recoveryUserPasswordDto)
+        public virtual async Task<IApiResponse> RequestRecoveryUserPasswordLinkAsync(IRequestRecoveryUserPasswordLinkDto recoveryUserPasswordDto)
         {
             return await ExecuteTransactionAsync(async (response) =>
             {
@@ -444,35 +478,6 @@ namespace bs.Frmwrk.Auth.Services
                 if (hashBytes[i + 16] != hash[i])
                     return false;
             return true;
-        }
-
-        public async Task AddRolesToUser(string[]? rolesCode, IUserModel? user)
-        {
-            if (rolesCode != null && user is IRoledUser roledUser)
-            {
-                roledUser.Roles ??= new List<IRoleModel>();
-
-                foreach (var code in rolesCode)
-                {
-                    if(roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r=>r.Code == code).FirstOrDefaultAsync(), r=>r.Id))
-                    {
-                        logger.LogDebug(T("Added role '{0}' to user '{1}'", code, user.UserName));
-                    }
-                }
-            }
-        }
-
-        public async Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel)
-        {
-            if (dto.RolesIds != null && existingModel is IRoledUser roledUser)
-            {
-                roledUser.Roles ??= new List<IRoleModel>();
-
-                foreach (var roleId in dto.RolesIds)
-                {
-                    roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId.ToGuid()), r => r.Id);
-                }
-            }
         }
 
         private ITokenJWTDto GenerateClaimsAndToken(IUserModel user)

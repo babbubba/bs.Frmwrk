@@ -19,7 +19,21 @@
             }
             catch (Exception)
             {
-                throw new ApplicationException("Invalid GUID.");
+                throw new ApplicationException($"Invalid GUID ({val})");
+            }
+        }
+
+        public static Guid[] ToGuid(this string[]? val)
+        {
+            if (val is null) return Array.Empty<Guid>();
+
+            try
+            {
+                return val.Select(v => v.ToGuid()).ToArray();
+            }
+            catch (Exception)
+            {
+                throw new ApplicationException($"Invalid GUID in collection ({val})");
             }
         }
 

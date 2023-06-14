@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration.Annotations;
-using bs.Frmwrk.Application.Middlewares;
+﻿using bs.Frmwrk.Application.Middlewares;
 using bs.Frmwrk.Core.Globals.Config;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Services.Base;
@@ -12,8 +11,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using System.Formats.Asn1;
-using System.Linq;
 using System.Reflection;
 
 namespace bs.Frmwrk.Application
@@ -84,14 +81,10 @@ namespace bs.Frmwrk.Application
             var result = new Dictionary<string, IApiResponse>();
 
             //var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface();
-            var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface().Select(x=>new Tuple<int,Type?>((int?)x?.GetProperty("InitPriority")?.GetValue(null, null)??0, x));
+            var initializableServices = typeof(IInitializableService).GetImplTypesFromInterface().Select(x => new Tuple<int, Type?>((int?)x?.GetProperty("InitPriority")?.GetValue(null, null) ?? 0, x));
 
-
-
-
-            foreach (var initializableServiceTuple in initializableServices.OrderBy(s=>s.Item1))
+            foreach (var initializableServiceTuple in initializableServices.OrderBy(s => s.Item1))
             {
-
                 var initializableService = initializableServiceTuple.Item2;
 
                 if (initializableService is null) continue;
@@ -123,13 +116,12 @@ namespace bs.Frmwrk.Application
                 }
             }
 
-            if(result.Any(r=>!r.Value.Success ))
+            if (result.Any(r => !r.Value.Success))
             {
-                foreach(var errorMessage in  result.Where(r => !r.Value.Success).Select(r => $"Error initalizing service '{r.Key}': {r.Value.ErrorMessage}"))
+                foreach (var errorMessage in result.Where(r => !r.Value.Success).Select(r => $"Error initalizing service '{r.Key}': {r.Value.ErrorMessage}"))
                 {
                     Log.Error(errorMessage);
                 }
-
             }
         }
 

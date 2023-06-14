@@ -1,7 +1,5 @@
 ﻿using bs.Data.Interfaces;
-using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Core.Dtos.Auth;
-using bs.Frmwrk.Core.Dtos.Mailing;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
@@ -18,19 +16,14 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Core.ViewModels.Common;
 using bs.Frmwrk.Mailing.Dtos;
 using bs.Frmwrk.Security.Dtos;
-using bs.Frmwrk.Security.Models;
 using bs.Frmwrk.Security.Utilities;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
-
+using System.Data;
 
 namespace bs.Frmwrk.Security.Services
 {
-
     /// <summary>
     ///
     /// </summary>
@@ -38,33 +31,12 @@ namespace bs.Frmwrk.Security.Services
     public class SecurityService : ISecurityService
     {
         private readonly ICoreSettings coreSettings;
-
-        /// <summary>
-        /// The logger
-        /// </summary>
         private readonly ILogger<SecurityService> logger;
-
         private readonly IMailingService mailingService;
-
         private readonly IMapperService mapper;
-
-        /// <summary>
-        /// The security repository
-        /// </summary>
         private readonly ISecurityRepository securityRepository;
-
-        /// <summary>
-        /// The security settings
-        /// </summary>
         private readonly ISecuritySettings securitySettings;
-
-        /// <summary>
-        /// The translate service
-        /// </summary>
         private readonly ITranslateService translateService;
-        /// <summary>
-        /// The unit of work
-        /// </summary>
         private readonly IUnitOfWork unitOfWork;
 
         /// <summary>
@@ -97,6 +69,40 @@ namespace bs.Frmwrk.Security.Services
         /// </summary>
         public event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
+        public virtual async Task AddPermissionsToUserAsync(string[]? permissionsCode, IUserModel user, PermissionType? permissionType)
+        {
+            if (permissionsCode != null && user is IPermissionedUser permissionedUser)
+            {
+                permissionedUser.UsersPermissions ??= new List<IUsersPermissionsModel>();
+
+                foreach (var code in permissionsCode)
+                {
+                    await AddPermissionToUserAsync(code, user, permissionType);
+                }
+            }
+        }
+
+        public virtual async Task AddPermissionToRoleAsync(string permissionCode, IRoleModel role, PermissionType? permissionType)
+        {
+            if (role is null)
+            {
+                throw new ArgumentNullException(nameof(role), translateService.Translate("Il ruolo non può essere null"));
+            }
+
+            if (role is IPermissionedRole permissionedRole)
+            {
+                IRolesPermissionsModel rolePermission = permissionedRole.RolesPermissions?.FirstOrDefault(up => up?.Permission?.Code == permissionCode) ?? typeof(IRolesPermissionsModel).GetImplInstanceFromInterface<IRolesPermissionsModel>();
+                rolePermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
+                rolePermission.Role ??= (IRoleModel)permissionedRole ?? throw new Exception(translateService.Translate("Impossibile trovare il ruolo corrente"));
+                rolePermission.Type = permissionType ?? PermissionType.None;
+                await unitOfWork.Session.SaveOrUpdateAsync(rolePermission);
+                permissionedRole.RolesPermissions.AddIfNotExists(rolePermission, x => x.Permission.Code);
+            }
+            else
+            {
+                logger.LogWarning(translateService.Translate("Il ruolo '{0}' non implementa la gestione dei permessi", role.Code));
+            }
+        }
 
         /// <summary>
         /// Adds the permission to user asynchronous.
@@ -106,19 +112,58 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="permissionType">Type of the permission (default is None).</param>
         /// <exception cref="System.ArgumentNullException">user</exception>
         /// <exception cref="System.Exception"></exception>
-        public async Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType)
+        public virtual async Task AddPermissionToUserAsync(string permissionCode, IUserModel user, PermissionType? permissionType)
         {
             if (user is null)
             {
                 throw new ArgumentNullException(nameof(user), translateService.Translate("L'utente non può essere null"));
             }
 
-            IUsersPermissionsModel userPermission = user.UsersPermissions?.FirstOrDefault(up=>up?.Permission?.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
-            userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
-            userPermission.User ??= (IUserModel)user ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente")); 
-            userPermission.Type = permissionType ?? PermissionType.None;
-            await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
-            user.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code);
+            if (user is IPermissionedUser permissionedUser)
+            {
+                IUsersPermissionsModel userPermission = permissionedUser.UsersPermissions?.FirstOrDefault(up => up?.Permission?.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
+                userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
+                userPermission.User ??= (IUserModel)permissionedUser ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente"));
+                userPermission.Type = permissionType ?? PermissionType.None;
+                await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
+                permissionedUser.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code);
+            }
+            else
+            {
+                logger.LogWarning(translateService.Translate("L'utente '{0}' non implementa la gestione dei permessi", user.UserName));
+            }
+        }
+
+        public virtual async Task AddRolesToUser(string[]? rolesCode, IUserModel? user)
+        {
+            if (rolesCode != null && user is IRoledUser roledUser)
+            {
+                roledUser.Roles ??= new List<IRoleModel>();
+
+                foreach (var code in rolesCode)
+                {
+                    if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r => r.Code == code).FirstOrDefaultAsync(), r => r.Id))
+                    {
+                        logger.LogDebug(translateService.Translate("Added role code '{0}' to user '{1}'", code, user.UserName));
+                    }
+                }
+            }
+        }
+
+        public virtual async Task AddRolesToUser(Guid[]? rolesId, IUserModel? user)
+        {
+            if (rolesId != null && user is IRoledUser roledUser)
+            {
+                roledUser.Roles ??= new List<IRoleModel>();
+
+                foreach (var roleId in rolesId)
+                {
+                    if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId), r => r.Id))
+                    {
+                        logger.LogDebug(translateService.Translate("Added role id '{0}' to user '{1}'", roleId, user.UserName));
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -148,48 +193,56 @@ namespace bs.Frmwrk.Security.Services
         }
 
         /// <summary>
-        /// Checks the user permission asynchronous if user implements permissions.
+        /// Checks the user permission asynchronous (if user has role admin it always return true).
+        /// If the user role implement IPermissionedRole this will check if requested permission code is valid for the role's permissions.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="permissionCode">The permission code.</param>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public async Task<bool> CheckUserPermissionAsync(IPermissionedUser? user, string permissionCode, PermissionType type = PermissionType.None)
+        public async Task<bool> CheckUserPermissionAsync(IUserModel? user, string permissionCode, PermissionType type = PermissionType.None)
         {
+            bool result = false;
+            bool verified = false;
+
             if (user is null)
             {
-                return false;
+                return result;
             }
-
-            bool result = false;
 
             // Administrator are allowed always
             if (user is IRoledUser roledUser)
             {
-                if (await CheckUserRoleAsync(roledUser, RolesCodes.ADMINISTRATOR)) return true;
+                if (await CheckUserRoleAsync(roledUser, RolesCodes.ADMINISTRATOR))
+                {
+                    result = true;
+                    verified = true;
+                }
+                else
+                {
+                    //enumerate user's roles permissions
+                    result = roledUser.Roles.Cast<IPermissionedRole>().SelectMany(r => r.RolesPermissions).Any(up => up.Permission.Code == permissionCode && type <= up.Type);
+                    verified = true;
+                }
             }
 
             // Check users' permission and type
-            if (user is IPermissionedUser permissionedUser)
+            if (user is IPermissionedUser permissionedUser && !result)
             {
                 result = permissionedUser.UsersPermissions.Any(up => up.Permission.Code == permissionCode && type <= up.Type);
+                verified = true;
             }
-            else
+
+            if (!verified && user is not IPermissionedUser)
             {
                 // Skip check
                 result = true;
+                OnSecurityEvent(translateService.Translate("Saltata verifica del permesso (codice: {1}) per l' utente {0} perche non implementa i permessi", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, user?.UserName ?? "N/D");
             }
 
-            OnSecurityEvent(translateService.Translate("Verifica del permesso (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
+            OnSecurityEvent(translateService.Translate("Verifica del permesso (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", permissionCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, user?.UserName ?? "N/D");
             return result;
         }
-
-
-        //public async Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string[] requiredPermissionsCodes, PermissionType type = PermissionType.None)
-        //{
-
-        //}
 
         /// <summary>
         /// Checks the user role asynchronous.
@@ -202,7 +255,6 @@ namespace bs.Frmwrk.Security.Services
         /// 2212081135</exception>
         public async Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode)
         {
-
             if (user == null)
             {
                 throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo"));
@@ -212,7 +264,7 @@ namespace bs.Frmwrk.Security.Services
             {
                 throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo"));
             }
-            var result = user.Roles.Any(r => r.Code == roleCode);
+            var result = user.Roles?.Any(r => r.Code == roleCode) ?? false;
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
             return result;
         }
@@ -247,8 +299,9 @@ namespace bs.Frmwrk.Security.Services
                 score = PasswordAdvisor.CheckStrength(password);
             }
 
-            return  new ApiResponse<ISelectListItem>(new SelectListItem(((int)score).ToString(), score.ToString()));
+            return new ApiResponse<ISelectListItem>(new SelectListItem(((int)score).ToString(), score.ToString()));
         }
+
         public string GetRecoveryPasswordUrl(string userId, string recoveryPasswordId)
         {
             return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/RecoveryPassword?UserId={userId}&RecoveryPasswordId={recoveryPasswordId}";
@@ -289,7 +342,6 @@ namespace bs.Frmwrk.Security.Services
             }
             else
             {
-
             }
         }
 
@@ -336,12 +388,12 @@ namespace bs.Frmwrk.Security.Services
                 if (usernameToDisable is not null)
                 {
                     usernameToDisable.Enabled = false;
-                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp??"*");
+                    OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti per l'utente", username), SecurityEventSeverity.Danger, username, clientIp ?? "*");
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l'utente: '{0}', l'utente è stato disabilitato", username.ToLower()));
                 }
             }
 
-            if(clientIp is not null)
+            if (clientIp is not null)
             {
                 var ipAttemptsInLastPeriod = await unitOfWork.Session.Query<IAuditFailedLoginModel>().Where(a => a.EventDate > periodToCheckBegin && a.ClientIp != null && a.ClientIp.ToLower() == clientIp.ToLower()).CountAsync();
                 if (ipAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
@@ -350,7 +402,6 @@ namespace bs.Frmwrk.Security.Services
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'", clientIp?.ToLower() ?? "*"));
                 }
             }
-           
         }
 
         /// <summary>
@@ -373,6 +424,4 @@ namespace bs.Frmwrk.Security.Services
         protected void OnTooManyAttemptsEvent(string message, SecurityEventSeverity severity, string userName, string? clientIp = null) =>
                                                     TooManyAttemptsEvent?.Invoke(this, new SecurityEventDto(message, severity, userName, clientIp));
     }
-
 }
-
