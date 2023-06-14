@@ -90,7 +90,8 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<IUserViewModel>(async (response) =>
             {
-                var user = await authRepository.GetUserByUserNameAsync(authRequest.UserName);
+                var user = await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.UserName == authRequest.UserName);
+                //var user = await    authRepository.GetUserByUserNameAsync(authRequest.UserName);
                 if (user == null)
                 {
                     response.Success = false;

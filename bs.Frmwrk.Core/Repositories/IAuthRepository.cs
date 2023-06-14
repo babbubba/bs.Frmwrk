@@ -7,12 +7,12 @@ namespace bs.Frmwrk.Core.Repositories
     /// </summary>
     public interface IAuthRepository
     {
-        /// <summary>
-        /// Gets the user by user name asynchronous.
-        /// </summary>
-        /// <param name="userName">Name of the user.</param>
-        /// <returns></returns>
-        Task<IUserModel> GetUserByUserNameAsync(string userName);
+        ///// <summary>
+        ///// Gets the user by user name asynchronous.
+        ///// </summary>
+        ///// <param name="userName">Name of the user.</param>
+        ///// <returns></returns>
+        //Task<IUserModel> GetUserByUserNameAsync(string userName);
 
         /// <summary>
         /// Gets the user by identifier asynchronous.

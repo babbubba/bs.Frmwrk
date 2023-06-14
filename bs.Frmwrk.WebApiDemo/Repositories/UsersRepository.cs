@@ -7,20 +7,10 @@ using NHibernate.Linq;
 
 namespace bs.Frmwrk.WebApiDemo.Repositories
 {
-    public class UsersRepository : Repository, IAuthRepository, ISecurityRepository
+    public class UsersRepository : Repository, IAuthRepository
     {
         public UsersRepository(IUnitOfWork unitOfwork) : base(unitOfwork)
         {
-        }
-
-        public async Task CreatePermissionAsync(IPermissionModel model)
-        {
-            await CreateAsync((PermissionModel)model);
-        }
-
-        public async Task UpdatePermissionAsync(IPermissionModel model)
-        {
-            await UpdateAsync((PermissionModel)model);
         }
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
@@ -31,11 +21,6 @@ namespace bs.Frmwrk.WebApiDemo.Repositories
         public async Task<IUserModel> GetUserByIdAsync(Guid userId)
         {
             return await GetByIdAsync<UserModel>(userId);
-        }
-
-        public async Task<IUserModel> GetUserByUserNameAsync(string userName)
-        {
-            return await Query<UserModel>().SingleOrDefaultAsync(u => u.UserName == userName);
         }
     }
 }

@@ -43,7 +43,7 @@ The exceptions tell you that you have to implement some repositories or you have
 
 The first classes that you have to implements are models (see section [Models](#models)). The only mandatory model is **IUserModel**.
 
-After this you have to implements the two manatory repositories interfaces: **IAuthRepository** and **ISecurityRepository** (see section [Repository](#repository)).
+Remind, when you implement your UserModel you must to implements nHibernate mapping too.
 
 ## Configuration File
 
@@ -109,25 +109,23 @@ Every service class that you implements in this way will be automatically regist
 > ```c#
 > public class AuthService : BsService, IAuthService
 > {
->     protected readonly IAuthRepository authRepository;
 >     private readonly ITokenService tokenService;
 >     private readonly ISecurityService securityService;
-> 
->     public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork,
->         IAuthRepository authRepository, ITokenService tokenService, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork)
+>    
+>  public AuthService(ILogger<AuthService> logger, ITranslateService translateService, IMapper mapper, IUnitOfWork unitOfWork,
+>         ITokenService tokenService, ISecurityService securityService) : base(logger, translateService, mapper, unitOfWork)
 >     {
->         this.authRepository = authRepository;
 >         this.tokenService = tokenService;
 >         this.securityService = securityService;
 >     }
->     
+>    
 >     [...]
-> ```
->
+>     ```
+>    
 > The factory logger of the application registered in the DI container will be resolve the right instance of the logger here because we set the generic parameter to the class name:
 >
 > ```c#
-> ILogger<AuthService>
+>ILogger<AuthService>
 > ```
 
 The service needs the instance of Logger, Translate Service, Mapper and Unit Of Work (for data transactions) that will be accessible in your class by the fields named: logger, translateService, mapper and unitOfWork;
@@ -158,7 +156,9 @@ For example this Initialization will be executed every time the application star
     }
 ```
 
-If you need to handle the inizialization order of the services, for example you want to execute the initialization of the "Companies" service before the "Employee" service, you can set the order popluating the property 'InitOrder' that returns ant int value. If you dont implement the property 'InitOrder' the default value is 0 for all services except the Authentication Service that has a value of -10 for the property 'InitOrder'.
+##### Inizialization order
+
+If you need to handle the inizialization order of the services, for example you want to execute the initialization of the "Companies" service before the "Employee" service, you can set the order popluating the property 'InitOrder' that returns ant int value. If you dont implement the property '**InitOrder**' the default value is 0 for all services except the Authentication Service that has a value of -10 for the property 'InitOrder'.
 
 #### Methods
 
@@ -290,22 +290,24 @@ You have to implement your user model class in the application to use the framew
 
 The *User* model must to implements the interface **IUserModel**.
 
-If you want to enable user's roles you must  to implement **IRoledUser** interface in your *User* model.
+If you want to enable user's roles you must  to implement **IRoledUser** interface in your *User* model (and you must to implement the model **IRoleModel** too).
 
 If you want to enable user's permissions  you must  to implement **IPermissionedUser** interface in your *User* model.
+
+If you want to enable role's permissions  you must  to implement **IPermissionedRole** interface in your *Role* model.
 
 If you want to enable Keepalive you must to implements **IKeepedAliveUser** interface in your *User* model.
 
 #### Repository
 
-You must to implement the **IAuthRepository** interface in your repository to handle the persistence of the user.
+You may implement any repositories you need. When you implement it you must to implements the base class **Data.Repository**.
 
-You need to implement the **ISecurityRepository** interface too (it is better if you use the same class for both IAuthRepository and ISecurityRepository to avoid some method duplication, by the way you are free to choose your preferred implementation).
+The Data.Repository base class implements for you the most common action to persist entities (create, Update, Delete, ...).
 
 The following sample is the typical implementation for both repositories uinterfaces:
 
 ```c#
-public class UsersRepository : Data.Repository, IAuthRepository, ISecurityRepository
+public class UsersRepository : Data.Repository
 {
     public UsersRepository(IUnitOfWork unitOfwork) : base(unitOfwork)
     {
@@ -349,3 +351,13 @@ The cosumer that receive the 401 response should, at this point, request authent
 N.B.: if an action has the Authorize attribute and the request header dont contain the token it will reply with the 401 status code too.
 
 [WIP]
+
+## Security
+
+### SecurityService
+
+The security service implements for you the most common action to handle permissions and roles check.
+
+For example the action 'CheckUserPermissionAsync' (where you provide the user to check, the permission code to validate and the permission type) return true if user has grant access otherwise false.
+This action check if user is an administrator (always return true) after if the user's roles have the permission wanted and finally check user's permissions.
+

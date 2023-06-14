@@ -1,4 +1,5 @@
-﻿using bs.Frmwrk.Application.Controllers;
+﻿using bs.Data.Interfaces;
+using bs.Frmwrk.Application.Controllers;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Mapping;
@@ -13,12 +14,10 @@ namespace bs.Frmwrk.WebApiDemo.Controllers
     public class AuthorizeController : ApiControllerBase
     {
         private readonly IAuthService authService;
-        private readonly IMapperService mapperService;
 
-        public AuthorizeController(IAuthRepository authRepository, IAuthService authService, IMapperService mapperService) : base(authRepository)
+        public AuthorizeController(IUnitOfWork unitOfWork, IAuthService authService) : base(unitOfWork)
         {
             this.authService = authService;
-            this.mapperService = mapperService;
         }
 
         [HttpPost]

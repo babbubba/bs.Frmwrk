@@ -1,4 +1,5 @@
-﻿using bs.Frmwrk.Core.Models.Auth;
+﻿using bs.Data.Interfaces;
+using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -14,11 +15,11 @@ namespace bs.Frmwrk.Application.Controllers
     [Produces("application/json")]
     public abstract class ApiControllerBase : ControllerBase
     {
-        private readonly IAuthRepository authRepository;
+        protected readonly IUnitOfWork unitOfWork;
 
-        public ApiControllerBase(IAuthRepository authRepository)
+        public ApiControllerBase(IUnitOfWork unitOfWork)
         {
-            this.authRepository = authRepository;
+            this.unitOfWork = unitOfWork;
         }
 
         protected IPAddress? ClientIp
@@ -29,16 +30,13 @@ namespace bs.Frmwrk.Application.Controllers
             }
         }
 
-        protected IUserModel? CurrentUser
+        protected async Task<IUserModel?> CurrentUserAsync()
         {
-            get
+            if (CurrentUserId is Guid currentUserId)
             {
-                if (CurrentUserId is Guid currentUserId)
-                {
-                    return authRepository.GetUserByIdAsync(currentUserId).Result;
-                }
-                return null;
+                return await unitOfWork.Session.GetAsync<IUserModel>(currentUserId);
             }
+            return null;
         }
 
         protected Guid? CurrentUserId

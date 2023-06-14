@@ -7,20 +7,10 @@ using NHibernate.Linq;
 
 namespace bs.Frmwrk.Test.Repositories
 {
-    public class UsersRepository : Repository, IAuthRepository, ISecurityRepository
+    public class UsersRepository : Repository, IAuthRepository
     {
         public UsersRepository(IUnitOfWork unitOfwork) : base(unitOfwork)
         {
-        }
-
-        public async Task CreatePermissionAsync(IPermissionModel model)
-        {
-            await CreateAsync((PermissionModel)model);
-        }
-
-        public async Task UpdatePermissionAsync(IPermissionModel model)
-        {
-            await UpdateAsync((PermissionModel)model);
         }
 
         public Task<IRoleModel> GetRoleByIdAsync(Guid roleId)
