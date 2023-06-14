@@ -20,20 +20,21 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// </summary>
         event EventHandler<IAuthEventDto>? LoginEvent;
 
-        /// <summary>
-        /// Adds the roles to user.
-        /// </summary>
-        /// <param name="rolesCode">The roles code.</param>
-        /// <param name="existingModel">The existing model.</param>
-        /// <returns></returns>
-        Task AddRolesToUser(string[]? rolesCode, IUserModel? existingModel);
-        /// <summary>
-        /// Adds the roles to user.
-        /// </summary>
-        /// <param name="dto">The dto.</param>
-        /// <param name="existingModel">The existing model.</param>
-        /// <returns></returns>
-        Task AddRolesToUser(ICreateUserDto dto, IUserModel? existingModel);
+        ///// <summary>
+        ///// Adds the roles to user.
+        ///// </summary>
+        ///// <param name="rolesCode">The roles code.</param>
+        ///// <param name="existingModel">The existing model.</param>
+        ///// <returns></returns>
+        //Task AddRolesToUser(string[]? rolesCode, IUserModel? existingModel);
+
+        ///// <summary>
+        ///// Adds the roles to user.
+        ///// </summary>
+        ///// <param name="rolesId">The roles identifier.</param>
+        ///// <param name="existingModel">The existing model.</param>
+        ///// <returns></returns>
+        //Task AddRolesToUser(Guid[]? rolesId, IUserModel? existingModel);
 
         /// <summary>
         /// Authenticates the user with the provided password and returns the user data and tokens.

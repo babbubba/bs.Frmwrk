@@ -23,13 +23,31 @@ namespace bs.Frmwrk.Core.Services.Security
         event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
         /// <summary>
+        /// Adds the permission to role asynchronous.
+        /// </summary>
+        /// <param name="permissionCode">The permission code.</param>
+        /// <param name="role">The role.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <returns></returns>
+        Task AddPermissionToRoleAsync(string permissionCode, IRoleModel role, PermissionType? permissionType);
+
+        /// <summary>
         /// Adds the permission to user asynchronous.
         /// </summary>
         /// <param name="permissionCode">The permission code.</param>
         /// <param name="user">The user.</param>
         /// <param name="permissionType">Type of the permission.</param>
         /// <returns></returns>
-        Task AddPermissionToUserAsync(string permissionCode, IPermissionedUser user, PermissionType? permissionType);
+        Task AddPermissionToUserAsync(string permissionCode, IUserModel user, PermissionType? permissionType);
+
+        /// <summary>
+        /// Adds the permission to user asynchronous.
+        /// </summary>
+        /// <param name="permissionsCode">The permissions code.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <returns></returns>
+        Task AddPermissionsToUserAsync(string[]? permissionsCode, IUserModel user, PermissionType? permissionType);
 
         /// <summary>
         /// Checks the password validity.
@@ -40,13 +58,15 @@ namespace bs.Frmwrk.Core.Services.Security
         bool CheckPasswordValidity(string? password, out string? errorMessage);
 
         /// <summary>
-        /// Checks the user permission asynchronous.
+        /// Checks the user permission asynchronous (if user has role admin it always return true).
+        /// If the user role implement IPermissionedRole this will check if requested permission code is valid for the role's permissions.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="permissionCode">The permission code.</param>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        Task<bool> CheckUserPermissionAsync(IPermissionedUser? user, string permissionCode, PermissionType type = PermissionType.None);
+        Task<bool> CheckUserPermissionAsync(IUserModel? user, string permissionCode, PermissionType type = PermissionType.None);
+
         ///// <summary>
         ///// Checks the user permission asynchronous.
         ///// </summary>
@@ -99,5 +119,7 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
+        Task AddRolesToUser(string[]? rolesCode, IUserModel? user);
+        Task AddRolesToUser(Guid[]? rolesId, IUserModel? user);
     }
 }

@@ -29,20 +29,20 @@ namespace bs.Frmwrk.Mailing.Services
             using var client = new SmtpClient();
             try
             {
-                await client.ConnectAsync(emailSettings.SmtpServer, emailSettings.Port, true);
+                await client.ConnectAsync(emailSettings.SmtpServer, emailSettings.Port, true).ConfigureAwait(false);
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 await client.AuthenticateAsync(emailSettings.UserName, emailSettings.Password);
-                var response = await client.SendAsync(message);
-                logger.LogDebug("SMTP server response is:\n" + response);
+                var response = await client.SendAsync(message).ConfigureAwait(false);
+                logger.LogDebug($"SMTP server response is:\n{response}");
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error sending email");
-                throw new BsException(2212220933, translateService.Translate("Impossibile inviare l'email"), ex);
+                throw new BsException(2212220933, translateService.Translate($"Impossibile inviare l'email: {ex.GetBaseException().Message}"), ex);
             }
             finally
             {
-                await client.DisconnectAsync(true);
+                await client.DisconnectAsync(true).ConfigureAwait(false);
                 client.Dispose();
             }
         }

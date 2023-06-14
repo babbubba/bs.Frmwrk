@@ -5,8 +5,7 @@ namespace bs.Frmwrk.Core.Models.Auth
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="bs.Frmwrk.Core.Mapper.Profiles.IIdentified" />
-    public interface IUsersPermissionsModel : IIdentified
+    public interface IRolesPermissionsModel : IIdentified
     {
         /// <summary>
         /// Gets or sets the user.
@@ -14,7 +13,7 @@ namespace bs.Frmwrk.Core.Models.Auth
         /// <value>
         /// The user.
         /// </value>
-        IUserModel User { get; set; }
+        IRoleModel Role { get; set; }
 
         /// <summary>
         /// Gets or sets the permission.

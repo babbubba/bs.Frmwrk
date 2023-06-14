@@ -2,7 +2,6 @@
 
 namespace bs.Frmwrk.Shared
 {
-
     public static class CollectionExtensions
     {
         /// <summary>
@@ -30,7 +29,6 @@ namespace bs.Frmwrk.Shared
             }
             return false;
         }
-
 
         public static void UpdateLists<ListType, MatchValueType>(this IList<ListType> outputList, IList<ListType> inputList, Func<ListType, MatchValueType> matchingField) where ListType : class
         {
@@ -92,6 +90,5 @@ namespace bs.Frmwrk.Shared
                 }
             }
         }
-
     }
 }
