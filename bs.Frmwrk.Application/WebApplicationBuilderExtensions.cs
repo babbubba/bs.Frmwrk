@@ -365,7 +365,6 @@ namespace bs.Frmwrk.Application
             }
 
             result.ToLog(Log.Debug, Log.Error);
-
         }
 
         internal static void RegisterSignalR(this WebApplicationBuilder builder)
@@ -381,14 +380,14 @@ namespace bs.Frmwrk.Application
                 throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface");
             }
 
-            var securityRepository = typeof(ISecurityRepository).GetImplTypeFromInterface(); ;
-            if (securityRepository == null)
-            {
-                throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface");
-            }
+            //var securityRepository = typeof(ISecurityRepository).GetImplTypeFromInterface(); ;
+            //if (securityRepository == null)
+            //{
+            //    throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface");
+            //}
 
             builder.Services.AddScoped(typeof(IAuthRepository), authRepository);
-            builder.Services.AddScoped(typeof(ISecurityRepository), securityRepository);
+            //builder.Services.AddScoped(typeof(ISecurityRepository), securityRepository);
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ISecurityService, SecurityService>();
             builder.Services.AddScoped<IAuthService, AuthService>();

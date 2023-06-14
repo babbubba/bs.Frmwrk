@@ -34,7 +34,6 @@ namespace bs.Frmwrk.Security.Services
         private readonly ILogger<SecurityService> logger;
         private readonly IMailingService mailingService;
         private readonly IMapperService mapper;
-        private readonly ISecurityRepository securityRepository;
         private readonly ISecuritySettings securitySettings;
         private readonly ITranslateService translateService;
         private readonly IUnitOfWork unitOfWork;
@@ -47,12 +46,11 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="unitOfWork">The unit of work.</param>
         /// <param name="securityRepository">The security repository.</param>
         /// <param name="translateService">The translate service.</param>
-        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ISecurityRepository securityRepository, ITranslateService translateService, IMapperService mapper, ICoreSettings coreSettings, IMailingService mailingService)
+        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ITranslateService translateService, IMapperService mapper, ICoreSettings coreSettings, IMailingService mailingService)
         {
             this.logger = logger;
             this.securitySettings = securitySettings;
             this.unitOfWork = unitOfWork;
-            this.securityRepository = securityRepository;
             this.translateService = translateService;
             this.mapper = mapper;
             this.coreSettings = coreSettings;
@@ -275,12 +273,12 @@ namespace bs.Frmwrk.Security.Services
             if (existingPermission != null)
             {
                 mapper.Map(dto, existingPermission);
-                await securityRepository.UpdatePermissionAsync(existingPermission);
+                await unitOfWork.Session.UpdateAsync(existingPermission);
             }
             else
             {
                 existingPermission = mapper.Map<IPermissionModel>(dto);
-                await securityRepository.CreatePermissionAsync(existingPermission);
+                await unitOfWork.Session.SaveAsync(existingPermission);
             }
 
             return existingPermission;
@@ -384,7 +382,8 @@ namespace bs.Frmwrk.Security.Services
 
             if (usernameAttemptsInLastPeriod > (securitySettings.FailedAccessMaxAttempts ?? 5))
             {
-                var usernameToDisable = await securityRepository.GetUserByUserNameAsync(username);
+                //var usernameToDisable = await securityRepository.GetUserByUserNameAsync(username);
+                var usernameToDisable = await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.UserName == username);
                 if (usernameToDisable is not null)
                 {
                     usernameToDisable.Enabled = false;
