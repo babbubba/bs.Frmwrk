@@ -128,7 +128,7 @@ namespace bs.Frmwrk.Base.Services
             return await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.IsSystemUser != null && u.IsSystemUser == true);
         }
 
-        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, IQueryable<TSource>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
+        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, Task<IQueryable<TSource>>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
         {
             IApiPagedResponse<TResponse> response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>)) ?? throw new BsException(2305180942, T("Impossibile costruire l'oggetto ApiPagedResponse"));
 
@@ -140,7 +140,7 @@ namespace bs.Frmwrk.Base.Services
             try
             {
                 unitOfWork.BeginTransaction();
-                response = await _ExecutePaginatedAsync(pageRequest, function.Invoke(response), filterFuncion, response);
+                response = await _ExecutePaginatedAsync(pageRequest, await function.Invoke(response), filterFuncion, response);
                 if (response.Success)
                 {
                     await unitOfWork.CommitAsync();

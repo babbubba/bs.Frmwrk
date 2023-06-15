@@ -17,7 +17,7 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="filterFuncion">The optional filter funcion that return the Queryable object of entities Models filtered.</param>
         /// <param name="genericErrorMessage">The error message to return if exception occurrs.</param>
         /// <returns>The ApiPagedResponse View Model containing paged data</returns>
-        Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, IQueryable<TSource>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage);
+        Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, Task<IQueryable<TSource>>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage);
 
         /// <summary>
         ///   <para>
