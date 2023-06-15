@@ -11,7 +11,6 @@ using bs.Frmwrk.Core.ViewModels.Api;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
 using NHibernate.Linq;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace bs.Frmwrk.Base.Services
 {
@@ -30,11 +29,6 @@ namespace bs.Frmwrk.Base.Services
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
             this.securityService = securityService;
-        }
-
-        public async Task<IUserModel?> _GetSystemUser()
-        {
-            return await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.IsSystemUser != null && u.IsSystemUser == true);
         }
 
         public async Task<IApiResponse<TResponse>> _ExecuteAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string? genericErrorMessage = null)
@@ -86,16 +80,16 @@ namespace bs.Frmwrk.Base.Services
             return response;
         }
 
-        public async Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion)
+        public async Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IApiPagedResponse<TViewModel>, IQueryable<TSource>>? filterFuncion, IApiPagedResponse<TViewModel>? response)
         {
-            IApiPagedResponse<TViewModel> response = (IApiPagedResponse<TViewModel>?)Activator.CreateInstance(typeof(ApiPagedResponse<TViewModel>)) ?? throw new BsException(2302061027, translateService.Translate("Impossibile costruire l'oggetto ApiPagedResponse"));
+            response ??= (IApiPagedResponse<TViewModel>?)Activator.CreateInstance(typeof(ApiPagedResponse<TViewModel>)) ?? throw new BsException(2302061027, translateService.Translate("Impossibile costruire l'oggetto ApiPagedResponse"));
 
             var dto = pageRequest as PageRequestDto;
 
             var totalRecords = source.Count();
 
             // Set filter
-            var filteredQuery = filterFuncion?.Invoke(source) ?? source;
+            var filteredQuery = filterFuncion?.Invoke(source, response) ?? source;
 
             // Set order
             if (dto?.Order != null && dto.Order.Length > 0 && dto.Columns != null)
@@ -123,13 +117,18 @@ namespace bs.Frmwrk.Base.Services
             }
             catch (Exception ex)
             {
-                response =  response.SetError(T("Errore ottenendo i dati della tabella: '{0}'", ex.GetBaseException().Message), 2305180941, logger, ex);
+                response = response.SetError(T("Errore ottenendo i dati della tabella: '{0}'", ex.GetBaseException().Message), 2305180941, logger, ex);
             }
 
             return response;
         }
 
-        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IQueryable<TSource>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
+        public async Task<IUserModel?> _GetSystemUser()
+        {
+            return await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.IsSystemUser != null && u.IsSystemUser == true);
+        }
+
+        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, IQueryable<TSource>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
         {
             IApiPagedResponse<TResponse> response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>)) ?? throw new BsException(2305180942, T("Impossibile costruire l'oggetto ApiPagedResponse"));
 
@@ -141,7 +140,7 @@ namespace bs.Frmwrk.Base.Services
             try
             {
                 unitOfWork.BeginTransaction();
-                response = await _ExecutePaginatedAsync<TSource, TResponse>(pageRequest, function.Invoke(), filterFuncion);
+                response = await _ExecutePaginatedAsync(pageRequest, function.Invoke(response), filterFuncion, response);
                 if (response.Success)
                 {
                     await unitOfWork.CommitAsync();
@@ -242,11 +241,10 @@ namespace bs.Frmwrk.Base.Services
             {
                 response = response.SetError(T(genericErrorMessage) + ": " + bex.GetBaseException().Message, bex.ErrorCode, logger, bex);
                 await unitOfWork.RollbackAsync();
-            
             }
             catch (Exception ex)
             {
-                response = response.SetError(T(genericErrorMessage) + ": " + ex.GetBaseException().Message,null, logger, ex);
+                response = response.SetError(T(genericErrorMessage) + ": " + ex.GetBaseException().Message, null, logger, ex);
                 await unitOfWork.RollbackAsync();
             }
 

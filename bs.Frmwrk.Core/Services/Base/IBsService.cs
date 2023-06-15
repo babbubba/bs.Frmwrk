@@ -17,7 +17,7 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="filterFuncion">The optional filter funcion that return the Queryable object of entities Models filtered.</param>
         /// <param name="genericErrorMessage">The error message to return if exception occurrs.</param>
         /// <returns>The ApiPagedResponse View Model containing paged data</returns>
-        Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IQueryable<TSource>> function, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage);
+        Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, IQueryable<TSource>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage);
 
         /// <summary>
         ///   <para>
@@ -42,14 +42,19 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <returns>The ApiResponse view model whit the response value or error message</returns>
         Task<IApiResponse<TResponse>> ExecuteTransactionAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string genericErrorMessage);
 
-        /// <summary>Paginates the asynchronous.</summary>
+        /// <summary>
+        /// Paginates the asynchronous.
+        /// </summary>
         /// <typeparam name="TSource">The type of the Queryable entity object used as source.</typeparam>
         /// <typeparam name="TViewModel">The type of the view model used to map the entity object in the response.</typeparam>
         /// <param name="pageRequest">The page request dto (it is used by datatables.net).</param>
         /// <param name="source">The Queryable entities used as source.</param>
         /// <param name="filterFuncion">Optional filter function. If null no filter will be applied.</param>
-        /// <returns>It returns the paginated view model of the mapped entity in the format valid for datatables.net</returns>
-        Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IQueryable<TSource>>? filterFuncion);
+        /// <param name="response">The response.</param>
+        /// <returns>
+        /// It returns the paginated view model of the mapped entity in the format valid for datatables.net
+        /// </returns>
+        Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IApiPagedResponse<TViewModel>, IQueryable<TSource>>? filterFuncion, IApiPagedResponse<TViewModel>? response);
 
         /// <summary>
         /// Translates the string.
@@ -74,6 +79,7 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="genericErrorMessage">The generic error message.</param>
         /// <returns></returns>
         Task<IApiResponse<TResponse>> _ExecuteAsync<TResponse>(Func<IApiResponse<TResponse>, Task<IApiResponse<TResponse>>> function, string? genericErrorMessage = null);
+
         /// <summary>
         /// Executes the asynchronous.
         /// </summary>
@@ -81,6 +87,7 @@ namespace bs.Frmwrk.Core.Services.Base
         /// <param name="genericErrorMessage">The generic error message.</param>
         /// <returns></returns>
         Task<IApiResponse> _ExecuteAsync(Func<IApiResponse, Task<IApiResponse>> function, string? genericErrorMessage = null);
+
         Task<IUserModel?> _GetSystemUser();
     }
 }
