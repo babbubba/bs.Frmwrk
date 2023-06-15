@@ -80,9 +80,14 @@ namespace bs.Frmwrk.Base.Services
             return response;
         }
 
-        public async Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource> source, Func<IQueryable<TSource>, IApiPagedResponse<TViewModel>, IQueryable<TSource>>? filterFuncion, IApiPagedResponse<TViewModel>? response)
+        public async Task<IApiPagedResponse<TViewModel>> _ExecutePaginatedAsync<TSource, TViewModel>(IPageRequestDto pageRequest, IQueryable<TSource>? source, Func<IQueryable<TSource>, IApiPagedResponse<TViewModel>, IQueryable<TSource>>? filterFuncion, IApiPagedResponse<TViewModel>? response)
         {
             response ??= (IApiPagedResponse<TViewModel>?)Activator.CreateInstance(typeof(ApiPagedResponse<TViewModel>)) ?? throw new BsException(2302061027, translateService.Translate("Impossibile costruire l'oggetto ApiPagedResponse"));
+
+            if (source == null)
+            {
+                return response;
+            }
 
             var dto = pageRequest as PageRequestDto;
 
@@ -128,7 +133,7 @@ namespace bs.Frmwrk.Base.Services
             return await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.IsSystemUser != null && u.IsSystemUser == true);
         }
 
-        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, Task<IQueryable<TSource>>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
+        public async Task<IApiPagedResponse<TResponse>> ExecutePaginatedTransactionAsync<TSource, TResponse>(IPageRequestDto pageRequest, Func<IApiPagedResponse<TResponse>, Task<IQueryable<TSource>?>> function, Func<IQueryable<TSource>, IApiPagedResponse<TResponse>, IQueryable<TSource>>? filterFuncion, string genericErrorMessage)
         {
             IApiPagedResponse<TResponse> response = (IApiPagedResponse<TResponse>?)Activator.CreateInstance(typeof(ApiPagedResponse<TResponse>)) ?? throw new BsException(2305180942, T("Impossibile costruire l'oggetto ApiPagedResponse"));
 
