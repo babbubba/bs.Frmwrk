@@ -11,6 +11,16 @@ namespace bs.Frmwrk.Core.ViewModels.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectListItem"/> class.
         /// </summary>
+        public SelectListItem()
+        {
+            Enabled = true;
+            Id = Guid.Empty.ToString();
+            Label = string.Empty;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SelectListItem"/> class.
+        /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="label">The label.</param>
         public SelectListItem(string id, string? label)
