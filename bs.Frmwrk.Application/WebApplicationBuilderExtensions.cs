@@ -527,7 +527,8 @@ namespace bs.Frmwrk.Application
 
         internal static void SetMapper(this WebApplicationBuilder builder)
         {
-            builder.Services.AddSingleton<IMapperService, MapperService>();
+            //builder.Services.AddSingleton<IMapperService, MapperService>();
+            builder.Services.AddScoped<IMapperService, MapperService>();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
     }
