@@ -41,8 +41,9 @@ namespace bs.Frmwrk.Core.Services.Auth
         /// </summary>
         /// <param name="authRequest">The authentication request.</param>
         /// <param name="clientIp">The client ip.</param>
+        /// <param name="extraClaims">The extra claims.</param>
         /// <returns></returns>
-        Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp);
+        Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp, IDictionary<string, string>? extraClaims = null);
 
         /// <summary>
         /// Changes the password for user asynchronous.
