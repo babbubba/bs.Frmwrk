@@ -86,7 +86,7 @@ namespace bs.Frmwrk.Auth.Services
         //    }
         //}
 
-        public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp)
+        public virtual async Task<IApiResponse<IUserViewModel>> AuthenticateAsync(IAuthRequestDto authRequest, string? clientIp, IDictionary<string, string>? extraClaims = null)
         {
             return await ExecuteTransactionAsync<IUserViewModel>(async (response) =>
             {
@@ -125,7 +125,7 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                var token = GenerateClaimsAndToken(user);
+                var token = GenerateClaimsAndToken(user, extraClaims);
 
                 // generate a new refresh token
                 user.RefreshToken = tokenService.GenerateRefreshToken();
@@ -481,7 +481,7 @@ namespace bs.Frmwrk.Auth.Services
             return true;
         }
 
-        private ITokenJWTDto GenerateClaimsAndToken(IUserModel user)
+        private ITokenJWTDto GenerateClaimsAndToken(IUserModel user, IDictionary<string, string>? extraClaims = null)
         {
             if (user is null)
             {
@@ -496,6 +496,14 @@ namespace bs.Frmwrk.Auth.Services
                 new Claim("userId", user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            if (extraClaims != null && extraClaims.Count > 0)
+            {
+                foreach (var extraClaim in extraClaims)
+                {
+                    claims.Add(new Claim(extraClaim.Key, extraClaim.Value));
+                }
+            }
 
             if (user is IRoledUser roledUser)
             {
