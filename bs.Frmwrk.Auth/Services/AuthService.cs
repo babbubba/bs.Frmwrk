@@ -45,7 +45,6 @@ namespace bs.Frmwrk.Auth.Services
 
         public event EventHandler<IAuthEventDto>? LoginEvent;
 
-        //TODO: Implemnta registrazione (moderata)
         /// <summary>
         /// The initialize priority (at startup servcies are registered in order ascending using this static field).
         /// </summary>

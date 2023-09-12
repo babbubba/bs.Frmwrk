@@ -76,12 +76,14 @@ namespace bs.Frmwrk.Navigation.Services
                 {
                     //create
                     model = mapper.Map<IMenuItemModel>(dto);
+                    logger.LogDebug($"Creating menu item (code: {dto.Code})");
                 }
                 else
                 {
                     //update
                     dto.Id ??= model.Id.ToString();
                     model = mapper.Map(dto, model);
+                    logger.LogDebug($"Updating menu item (code: {dto.Code})");
                 }
 
                 // ParentMenu
@@ -109,6 +111,7 @@ namespace bs.Frmwrk.Navigation.Services
                     var roles = await unitOfWork.Session.QueryOver<IRoleModel>().Where(x => x.Code.IsIn(dto.AuthorizedRolesCode)).ListAsync();
                     model.AuthorizedRoles ??= new List<IRoleModel>();
                     model.AuthorizedRoles.UpdateLists(roles, r => r.Code);
+                    logger.LogDebug($"Setting menu item authorized roles (roles code: {string.Join(",", dto.AuthorizedRolesCode)})");
                 }
 
                 // *RequiredPermissions
@@ -117,6 +120,7 @@ namespace bs.Frmwrk.Navigation.Services
                     var permissions = await unitOfWork.Session.QueryOver<IPermissionModel>().Where(x => x.Code.IsIn(dto.RequiredPermissionsCode)).ListAsync();
                     model.RequiredPermissions ??= new List<IPermissionModel>();
                     model.RequiredPermissions.UpdateLists(permissions, p => p.Code);
+                    logger.LogDebug($"Setting menu item authorized permissions (permissions code: {string.Join(",", dto.RequiredPermissionsCode)})");
                 }
 
                 await unitOfWork.Session.SaveOrUpdateAsync(model);
