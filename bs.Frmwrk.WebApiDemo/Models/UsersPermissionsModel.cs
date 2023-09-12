@@ -21,7 +21,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
                 Table("UsersPermissions");
                 Id(x => x.Id);
                 Property(x => x.Type);
-                SetManyToOne(p => p.User, "UserId", "FK__UsersPermissions_Users", mto =>
+                SetManyToOne(p => p.User, "UserId", "FK__UsersPermissions_Users", null, mto =>
                 {
                     mto.NotNullable(true);
                     mto.Class(typeof(UserModel));
@@ -36,7 +36,7 @@ namespace bs.Frmwrk.WebApiDemo.Models
                 //    map.UniqueKey("UQ_UsersPermissions");
                 //});
 
-                SetManyToOne(p => p.Permission, "PermissionId", "FK__UsersPermissions_Permissions", mto =>
+                SetManyToOne(p => p.Permission, "PermissionId", "FK__UsersPermissions_Permissions", null, mto =>
                 {
                     mto.NotNullable(true);
                     mto.Class(typeof(PermissionModel));
