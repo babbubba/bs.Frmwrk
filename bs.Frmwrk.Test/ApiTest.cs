@@ -1,6 +1,7 @@
 using bs.Data.Interfaces;
 using bs.Frmwrk.Auth.Dtos;
 using bs.Frmwrk.Core.Dtos.Navigation;
+using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Security;
@@ -47,7 +48,7 @@ namespace bs.Frmwrk.Test
             //Create user
             log?.LogInformation("Registering new user (user 'test')");
             var newUser = new AuthRegisterDto { UserName = "test", Password = "Passw0rdDiProva@", Email = EMAIL_TEST };
-            var r7 = await authService.RegisterNewUserAsync(newUser, new string[]{ PermissionsCodes.USERS_REGISTRY, PermissionsCodes.ROLES_REGISTRY} );
+            var r7 = await authService.RegisterNewUserAsync(newUser, new string[] { PermissionsCodes.USERS_REGISTRY, PermissionsCodes.ROLES_REGISTRY }, new string[] { RolesCodes.ADMINISTRATOR, RolesCodes.USERS });
 
             Assert.That(r7, Is.Not.Null, "CreateUserAsync doesnt work properly");
             Assert.That(r7.Success, Is.True, $"Cannot create the user: {r7.ErrorMessage} ({r7.ErrorCode})");
@@ -168,14 +169,11 @@ namespace bs.Frmwrk.Test
                 Path = "/route/item-1",
                 Position = 1,
                 ToolTip = "Questa è la voce di menu 1 che conterra altre voci di menu annidate"
-
             };
 
             var menuItemVm = await navigationService.CreateUpdateMenuItemAsync(menuItemD, await GetCurrentUser());
             Assert.That(menuItemVm, Is.Not.Null, "CreateUpdateMenuItemAsync doesnt work properly");
             Assert.That(menuItemVm.Success, Is.True, "Creating menu item fails");
-
-
 
             log?.LogInformation("Testing menu item update");
 
@@ -186,8 +184,6 @@ namespace bs.Frmwrk.Test
             var menuItemVmUpdated = await navigationService.CreateUpdateMenuItemAsync(menuItemD, await GetCurrentUser());
             Assert.That(menuItemVm, Is.Not.Null, "CreateUpdateMenuItemAsync doesnt work properly");
             Assert.That(menuItemVm.Success, Is.True, "Updating menu item fails");
-
-
 
             log?.LogInformation("Testing nested menu item create");
             var nestedMenuItemD = new CreateMenuItemDto
@@ -203,14 +199,11 @@ namespace bs.Frmwrk.Test
                 Position = 1,
                 ToolTip = "Questa è la voce di menu figlia della voce di menu 1",
                 ParentItemCode = menuItemVm.Value.Code,
-
             };
 
             var nestedMenuItemVM = await navigationService.CreateUpdateMenuItemAsync(nestedMenuItemD, await GetCurrentUser());
             Assert.That(menuItemVm, Is.Not.Null, "CreateUpdateMenuItemAsync doesnt work properly");
             Assert.That(menuItemVm.Success, Is.True, "Creating nested menu item fails");
-
-
 
             log?.LogInformation("Testing retrieving menu (with permission and role check)");
             var miItem2 = new CreateMenuItemDto
@@ -224,28 +217,25 @@ namespace bs.Frmwrk.Test
                 Path = "/route/item-2",
                 Position = 1,
                 ToolTip = "Questa è la voce di menu 2 che conterra altre voci di menu annidate"
-
             };
 
-            var r22 =  await navigationService.CreateUpdateMenuItemAsync(miItem2, await GetCurrentUser());
+            var r22 = await navigationService.CreateUpdateMenuItemAsync(miItem2, await GetCurrentUser());
 
             var miItem2Sub1 = new CreateMenuItemDto
             {
                 ParentMenuCode = "MainSidebar",
                 Code = "item-2-sub-1",
                 AuthorizedRolesCode = new[] { Core.Globals.Auth.RolesCodes.ADMINISTRATOR, Core.Globals.Auth.RolesCodes.USERS },
-                RequiredPermissionsCode = new[] {PermissionsCodes.ROLES_REGISTRY },
+                RequiredPermissionsCode = new[] { PermissionsCodes.ROLES_REGISTRY },
                 IsEnabled = true,
                 Label = "Figlio 1",
                 IsTreeView = false,
                 Path = "/route/item-2-sub-1",
                 Position = 1,
                 ParentItemCode = r22.Value.Code,
-
             };
 
             await navigationService.CreateUpdateMenuItemAsync(miItem2Sub1, await GetCurrentUser());
-
 
             var getMenuItemsByMenuCodeResponse = await navigationService.GetMenuItemsByMenuCodeAsync("MainSidebar", await GetCurrentUser());
 

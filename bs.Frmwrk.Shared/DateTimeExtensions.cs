@@ -17,7 +17,7 @@
 
         public static DateTime? ToDate(this string? value, string format = "yyyy-MM-dd")
         {
-            if (value == null) return null;
+            if (value == null || string.IsNullOrWhiteSpace(value)) return null;
             DateTime result = DateTime.ParseExact(value, format, System.Globalization.CultureInfo.InvariantCulture);
             return result;
         }
