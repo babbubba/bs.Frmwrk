@@ -82,7 +82,16 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="user">The user.</param>
         /// <param name="roleCode">The role code.</param>
         /// <returns></returns>
-        Task<bool> CheckUserRoleAsync(IRoledUser user, string roleCode);
+        Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode);
+
+        /// <summary>
+        /// Checks the user role asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="roleCode">The role code.</param>
+        /// <returns></returns>
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2310051105 if user is not implementing roles</exception>
+        Task<bool> CheckUserRolesAsync(IUserModel user, string[] rolesCode);
 
         /// <summary>
         /// Creates the permission if not exists asynchronous.
@@ -119,7 +128,9 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
+
         Task AddRolesToUser(string[]? rolesCode, IUserModel? user);
+
         Task AddRolesToUser(Guid[]? rolesId, IUserModel? user);
     }
 }
