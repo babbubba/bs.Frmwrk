@@ -27,7 +27,7 @@
         /// <value>
         ///   <c>true</c> if orderable; otherwise, <c>false</c>.
         /// </value>
-        public bool Orderable { get; set; }
+        public bool? Orderable { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the search.
@@ -35,7 +35,7 @@
         /// <value>
         /// The search.
         /// </value>
-        public Search Search { get; set; }
+        public Search? Search { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Column" /> is searchable.
@@ -43,6 +43,6 @@
         /// <value>
         ///   <c>true</c> if searchable; otherwise, <c>false</c>.
         /// </value>
-        public bool Searchable { get; set; }
+        public bool? Searchable { get; set; } = true;
     }
 }

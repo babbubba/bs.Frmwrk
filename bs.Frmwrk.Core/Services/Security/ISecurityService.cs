@@ -85,10 +85,10 @@ namespace bs.Frmwrk.Core.Services.Security
         Task<bool> CheckUserRoleAsync(IRoledUser? user, string roleCode);
 
         /// <summary>
-        /// Checks the user role asynchronous.
+        /// Checks if the user is memebership of one of the roles specified asynchronous.
         /// </summary>
         /// <param name="user">The user.</param>
-        /// <param name="roleCode">The role code.</param>
+        /// <param name="rolesCode">The roles code.</param>
         /// <returns></returns>
         /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2310051105 if user is not implementing roles</exception>
         Task<bool> CheckUserRolesAsync(IUserModel user, string[] rolesCode);
