@@ -211,7 +211,8 @@ namespace bs.Frmwrk.Security.Services
             // Administrator are allowed always
             if (user is IRoledUser roledUser)
             {
-                if (await CheckUserRoleAsync(roledUser, RolesCodes.ADMINISTRATOR))
+                // Skip check if user is admin
+                if (user.IsAdmin())
                 {
                     result = true;
                     verified = true;
@@ -262,13 +263,14 @@ namespace bs.Frmwrk.Security.Services
             {
                 throw new BsException(2212081135, translateService.Translate("Ruolo non valido"));
             }
+
             var result = user.Roles?.Any(r => r.Code == roleCode) ?? false;
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
             return result;
         }
 
         /// <summary>
-        /// Checks if the user is memebership of all the roles asynchronous.
+        /// Checks if the user is memebership of one of the roles specified asynchronous.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="rolesCode"></param>
@@ -283,7 +285,7 @@ namespace bs.Frmwrk.Security.Services
                 {
                     result.Add(await CheckUserRoleAsync(roledUser, roleCode));
                 }
-                return result.TrueForAll(r => r);
+                return result.Exists(r => r);
             }
             else
             {

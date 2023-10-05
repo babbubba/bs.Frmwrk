@@ -102,7 +102,7 @@ namespace bs.Frmwrk.Base.Services
                 try
                 {
                     var columnPropertyName = dto.Columns[dto.Order[0].Column].Name;
-                    var orderDescending = dto.Order[0].Dir.ToLower() == "asc" ? false : true;
+                    var orderDescending = dto.Order[0].Dir.ToLower() != "asc";
                     filteredQuery = filteredQuery.DynamicOrderNestedBy(columnPropertyName, orderDescending);
                 }
                 catch (Exception ex)
@@ -139,7 +139,7 @@ namespace bs.Frmwrk.Base.Services
 
             if (function == null)
             {
-                return response.SetError(T(genericErrorMessage) + ": " + T("Impossibile eseguire l'azione... la funzione non è valida."), 2305180943, logger);
+                return response.SetError(T(genericErrorMessage) + ": " + T("Impossibile eseguire la paginazione: la funzione non è valida."), 2305180943, logger);
             }
 
             try
