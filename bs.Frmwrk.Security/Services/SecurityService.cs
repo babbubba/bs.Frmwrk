@@ -255,16 +255,40 @@ namespace bs.Frmwrk.Security.Services
         {
             if (user == null)
             {
-                throw new BsException(2212081134, translateService.Translate("Utente non valido controllando il ruolo"));
+                throw new BsException(2212081134, translateService.Translate("Utente non valido"));
             }
 
             if (roleCode == null)
             {
-                throw new BsException(2212081135, translateService.Translate("Ruolo non valido controllando il ruolo"));
+                throw new BsException(2212081135, translateService.Translate("Ruolo non valido"));
             }
             var result = user.Roles?.Any(r => r.Code == roleCode) ?? false;
             OnSecurityEvent(translateService.Translate("Verifica del ruolo (codice: {1}) per l' utente {0}", result ? "riuscita" : "fallita", roleCode), result ? SecurityEventSeverity.Verbose : SecurityEventSeverity.Warning, (user is IUserModel u) ? u.UserName : "N/D");
             return result;
+        }
+
+        /// <summary>
+        /// Checks if the user is memebership of all the roles asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="rolesCode"></param>
+        /// <returns></returns>
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2310051105 if user is not implementing roles</exception>
+        public async Task<bool> CheckUserRolesAsync(IUserModel user, string[] rolesCode)
+        {
+            if (user is IRoledUser roledUser)
+            {
+                var result = new List<bool>();
+                foreach (var roleCode in rolesCode)
+                {
+                    result.Add(await CheckUserRoleAsync(roledUser, roleCode));
+                }
+                return result.TrueForAll(r => r);
+            }
+            else
+            {
+                throw new BsException(2310051105, translateService.Translate("L'utente non implementa la gestione dei ruoli"));
+            }
         }
 
         public async Task<IPermissionModel> CreatePermissionIfNotExistsAsync(ICreatePermissionDto dto)
