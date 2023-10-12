@@ -29,10 +29,15 @@ namespace bs.Frmwrk.Mailing.Services
             using var client = new SmtpClient();
             try
             {
-                await client.ConnectAsync(emailSettings.SmtpServer, emailSettings.Port, true).ConfigureAwait(false);
+                if (emailSettings.IgnoreSSLValidity ?? false)
+                {
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                }
+
+                await client.ConnectAsync(emailSettings.SmtpServer, emailSettings.Port, emailSettings.UseSSL ?? false).ConfigureAwait(false);
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 await client.AuthenticateAsync(emailSettings.UserName, emailSettings.Password);
-                var response = await client.SendAsync(message).ConfigureAwait(false);
+                var response = await client.SendAsync(message);//.ConfigureAwait(false);
                 logger.LogDebug($"SMTP server response is:\n{response}");
             }
             catch (Exception ex)
@@ -42,8 +47,8 @@ namespace bs.Frmwrk.Mailing.Services
             }
             finally
             {
-                await client.DisconnectAsync(true).ConfigureAwait(false);
-                client.Dispose();
+                await client.DisconnectAsync(true);//.ConfigureAwait(false);
+                //client.Dispose();
             }
         }
 

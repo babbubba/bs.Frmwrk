@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <StartupObject>bs.Frmwrk.Test.Program</StartupObject>
-    <AssemblyVersion>1.3.6.11</AssemblyVersion>
-    <FileVersion>1.3.6.11</FileVersion>
+    <AssemblyVersion>1.3.6.12</AssemblyVersion>
+    <FileVersion>1.3.6.12</FileVersion>
     <Authors>babbubba</Authors>
     <Company>bSoft</Company>
     <RepositoryType>git</RepositoryType>

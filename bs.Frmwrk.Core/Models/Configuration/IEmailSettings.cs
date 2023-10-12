@@ -22,12 +22,20 @@
         string? FromDisplayName { get; set; }
 
         /// <summary>
-        /// Gets or sets the SMTP server.
+        /// Gets or sets the ignore SSL validity.
         /// </summary>
         /// <value>
-        /// The SMTP server.
+        /// The ignore SSL validity.
         /// </value>
-        string? SmtpServer { get; set; }
+        bool? IgnoreSSLValidity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
+        /// <value>
+        /// The password.
+        /// </value>
+        string? Password { get; set; }
 
         /// <summary>
         /// Gets or sets the port.
@@ -38,6 +46,14 @@
         int Port { get; set; }
 
         /// <summary>
+        /// Gets or sets the SMTP server.
+        /// </summary>
+        /// <value>
+        /// The SMTP server.
+        /// </value>
+        string? SmtpServer { get; set; }
+
+        /// <summary>
         /// Gets or sets the name of the user.
         /// </summary>
         /// <value>
@@ -46,11 +62,11 @@
         string? UserName { get; set; }
 
         /// <summary>
-        /// Gets or sets the password.
+        /// Gets or sets the use SSL.
         /// </summary>
         /// <value>
-        /// The password.
+        /// The use SSL.
         /// </value>
-        string? Password { get; set; }
+        bool? UseSSL { get; set; }
     }
 }
