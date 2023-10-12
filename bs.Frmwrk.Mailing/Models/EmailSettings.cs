@@ -25,12 +25,20 @@ namespace bs.Frmwrk.Mailing.Models
         public string? FromDisplayName { get; set; }
 
         /// <summary>
-        /// Gets or sets the SMTP server.
+        /// Gets or sets the ignore SSL validity.
         /// </summary>
         /// <value>
-        /// The SMTP server.
+        /// The ignore SSL validity.
         /// </value>
-        public string? SmtpServer { get; set; }
+        public bool? IgnoreSSLValidity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
+        /// <value>
+        /// The password.
+        /// </value>
+        public string? Password { get; set; }
 
         /// <summary>
         /// Gets or sets the port.
@@ -41,6 +49,14 @@ namespace bs.Frmwrk.Mailing.Models
         public int Port { get; set; } = 25;
 
         /// <summary>
+        /// Gets or sets the SMTP server.
+        /// </summary>
+        /// <value>
+        /// The SMTP server.
+        /// </value>
+        public string? SmtpServer { get; set; }
+
+        /// <summary>
         /// Gets or sets the name of the user.
         /// </summary>
         /// <value>
@@ -49,11 +65,11 @@ namespace bs.Frmwrk.Mailing.Models
         public string? UserName { get; set; }
 
         /// <summary>
-        /// Gets or sets the password.
+        /// Gets or sets the use SSL.
         /// </summary>
         /// <value>
-        /// The password.
+        /// The use SSL.
         /// </value>
-        public string? Password { get; set; }
+        public bool? UseSSL { get; set; }
     }
 }
