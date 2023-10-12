@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.3.6.12</AssemblyVersion>
-    <FileVersion>1.3.6.12</FileVersion>
+    <AssemblyVersion>1.3.6.13</AssemblyVersion>
+    <FileVersion>1.3.6.13</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <Authors>babbubba</Authors>
     <Company>bSoft</Company>

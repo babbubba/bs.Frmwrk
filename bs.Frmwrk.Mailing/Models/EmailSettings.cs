@@ -9,6 +9,14 @@ namespace bs.Frmwrk.Mailing.Models
     public class EmailSettings : IEmailSettings
     {
         /// <summary>
+        /// Gets or sets the disable authentication.
+        /// </summary>
+        /// <value>
+        /// The disable authentication.
+        /// </value>
+        public bool? DisableAuthentication { get; set; }
+
+        /// <summary>
         /// Gets or sets from.
         /// </summary>
         /// <value>

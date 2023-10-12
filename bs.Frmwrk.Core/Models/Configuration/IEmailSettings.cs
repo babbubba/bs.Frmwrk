@@ -6,6 +6,14 @@
     public interface IEmailSettings
     {
         /// <summary>
+        /// Gets or sets the disable authentication.
+        /// </summary>
+        /// <value>
+        /// The disable authentication.
+        /// </value>
+        bool? DisableAuthentication { get; set; }
+
+        /// <summary>
         /// Gets or sets from.
         /// </summary>
         /// <value>
