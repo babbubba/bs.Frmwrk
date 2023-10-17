@@ -73,7 +73,7 @@ namespace bs.Frmwrk.Application
             builder.LoadExternalDll();
             builder.InitORM();
             builder.SetAuthorization();
-            builder.SetAuthorization();
+            builder.SetSecurity();
             builder.SetFileSystem();
             builder.RegisterRepositories();
             builder.RegisterServices();
