@@ -76,5 +76,21 @@
         /// The publish URL.
         /// </value>
         string? PublishUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the frontend confirm email URL (used in the email sent after registration when 'Security:VerifyEmail' is true).
+        /// </summary>
+        /// <value>
+        /// The frontend confirm email URL.
+        /// </value>
+        string? FrontendConfirmEmailUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the frontend recovery password URL.
+        /// </summary>
+        /// <value>
+        /// The frontend recovery password URL.
+        /// </value>
+        string? FrontendRecoveryPasswordUrl { get; set; }
     }
 }

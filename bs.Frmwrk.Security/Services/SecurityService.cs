@@ -2,12 +2,10 @@
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
-using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Models.Security;
-using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Locale;
 using bs.Frmwrk.Core.Services.Mailing;
 using bs.Frmwrk.Core.Services.Mapping;
@@ -19,6 +17,7 @@ using bs.Frmwrk.Security.Dtos;
 using bs.Frmwrk.Security.Utilities;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NHibernate.Linq;
 using System.Data;
 
@@ -31,6 +30,7 @@ namespace bs.Frmwrk.Security.Services
     public class SecurityService : ISecurityService
     {
         private readonly ICoreSettings coreSettings;
+        private readonly IHttpClientFactory httpClientFactory;
         private readonly ILogger<SecurityService> logger;
         private readonly IMailingService mailingService;
         private readonly IMapperService mapper;
@@ -46,7 +46,7 @@ namespace bs.Frmwrk.Security.Services
         /// <param name="unitOfWork">The unit of work.</param>
         /// <param name="securityRepository">The security repository.</param>
         /// <param name="translateService">The translate service.</param>
-        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ITranslateService translateService, IMapperService mapper, ICoreSettings coreSettings, IMailingService mailingService)
+        public SecurityService(ILogger<SecurityService> logger, ISecuritySettings securitySettings, IUnitOfWork unitOfWork, ITranslateService translateService, IMapperService mapper, ICoreSettings coreSettings, IMailingService mailingService, IHttpClientFactory httpClientFactory)
         {
             this.logger = logger;
             this.securitySettings = securitySettings;
@@ -55,6 +55,7 @@ namespace bs.Frmwrk.Security.Services
             this.mapper = mapper;
             this.coreSettings = coreSettings;
             this.mailingService = mailingService;
+            this.httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
@@ -160,6 +161,96 @@ namespace bs.Frmwrk.Security.Services
                     {
                         logger.LogDebug(translateService.Translate("Added role id '{0}' to user '{1}'", roleId, user.UserName));
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks the google recaptcha token v3 in Google Recaptcha API (only if Security:RecaptchaEnabled is setted to true in config file).
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns></returns>
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">
+        /// 2310171205
+        /// or
+        /// 2310171203 - Google Recaptcha Api validation response deserialization returns null value
+        /// or
+        /// 2310171204
+        /// or
+        /// 2310171206
+        /// or
+        /// 2310171207
+        /// or
+        /// 2310171208
+        /// </exception>
+        public virtual async Task<bool> CheckGoogleRecaptcha(string token)
+        {
+            if (!securitySettings.RecaptchaEnabled) return true;
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                var errorMessage = "Invalid token from Google Recaptcha Validation request";
+                logger.LogWarning(errorMessage);
+                throw new BsException(2310171205, errorMessage);
+            }
+
+            using (var request = new HttpRequestMessage())
+            {
+                request.Method = new HttpMethod("POST");
+                request.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                var urlToCall = securitySettings.RecaptchaApiEndpoint + $"?secret={securitySettings.RecaptchaApiSecret}" + $"&response={token}";
+                var endpointUri = new Uri(urlToCall);
+                request.RequestUri = endpointUri;
+
+                var response = await httpClientFactory.CreateClient(Recaptcha.HTTP_CLIENT_FACTORY_NAME).SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+
+                var status = (int)response.StatusCode;
+
+                if (response.Content != null && response.Content.Headers != null && (status == 200 || status == 201))
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (!string.IsNullOrWhiteSpace(responseContent))
+                    {
+                        // valid response content
+                        IRecaptchaResponseDto? responseBody;
+                        try
+                        {
+                            responseBody = JsonConvert.DeserializeObject<RecaptchaResponseDto>(responseContent);
+                            if (responseBody == null)
+                            {
+                                throw new BsException(2310171203, "Google Recaptcha Api validation response deserialization returns null value");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var errorMessage = "Cannot deserialize Google Recaptcha Api validation response";
+                            logger.LogWarning(ex, errorMessage);
+                            throw new BsException(2310171204, errorMessage, ex);
+                        }
+                        if (!responseBody.Success || responseBody.Score < securitySettings.RecaptchaMinimumScore) return false;
+                        return true;
+                    }
+                    else
+                    {
+                        const string errorMessage = "Call to Google API return empty body";
+                        logger.LogWarning(errorMessage);
+                        throw new BsException(2310171206, errorMessage);
+                    }
+                }
+                else if (response.Content != null)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    string errorMessage = $"Google API returned the status code: {status}, details: {responseContent}";
+                    logger.LogError(errorMessage);
+                    throw new BsException(2310171207, errorMessage);
+                }
+                else
+                {
+                    string errorMessage = $"Google API returned the status code: {status}, details: 'N/D'";
+                    logger.LogError(errorMessage);
+                    throw new BsException(2310171208, errorMessage);
                 }
             }
         }
@@ -312,7 +403,7 @@ namespace bs.Frmwrk.Security.Services
 
         public string GetConfirmRegistrationUrl(string userId, string confirmationId)
         {
-            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/ConfirmEmail?UserId={userId}&ConfirmationId={confirmationId}";
+            return $"{coreSettings.FrontendConfirmEmailUrl?.TrimEnd('/').TrimEnd('\\')}?UserId={userId}&ConfirmationId={confirmationId}";
         }
 
         public IApiResponse<ISelectListItem> GetPasswordScore(string password)
@@ -328,7 +419,7 @@ namespace bs.Frmwrk.Security.Services
 
         public string GetRecoveryPasswordUrl(string userId, string recoveryPasswordId)
         {
-            return $"{coreSettings.PublishUrl?.TrimEnd('/').TrimEnd('\\')}/api/Auth/RecoveryPassword?UserId={userId}&RecoveryPasswordId={recoveryPasswordId}";
+            return $"{coreSettings.FrontendRecoveryPasswordUrl?.TrimEnd('/').TrimEnd('\\')}?UserId={userId}&RecoveryPasswordId={recoveryPasswordId}";
         }
 
         public async Task<IApiResponse> InitServiceAsync()
@@ -366,6 +457,7 @@ namespace bs.Frmwrk.Security.Services
             }
             else
             {
+                logger.LogWarning("User try resetting password but was not enabled");
             }
         }
 

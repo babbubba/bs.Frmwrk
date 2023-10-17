@@ -441,7 +441,7 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync(async (response) =>
             {
-                var user = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.UserName == recoveryUserPasswordDto.UserName && u.Email == recoveryUserPasswordDto.Email);
+                var user = await unitOfWork.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.Email == recoveryUserPasswordDto.Email);
                 if (user is null)
                 {
                     response.ErrorMessage = T("Impossibile trovare l'utente o l'email indicata");
@@ -449,8 +449,10 @@ namespace bs.Frmwrk.Auth.Services
                     response.Success = false;
                     return response;
                 }
-
-                await securityService.SendRecoveryPasswordLinkAsync(user);
+                if (securitySettings.VerifyEmail)
+                {
+                    await securityService.SendRecoveryPasswordLinkAsync(user);
+                }
 
                 return response;
             }, "Errore durante il ripristino della password dell'utente");

@@ -5,6 +5,7 @@ using bs.Frmwrk.Application.Models.Configuration;
 using bs.Frmwrk.Auth.Services;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Config;
+using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
 using bs.Frmwrk.Core.Services.Auth;
@@ -71,6 +72,7 @@ namespace bs.Frmwrk.Application
             builder.SetMailing();
             builder.LoadExternalDll();
             builder.InitORM();
+            builder.SetAuthorization();
             builder.SetAuthorization();
             builder.SetFileSystem();
             builder.RegisterRepositories();
@@ -372,6 +374,21 @@ namespace bs.Frmwrk.Application
             builder.Services.AddSignalR();
         }
 
+        internal static void SetSecurity(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddHttpClient(Recaptcha.HTTP_CLIENT_FACTORY_NAME).ConfigurePrimaryHttpMessageHandler(hmh =>
+            {
+                var handler = new HttpClientHandler();
+                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                handler.ServerCertificateCustomValidationCallback =
+                    (httpRequestMessage, cert, cetChain, policyErrors) =>
+                    {
+                        return true;
+                    };
+                return handler;
+            });
+        }
+
         internal static void SetAuthorization(this WebApplicationBuilder builder)
         {
             var authRepository = typeof(IAuthRepository).GetImplTypeFromInterface();
@@ -380,14 +397,7 @@ namespace bs.Frmwrk.Application
                 throw new BsException(2212111515, "Cannot find a valid implementation of the 'IAuthRepository' interface");
             }
 
-            //var securityRepository = typeof(ISecurityRepository).GetImplTypeFromInterface(); ;
-            //if (securityRepository == null)
-            //{
-            //    throw new BsException(2212111516, "Cannot find a valid implementation of the 'ISecurityRepository' interface");
-            //}
-
             builder.Services.AddScoped(typeof(IAuthRepository), authRepository);
-            //builder.Services.AddScoped(typeof(ISecurityRepository), securityRepository);
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ISecurityService, SecurityService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
