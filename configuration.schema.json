@@ -6,7 +6,8 @@
       "type": "object",
       "properties": {
         "DatabaseEngineType": {
-          "type": "string"
+          "type": "string",
+		   "description": "The database Engine: MySQL: MySql v5.5; MySQL57: MySql v5.7; SQLite; MsSql2012: MS Sql Server 2012 or major; MsSql2008: MS Sql Server 2008 or minor; PostgreSQL: Postgres before v8.3; PostgreSQL83: Postgres after v8.3"
         },
         "ConnectionString": {
           "type": "string"
@@ -21,10 +22,12 @@
       "type": "object",
       "properties": {
         "SeqEndpoint": {
-          "type": "string"
+          "type": "string",
+		  "description": "The SEQ enpoint to collect logs (https://datalust.co/seq)"
         },
         "ApplicationName": {
-          "type": "string"
+          "type": "string",
+		  "description": "The field used in SEQ to determine the application source of logs"
         }
       },
       "required": [
@@ -35,7 +38,20 @@
       "type": "object",
       "properties": {
         "PublishUrl": {
-          "type": "string"
+          "type": "string",
+		  "description": "The real url with base domain used by application when published"
+        },
+		"FrontendOrigins": {
+          "type": "array",
+		  "description": "All the possible frontend urls used to validate the CORS"
+        },
+		"FrontendConfirmEmailUrl": {
+          "type": "string",
+		  "description": "The real frontend url with base domain used by application frontend to confirm user's email (used in the email sent after registration when 'Security:VerifyEmail' is true)"
+        },
+	    "FrontendRecoveryPasswordUrl": {
+          "type": "string",
+		  "description": "The real frontend url with base domain used by application frontend to recovery user's password (used in the email sent after change password when 'Security:VerifyEmail' is true)"
         },
 		"ExternalDllFilesSearchPattern": {
 		  "type": "string"
@@ -59,18 +75,49 @@
     "Security": {
       "type": "object",
       "properties": {
-        "secret": {
-          "type": "string"
+        "Secret": {
+          "type": "string",
+		   "description": "The secret key used for hashing password"
         },
         "PasswordComplexity": {
+          "type": "integer",
+		  "description": "0: No validation; 1: Very weak; 2: Weak (default); 3: Medium, 4: Strong, 5: VeryStrong",
+		  "minimum": 0,
+		  "maximum": 5
+        },
+		"FailedAccessMaxAttempts": {
+          "type": "integer"
+        },
+		"FailedAccessMonitoringPeriodInMinutes": {
+          "type": "integer"
+        },
+		"JwtRefreshTokenValidityMinutes": {
+          "type": "integer"
+        },
+		"JwtTokenValidityMinutes": {
           "type": "integer"
         },
         "VerifyEmail": {
-          "type": "boolean"
+          "type": "boolean",
+		  "description": "When enabled it forces users registered to validate the email used in registration before to be enabled (default: false)"
+        },
+        "RecaptchaApiEndpoint": {
+          "type": "string",
+		  "description": "The Google Recaptcha API endpoint. Default: https://www.google.com/recaptcha/api/siteverify"
+        },
+        "RecaptchaEnabled": {
+          "type": "boolean",
+		  "description": "When enabled it validates the login and registration request using the Google Recaptcha API, for more information see: https://www.google.com/recaptcha/about/ (default: false)"
+        },
+        "RecaptchaMinimumScore": {
+          "type": "number",
+		  "description": "The minimun score to validate Google Recaptcha response (between 0 and 1). Default: 0.4",
+		  "minimum": 0,
+		  "maximum": 1
         }
       },
       "required": [
-        "secret"
+        "Secret"
       ]
     },
     "Mailing": {
@@ -86,22 +133,32 @@
           "type": "string"
         },
         "Port": {
-          "type": "integer"
+          "type": "integer",
+		  "description": "The SMTP server ported used to connect (default: 25)"
         },
         "Username": {
           "type": "string"
         },
         "Password": {
           "type": "string"
+        },
+		"UseSSL": {
+          "type": "boolean",
+		  "description": "When true force using SSL while comunicating to SMTP server (default: false)"
+        },
+		"IgnoreSSLValidity": {
+          "type": "boolean",
+		  "description": "When true allow skipping validation certificate issues (default: false)"
+        },
+		"DisableAuthentication": {
+          "type": "boolean",
+		  "description": "When true skip the smtp autentication (default: false)"
         }
       },
       "required": [
         "From",
         "FromDisplayName",
-        "SmtpServer",
-        "Port",
-        "Username",
-        "Password"
+        "SmtpServer"
       ]
     }
   },

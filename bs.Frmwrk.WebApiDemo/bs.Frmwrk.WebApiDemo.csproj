@@ -23,4 +23,6 @@
     <ProjectReference Include="..\bs.Frmwrk.Application\bs.Frmwrk.Application.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties configuration_1development_1json__JsonSchema="babb" /></VisualStudio></ProjectExtensions>
+
 </Project>

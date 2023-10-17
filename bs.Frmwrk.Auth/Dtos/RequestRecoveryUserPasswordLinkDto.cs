@@ -5,6 +5,5 @@ namespace bs.Frmwrk.Auth.Dtos
     public class RequestRecoveryUserPasswordLinkDto : IRequestRecoveryUserPasswordLinkDto
     {
         public string Email { get; set; }
-        public string UserName { get; set; }
     }
 }

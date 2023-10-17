@@ -1,8 +1,5 @@
 ﻿namespace bs.Frmwrk.Core.Globals.Security
 {
-    /// <summary>
-    ///
-    /// </summary>
     public static class PermissionsCodes
     {
         /// <summary>
@@ -26,9 +23,10 @@
         public const string USERS_REGISTRY = "USERS_REGISTRY";
 
         /// <summary>
-        /// The user can create or delete menu 
+        /// The user can create or delete menu
         /// </summary>
         public const string MENUS_REGISTRY = "MENUS_REGISTRY";
+
         /// <summary>
         /// The user can create or delete menu items
         /// </summary>

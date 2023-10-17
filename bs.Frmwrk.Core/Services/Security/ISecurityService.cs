@@ -132,5 +132,6 @@ namespace bs.Frmwrk.Core.Services.Security
         Task AddRolesToUser(string[]? rolesCode, IUserModel? user);
 
         Task AddRolesToUser(Guid[]? rolesId, IUserModel? user);
+        Task<bool> CheckGoogleRecaptcha(string token);
     }
 }
