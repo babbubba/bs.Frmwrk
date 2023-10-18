@@ -4,13 +4,6 @@ namespace bs.Frmwrk.Auth.Dtos
 {
     public class AuthRequestDto : IAuthRequestDto
     {
-        public AuthRequestDto(string userName, string password
-            )
-        {
-            UserName = userName ?? throw new ArgumentNullException(nameof(userName));
-            Password = password ?? throw new ArgumentNullException(nameof(password));
-        }
-
         /// <summary>
         /// Gets or sets the password.
         /// </summary>
@@ -26,5 +19,13 @@ namespace bs.Frmwrk.Auth.Dtos
         /// The user name.
         /// </value>
         public string UserName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the recaptcha token.
+        /// </summary>
+        /// <value>
+        /// The recaptcha token.
+        /// </value>
+        public string? RecaptchaToken { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace bs.Frmwrk.Core.Services.Security
     /// <summary>
     ///
     /// </summary>
+    /// <seealso cref="bs.Frmwrk.Core.Services.Base.IInitializableService" />
     public interface ISecurityService : IInitializableService
     {
         /// <summary>
@@ -129,9 +130,27 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
 
+        /// <summary>
+        /// Adds the roles to user.
+        /// </summary>
+        /// <param name="rolesCode">The roles code.</param>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         Task AddRolesToUser(string[]? rolesCode, IUserModel? user);
 
+        /// <summary>
+        /// Adds the roles to user.
+        /// </summary>
+        /// <param name="rolesId">The roles identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         Task AddRolesToUser(Guid[]? rolesId, IUserModel? user);
-        Task<bool> CheckGoogleRecaptcha(string token);
+
+        /// <summary>
+        /// Checks the google recaptcha asynchronous.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns></returns>
+        Task<bool> CheckGoogleRecaptchaAsync(string? token);
     }
 }

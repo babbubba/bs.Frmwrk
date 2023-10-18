@@ -183,10 +183,8 @@ namespace bs.Frmwrk.Security.Services
         /// or
         /// 2310171208
         /// </exception>
-        public virtual async Task<bool> CheckGoogleRecaptcha(string token)
+        public virtual async Task<bool> CheckGoogleRecaptchaAsync(string? token)
         {
-            if (!securitySettings.RecaptchaEnabled) return true;
-
             if (string.IsNullOrWhiteSpace(token))
             {
                 var errorMessage = "Invalid token from Google Recaptcha Validation request";

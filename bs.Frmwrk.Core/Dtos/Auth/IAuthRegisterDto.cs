@@ -11,7 +11,7 @@
         /// <value>
         /// The name of the user.
         /// </value>
-        public string? UserName { get; set; }
+        string? UserName { get; set; }
 
         /// <summary>
         /// Gets or sets the password.
@@ -19,7 +19,7 @@
         /// <value>
         /// The password.
         /// </value>
-        public string? Password { get; set; }
+        string? Password { get; set; }
 
         /// <summary>
         /// Gets or sets the email.
@@ -27,6 +27,14 @@
         /// <value>
         /// The email.
         /// </value>
-        public string? Email { get; set; }
+        string? Email { get; set; }
+
+        /// <summary>
+        /// Gets or sets the recaptcha token from Google Recaptcha API (usually frontend ask for it then pass the token to backend in this property).
+        /// </summary>
+        /// <value>
+        /// The recaptcha token.
+        /// </value>
+        string? RecaptchaToken { get; set; }
     }
 }

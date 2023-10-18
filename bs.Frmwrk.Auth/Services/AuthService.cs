@@ -5,7 +5,6 @@ using bs.Frmwrk.Base.Services;
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Exceptions;
 using bs.Frmwrk.Core.Globals.Auth;
-using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
 using bs.Frmwrk.Core.Repositories;
@@ -89,8 +88,13 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<IUserViewModel>(async (response) =>
             {
+                if (securitySettings.RecaptchaEnabled && !await securityService.CheckGoogleRecaptchaAsync(authRequest.RecaptchaToken))
+                {
+                    OnLoginEvent(authRequest.UserName, false, T("Accesso fallito: validazione Recaptcha non superata"), clientIp);
+                    return response.SetError(T("Errore validando il Recaptcha... il tuo ip è ritenuto insicuro e pertanto le tue richieste sono bloccate. Contatta il tuo amministratore di rete o ISP"), 2210180843, logger);
+                }
+
                 var user = await unitOfWork.Session.Query<IUserModel>().FirstOrDefaultAsync(u => u.UserName == authRequest.UserName);
-                //var user = await    authRepository.GetUserByUserNameAsync(authRequest.UserName);
                 if (user == null)
                 {
                     response.Success = false;
@@ -365,15 +369,17 @@ namespace bs.Frmwrk.Auth.Services
         {
             return await ExecuteTransactionAsync<string>(async (response) =>
             {
-                if (string.IsNullOrWhiteSpace(authRegisterDto?.UserName))
+                if (authRegisterDto == null)
                 {
-                    response.ErrorMessage = T("Il nome utente è obbligatorio!");
-                    response.ErrorCode = 2301100841;
-                    response.Success = false;
-                    return response;
+                    return response.SetError(T("Modello non valido per la registrazione"), 2310180845, logger);
                 }
 
-                if (string.IsNullOrWhiteSpace(authRegisterDto?.Password))
+                if (string.IsNullOrWhiteSpace(authRegisterDto.UserName))
+                {
+                    return response.SetError(T("Il nome utente è obbligatorio"), 2301100841, logger);
+                }
+
+                if (string.IsNullOrWhiteSpace(authRegisterDto.Password))
                 {
                     response.ErrorMessage = T("La password è obbligatoria!");
                     response.ErrorCode = 2301100842;
@@ -381,7 +387,7 @@ namespace bs.Frmwrk.Auth.Services
                     return response;
                 }
 
-                if (string.IsNullOrWhiteSpace(authRegisterDto?.Email))
+                if (string.IsNullOrWhiteSpace(authRegisterDto.Email))
                 {
                     response.ErrorMessage = T("L'email è obbligatoria!");
                     response.ErrorCode = 2301100843;
@@ -403,6 +409,11 @@ namespace bs.Frmwrk.Auth.Services
                     response.ErrorCode = 2212211649;
                     response.Success = false;
                     return response;
+                }
+
+                if (securitySettings.RecaptchaEnabled && !await securityService.CheckGoogleRecaptchaAsync(authRegisterDto.RecaptchaToken))
+                {
+                    return response.SetError(T("Errore validando il Recaptcha... il tuo ip è ritenuto insicuro e pertanto le tue richieste sono bloccate. Contatta il tuo amministratore di rete o ISP"), 2210180842, logger);
                 }
 
                 var userModel = mapper.Map<IUserModel>(authRegisterDto);
