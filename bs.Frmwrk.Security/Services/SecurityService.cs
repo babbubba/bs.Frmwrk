@@ -192,6 +192,13 @@ namespace bs.Frmwrk.Security.Services
                 throw new BsException(2310171205, errorMessage);
             }
 
+            if (string.IsNullOrWhiteSpace(securitySettings.RecaptchaApiSecret))
+            {
+                var errorMessage = "Invalid Secret Key in Google Recaptcha Validation request. Set the configuration property Security:RecaptchaApiSecret with value provided in Google Recaptcha admin console";
+                logger.LogWarning(errorMessage);
+                throw new BsException(2310171206, errorMessage);
+            }
+
             using (var request = new HttpRequestMessage())
             {
                 request.Method = new HttpMethod("POST");
