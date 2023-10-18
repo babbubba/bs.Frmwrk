@@ -36,12 +36,12 @@ namespace bs.Frmwrk.Test
             Assert.That(authService, Is.Not.Null, "Cannot resolve AuthService from DI");
 
             log?.LogInformation("Testing authentication (user 'Admin')");
-            var r5 = await authService.AuthenticateAsync(new AuthRequestDto("admin", "Pa$$w0rd01!"), "test-host");
+            var r5 = await authService.AuthenticateAsync(new AuthRequestDto { UserName = "admin", Password = "Pa$$w0rd01!" }, "test-host");
             Assert.That(r5, Is.Not.Null, "AuthenticateAsync doesnt work properly");
             Assert.That(r5.Success, Is.True, "Admin authentication fails");
 
             log?.LogInformation("Testing authentication (user 'User')");
-            var r6 = await authService.AuthenticateAsync(new AuthRequestDto("user", "Pa$$w0rd01!"), "test-host");
+            var r6 = await authService.AuthenticateAsync(new AuthRequestDto() { UserName = "user", Password = "Pa$$w0rd01!" }, "test-host");
             Assert.That(r6, Is.Not.Null, "AuthenticateAsync doesnt work properly");
             Assert.That(r6.Success, Is.True, "User authentication fails");
 
