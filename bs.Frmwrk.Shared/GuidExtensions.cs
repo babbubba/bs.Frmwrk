@@ -1,4 +1,6 @@
-﻿namespace bs.Frmwrk.Shared
+﻿using bs.Frmwrk.Core.Exceptions;
+
+namespace bs.Frmwrk.Shared
 {
     public static class GuidExtensions
     {
@@ -19,7 +21,7 @@
             }
             catch (Exception)
             {
-                throw new ApplicationException($"Invalid GUID ({val})");
+                throw new BsException(2311081207, $"Invalid GUID ({val})");
             }
         }
 
@@ -33,7 +35,7 @@
             }
             catch (Exception)
             {
-                throw new ApplicationException($"Invalid GUID in collection ({val})");
+                throw new BsException(2311081208, $"Invalid GUID in collection ({val})");
             }
         }
 
