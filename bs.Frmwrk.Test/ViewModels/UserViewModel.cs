@@ -13,6 +13,7 @@ namespace bs.Frmwrk.Test.ViewModels
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpire { get; set; }
         public string UserName { get; set; }
+        public string Id { get; set; }
     }
 
 #pragma warning restore CS8618
