@@ -16,6 +16,14 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
         public string UserName { get; set; }
 
         /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the email.
         /// </summary>
         /// <value>
@@ -63,5 +71,4 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
         /// </value>
         DateTime RefreshTokenExpire { get; set; }
     }
-
 }

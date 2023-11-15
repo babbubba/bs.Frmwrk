@@ -1,4 +1,6 @@
-﻿namespace bs.Frmwrk.Shared
+﻿using bs.Frmwrk.Core.Exceptions;
+
+namespace bs.Frmwrk.Shared
 {
     public static class StringExtensions
     {
@@ -35,6 +37,13 @@
             if (val is null) return null;
             if (decimal.TryParse(val, out decimal result)) return result;
             return null;
+        }
+
+        public static decimal? ToDecimalStright(this string? val)
+        {
+            if (val is null) return null;
+            if (decimal.TryParse(val, out decimal result)) return result;
+            throw new BsException(2311131140, $"Cannot convert to decimal value the string {val}");
         }
 
         /// <summary>
