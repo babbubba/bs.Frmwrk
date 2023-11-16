@@ -13,7 +13,7 @@ namespace bs.Frmwrk.WebApiDemo
     {
         public virtual Guid Id { get; set; }
         public virtual string Code { get; set; }
-        public virtual string Name { get; set; }
+        public virtual string Label { get; set; }
         public virtual bool Enabled { get; set; }
 
         public class Map : BsClassMapping<PermissionModel>
@@ -24,7 +24,7 @@ namespace bs.Frmwrk.WebApiDemo
                 GuidId(p => p.Id);
                 PropertyUnique(p => p.Code, "UQ__Permissions");
                 Property(x => x.Enabled);
-                Property(x => x.Name);
+                Property(x => x.Label);
             }
         }
     }

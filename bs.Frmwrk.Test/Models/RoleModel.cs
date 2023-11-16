@@ -6,14 +6,13 @@ using NHibernate.Mapping.ByCode.Conformist;
 
 namespace bs.Frmwrk.Test.Models
 {
-#pragma warning disable CS8618
-
-    public class RoleModel : IRoleModel, IPersistentEntity
+    public class RoleModel : IRoleModel, IPermissionedRole, IPersistentEntity
     {
-        public virtual Guid Id { get; set; }
         public virtual string Code { get; set; }
-        public virtual string Label { get; set; }
         public virtual bool Enabled { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual string Label { get; set; }
+        public virtual ICollection<IRolesPermissionsModel> RolesPermissions { get; set; } = new List<IRolesPermissionsModel>();
 
         public override string ToString()
         {
@@ -37,9 +36,16 @@ namespace bs.Frmwrk.Test.Models
                 Property(x => x.Code);
                 Property(x => x.Enabled);
                 Property(x => x.Label);
+                Bag(x => x.RolesPermissions, collectionMapping =>
+                {
+                    collectionMapping.Inverse(true);
+                    collectionMapping.Cascade(Cascade.All);
+                    collectionMapping.Key(k => k.Column("RoleId"));
+                }, map => map.OneToMany(p =>
+                {
+                    p.Class(typeof(RolesPermissionsModel));
+                }));
             }
         }
     }
-
-#pragma warning restore CS8618
 }

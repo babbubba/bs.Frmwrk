@@ -247,14 +247,22 @@ namespace bs.Frmwrk.Auth.Services
             if (existingModel != null)
             {
                 mapper.Map(dto, existingModel);
-                existingModel.Enabled = true;
                 await unitOfWork.Session.UpdateAsync(existingModel);
             }
             else
             {
                 existingModel = mapper.Map<IRoleModel>(dto);
                 existingModel.Enabled = true;
+
                 await unitOfWork.Session.SaveAsync(existingModel);
+
+                if (dto.PermissionsCode != null)
+                {
+                    foreach (var permissionCode in dto.PermissionsCode)
+                    {
+                        await securityService.AddPermissionToRoleAsync(permissionCode, existingModel, null);
+                    }
+                }
             }
 
             return existingModel;

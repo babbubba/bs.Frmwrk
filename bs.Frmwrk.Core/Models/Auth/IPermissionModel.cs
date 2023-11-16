@@ -21,10 +21,10 @@ namespace bs.Frmwrk.Core.Models.Auth
         /// <value>
         /// The name.
         /// </value>
-        string Name { get; set; }
+        string Label { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="IRoleModel" /> is enabled.
+        /// Gets or sets a value indicating whether this <see cref="IPermissionModel"/> is enabled.
         /// </summary>
         /// <value>
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
