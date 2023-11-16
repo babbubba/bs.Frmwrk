@@ -25,6 +25,12 @@ namespace bs.Frmwrk.Shared
             }
         }
 
+        /// <summary>
+        /// Converts the sting array to guid array. If the value is null it returns and empty guid array.
+        /// </summary>
+        /// <param name="val">The value.</param>
+        /// <returns></returns>
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2311081208 - Invalid GUID in collection ({val})</exception>
         public static Guid[] ToGuid(this string[]? val)
         {
             if (val is null) return Array.Empty<Guid>();

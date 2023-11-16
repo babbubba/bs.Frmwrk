@@ -8,12 +8,12 @@ namespace bs.Frmwrk.Core.Models.Auth
     public interface IRolesPermissionsModel : IIdentified
     {
         /// <summary>
-        /// Gets or sets the user.
+        /// Gets or sets the role.
         /// </summary>
         /// <value>
         /// The user.
         /// </value>
-        IRoleModel Role { get; set; }
+        IPermissionedRole Role { get; set; }
 
         /// <summary>
         /// Gets or sets the permission.

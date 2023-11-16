@@ -90,11 +90,20 @@ namespace bs.Frmwrk.Security.Services
 
             if (role is IPermissionedRole permissionedRole)
             {
+                // Get existing RolePermission or create a new instance of it
                 IRolesPermissionsModel rolePermission = permissionedRole.RolesPermissions?.FirstOrDefault(up => up?.Permission?.Code == permissionCode) ?? typeof(IRolesPermissionsModel).GetImplInstanceFromInterface<IRolesPermissionsModel>();
+
+                // Only if a new role RolePermission set the permission
                 rolePermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
-                rolePermission.Role ??= (IRoleModel)permissionedRole ?? throw new Exception(translateService.Translate("Impossibile trovare il ruolo corrente"));
+
+                // Only if a new role RolePermission set the role
+                rolePermission.Role ??= permissionedRole;
+
+                // Always (create or update) set permission type
                 rolePermission.Type = permissionType ?? PermissionType.None;
+
                 await unitOfWork.Session.SaveOrUpdateAsync(rolePermission);
+
                 permissionedRole.RolesPermissions.AddIfNotExists(rolePermission, x => x.Permission.Code);
             }
             else

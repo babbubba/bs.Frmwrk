@@ -9,6 +9,8 @@ using bs.Frmwrk.Core.Services.Auth;
 using bs.Frmwrk.Core.Services.Navigation;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Navigation.Dtos;
+using bs.Frmwrk.Security.Dtos;
+using bs.Frmwrk.Security.Services;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -125,6 +127,27 @@ namespace bs.Frmwrk.Test
         //    Assert.That(r1, Is.Not.Null, "ChangePasswordAsync doesnt work properly");
         //    Assert.That(r1.Success, Is.True, $"Cannot create the user: {r1.ErrorMessage} ({r1.ErrorCode})");
         //}
+
+        [Test]
+        public async Task Permissioned_Role_Test()
+        {
+            var log = Root.ServiceProvider?.GetRequiredService<ILogger<ApiTest>>();
+
+            log?.LogInformation("Testing IAuthService resolution");
+            var authService = Root.ServiceProvider?.GetRequiredService<IAuthService>();
+            Assert.That(authService, Is.Not.Null, "Cannot resolve AuthService from DI");
+
+            log?.LogInformation("Testing ISecurityService resolution");
+            var securityService = Root.ServiceProvider?.GetRequiredService<ISecurityService>();
+            Assert.That(securityService, Is.Not.Null, "Cannot resolve SecurityService from DI");
+
+            var uow = Root.ServiceProvider?.GetRequiredService<IUnitOfWork>();
+            Assert.That(uow, Is.Not.Null, "Cannot resolve UnitOdWork from DI");
+
+            // Create the TEST_ROLE wirh the USERS_REGISTRY permission
+            var testRole = await authService.CreateRoleIfNotExistsAsync(new CreateRoleDto("TEST_ROLE", "Role created for testing purpose", new string[] { "USERS_REGISTRY" }));
+            Assert.That(testRole, Is.Not.Null, "Cannot create the TEST_ROLE role");
+        }
 
         [Test]
         public async Task NavigationService_Test()

@@ -20,5 +20,13 @@
         /// The name.
         /// </value>
         public string Label { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permissions code that are associated to the role.
+        /// </summary>
+        /// <value>
+        /// The permissions code.
+        /// </value>
+        public string[]? PermissionsCode { get; set; }
     }
 }

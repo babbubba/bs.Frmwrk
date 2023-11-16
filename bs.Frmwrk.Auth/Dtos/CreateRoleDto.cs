@@ -10,6 +10,13 @@ namespace bs.Frmwrk.Auth.Dtos
             Label = label;
         }
 
+        public CreateRoleDto(string code, string label, string[] permissionsCode)
+        {
+            Code = code;
+            Label = label;
+            PermissionsCode = permissionsCode;
+        }
+
         /// <summary>
         /// Gets or sets the code.
         /// </summary>
@@ -25,5 +32,13 @@ namespace bs.Frmwrk.Auth.Dtos
         /// The name.
         /// </value>
         public string Label { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permissions code that are associated to the role.
+        /// </summary>
+        /// <value>
+        /// The permissions code.
+        /// </value>
+        public string[]? PermissionsCode { get; set; }
     }
 }
