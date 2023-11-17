@@ -1,4 +1,6 @@
-﻿namespace bs.Frmwrk.Core.Mapper.Profiles
+﻿using bs.Frmwrk.Core.Models.Base;
+
+namespace bs.Frmwrk.Core.Mapper.Profiles
 {
     /// <summary>
     ///
@@ -28,19 +30,5 @@
         /// <typeparam name="TSourceInterface">The type of the source interface.</typeparam>
         /// <typeparam name="TDestinationInterface">The type of the destination interface.</typeparam>
         void CreateMapping<TSourceInterface, TDestinationInterface>();
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    public interface IIdentified
-    {
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        Guid Id { get; set; }
     }
 }

@@ -1,11 +1,11 @@
-﻿using bs.Frmwrk.Core.Mapper.Profiles;
+﻿using bs.Frmwrk.Core.Models.Base;
 
 namespace bs.Frmwrk.Core.Models.Auth
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="bs.Frmwrk.Core.Mapper.Profiles.IIdentified" />
+    /// <seealso cref="Base.IIdentified" />
     public interface IUsersPermissionsModel : IIdentified
     {
         /// <summary>
