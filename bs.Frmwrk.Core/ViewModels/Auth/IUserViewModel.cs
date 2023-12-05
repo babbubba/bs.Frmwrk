@@ -1,6 +1,4 @@
-﻿using bs.Frmwrk.Core.Mapper.Profiles;
-
-namespace bs.Frmwrk.Core.ViewModels.Auth
+﻿namespace bs.Frmwrk.Core.ViewModels.Auth
 {
     /// <summary>
     ///
@@ -8,20 +6,12 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
     public interface IUserViewModel
     {
         /// <summary>
-        /// Gets or sets the name of the user.
+        /// Gets or sets the access token.
         /// </summary>
         /// <value>
-        /// The name of the user.
+        /// The access token.
         /// </value>
-        public string UserName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        /// <value>
-        /// The identifier.
-        /// </value>
-        public string Id { get; set; }
+        string AccessToken { get; set; }
 
         /// <summary>
         /// Gets or sets the email.
@@ -29,7 +19,7 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
         /// <value>
         /// The email.
         /// </value>
-        public string Email { get; set; }
+        string Email { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="IUserViewModel"/> is enabled.
@@ -37,7 +27,15 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
         /// <value>
         ///   <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
-        public bool Enabled { get; set; }
+        bool Enabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the last login.
@@ -45,15 +43,7 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
         /// <value>
         /// The last login.
         /// </value>
-        public DateTime? LastLogin { get; set; }
-
-        /// <summary>
-        /// Gets or sets the access token.
-        /// </summary>
-        /// <value>
-        /// The access token.
-        /// </value>
-        string AccessToken { get; set; }
+        DateTime? LastLogin { get; set; }
 
         /// <summary>
         /// Gets or sets the refresh token.
@@ -70,5 +60,21 @@ namespace bs.Frmwrk.Core.ViewModels.Auth
         /// The refresh token expire.
         /// </value>
         DateTime RefreshTokenExpire { get; set; }
+
+        /// <summary>
+        /// Gets or sets the roles.
+        /// </summary>
+        /// <value>
+        /// The roles.
+        /// </value>
+        IRoleViewModel[] Roles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the user.
+        /// </summary>
+        /// <value>
+        /// The name of the user.
+        /// </value>
+        string UserName { get; set; }
     }
 }
