@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using bs.Frmwrk.Core.Mapper.Profiles;
+using bs.Frmwrk.Core.Models.Base;
 using bs.Frmwrk.Shared;
 
 namespace bs.Frmwrk.Mapper.Profiles

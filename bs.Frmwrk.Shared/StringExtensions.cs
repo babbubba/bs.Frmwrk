@@ -93,5 +93,29 @@ namespace bs.Frmwrk.Shared
             if (int.TryParse(val, out int result)) return result;
             return null;
         }
+
+        /// <summary>
+        /// Converts the string representation of a number to an integer. (if value is null or value cannnot be converted it returns 0)
+        /// </summary>
+        /// <param name="val">The value.</param>
+        /// <returns></returns>
+        public static long ToLong(this string? val)
+        {
+            if (val is null) return 0;
+            if (long.TryParse(val, out long result)) return result;
+            return 0;
+        }
+
+        /// <summary>
+        /// Converts to nullable int. (if value is null or value cannnot be converted it returns null)
+        /// </summary>
+        /// <param name="val">The value.</param>
+        /// <returns></returns>
+        public static long? ToLongN(this string? val)
+        {
+            if (val is null) return null;
+            if (long.TryParse(val, out long result)) return result;
+            return null;
+        }
     }
 }

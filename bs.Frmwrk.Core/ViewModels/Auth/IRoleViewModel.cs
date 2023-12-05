@@ -1,11 +1,9 @@
-﻿using bs.Frmwrk.Core.Models.Base;
-
-namespace bs.Frmwrk.Core.Models.Auth
+﻿namespace bs.Frmwrk.Core.ViewModels.Auth
 {
     /// <summary>
     ///
     /// </summary>
-    public interface IPermissionModel : IIdentified
+    public interface IRoleViewModel
     {
         /// <summary>
         /// Gets or sets the code.
@@ -16,19 +14,19 @@ namespace bs.Frmwrk.Core.Models.Auth
         string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets or sets the label.
         /// </summary>
         /// <value>
-        /// The name.
+        /// The label.
         /// </value>
         string Label { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="IPermissionModel"/> is enabled.
+        /// Gets or sets the roles permissions.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if enabled; otherwise, <c>false</c>.
+        /// The roles permissions.
         /// </value>
-        bool Enabled { get; set; }
+        ICollection<IPermissionViewModel>? RolesPermissions { get; set; }
     }
 }
