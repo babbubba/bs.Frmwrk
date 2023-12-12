@@ -24,6 +24,23 @@ namespace bs.Frmwrk.Core.Services.Security
         event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
         /// <summary>
+        /// Adds the permission to the user by permission codes
+        /// </summary>
+        /// <param name="permissionsCode">The permissions code.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        Task AddPermissionsToUserAsync(string[]? permissionsCode, IUserModel user, PermissionType? permissionType);
+
+        /// <summary>
+        /// Adds the permissions to the user by permission ids.
+        /// </summary>
+        /// <param name="permissionsId">The permissions identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <exception cref="System.Exception"></exception>
+        Task AddPermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType);
+
+        /// <summary>
         /// Adds the permission to role asynchronous.
         /// </summary>
         /// <param name="permissionCode">The permission code.</param>
@@ -42,13 +59,27 @@ namespace bs.Frmwrk.Core.Services.Security
         Task AddPermissionToUserAsync(string permissionCode, IUserModel user, PermissionType? permissionType);
 
         /// <summary>
-        /// Adds the permission to user asynchronous.
+        /// Adds the roles to user.
         /// </summary>
-        /// <param name="permissionsCode">The permissions code.</param>
+        /// <param name="rolesCode">The roles code.</param>
         /// <param name="user">The user.</param>
-        /// <param name="permissionType">Type of the permission.</param>
         /// <returns></returns>
-        Task AddPermissionsToUserAsync(string[]? permissionsCode, IUserModel user, PermissionType? permissionType);
+        Task AddRolesToUser(string[]? rolesCode, IUserModel? user);
+
+        /// <summary>
+        /// Adds the roles to user.
+        /// </summary>
+        /// <param name="rolesId">The roles identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        Task AddRolesToUser(Guid[]? rolesId, IUserModel? user);
+
+        /// <summary>
+        /// Checks the google recaptcha asynchronous.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns></returns>
+        Task<bool> CheckGoogleRecaptchaAsync(string? token);
 
         /// <summary>
         /// Checks the password validity.
@@ -67,15 +98,6 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="type">The type.</param>
         /// <returns></returns>
         Task<bool> CheckUserPermissionAsync(IUserModel? user, string permissionCode, PermissionType type = PermissionType.None);
-
-        ///// <summary>
-        ///// Checks the user permission asynchronous.
-        ///// </summary>
-        ///// <param name="user">The user.</param>
-        ///// <param name="requiredPermissionsCodes">The required permissions codes.</param>
-        ///// <param name="type">The type.</param>
-        ///// <returns></returns>
-        //Task<bool> CheckUserPermissionAsync(IPermissionedUser user, string[] requiredPermissionsCodes, PermissionType type = PermissionType.None);
 
         /// <summary>
         /// Checks the user role asynchronous.
@@ -129,28 +151,5 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
-
-        /// <summary>
-        /// Adds the roles to user.
-        /// </summary>
-        /// <param name="rolesCode">The roles code.</param>
-        /// <param name="user">The user.</param>
-        /// <returns></returns>
-        Task AddRolesToUser(string[]? rolesCode, IUserModel? user);
-
-        /// <summary>
-        /// Adds the roles to user.
-        /// </summary>
-        /// <param name="rolesId">The roles identifier.</param>
-        /// <param name="user">The user.</param>
-        /// <returns></returns>
-        Task AddRolesToUser(Guid[]? rolesId, IUserModel? user);
-
-        /// <summary>
-        /// Checks the google recaptcha asynchronous.
-        /// </summary>
-        /// <param name="token">The token.</param>
-        /// <returns></returns>
-        Task<bool> CheckGoogleRecaptchaAsync(string? token);
     }
 }

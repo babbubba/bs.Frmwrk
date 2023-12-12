@@ -68,6 +68,12 @@ namespace bs.Frmwrk.Security.Services
         /// </summary>
         public event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
+        /// <summary>
+        /// Adds the permission to the user by permission codes
+        /// </summary>
+        /// <param name="permissionsCode">The permissions code.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
         public virtual async Task AddPermissionsToUserAsync(string[]? permissionsCode, IUserModel user, PermissionType? permissionType)
         {
             if (permissionsCode != null && user is IPermissionedUser permissionedUser)
@@ -81,6 +87,35 @@ namespace bs.Frmwrk.Security.Services
             }
         }
 
+        /// <summary>
+        /// Adds the permissions to the user by permission ids.
+        /// </summary>
+        /// <param name="permissionsId">The permissions identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <exception cref="System.Exception"></exception>
+        public virtual async Task AddPermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType)
+        {
+            if (permissionsId != null && user is IPermissionedUser permissionedUser)
+            {
+                permissionedUser.UsersPermissions ??= new List<IUsersPermissionsModel>();
+
+                foreach (var permissionId in permissionsId)
+                {
+                    IPermissionModel permissionToAdd = await unitOfWork.Session.GetAsync<IPermissionModel>(permissionId) ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con id {0}", permissionId));
+                    await AddPermissionToUserAsync(permissionToAdd.Code, user, permissionType);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds the permission to the role by permission's code.
+        /// </summary>
+        /// <param name="permissionCode">The permission code.</param>
+        /// <param name="role">The role.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <exception cref="System.ArgumentNullException">role</exception>
+        /// <exception cref="System.Exception"></exception>
         public virtual async Task AddPermissionToRoleAsync(string permissionCode, IRoleModel role, PermissionType? permissionType)
         {
             if (role is null)
@@ -134,7 +169,11 @@ namespace bs.Frmwrk.Security.Services
                 userPermission.User ??= (IUserModel)permissionedUser ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente"));
                 userPermission.Type = permissionType ?? PermissionType.None;
                 await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
-                permissionedUser.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code);
+                if (!permissionedUser.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code))
+                {
+                    // User already have the permission so we can delete the just created UserPermission
+                    await unitOfWork.Session.DeleteAsync(userPermission);
+                }
             }
             else
             {
