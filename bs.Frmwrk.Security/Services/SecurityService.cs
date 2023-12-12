@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NHibernate.Linq;
 using System.Data;
+using System.Linq;
 
 namespace bs.Frmwrk.Security.Services
 {
@@ -120,7 +121,7 @@ namespace bs.Frmwrk.Security.Services
         {
             if (role is null)
             {
-                throw new ArgumentNullException(nameof(role), translateService.Translate("Il ruolo non può essere null"));
+                throw new ArgumentNullException(nameof(role), "The role cannot be null");
             }
 
             if (role is IPermissionedRole permissionedRole)
@@ -139,11 +140,21 @@ namespace bs.Frmwrk.Security.Services
 
                 await unitOfWork.Session.SaveOrUpdateAsync(rolePermission);
 
-                permissionedRole.RolesPermissions.AddIfNotExists(rolePermission, x => x.Permission.Code);
+                //permissionedRole.RolesPermissions.AddIfNotExists(rolePermission, x => x.Permission.Code);
+                if (!permissionedRole.RolesPermissions.AddIfNotExists(rolePermission, x => x.Permission.Code))
+                {
+                    // User already have the permission so we can delete the just created UserPermission
+                    await unitOfWork.Session.DeleteAsync(rolePermission);
+                    logger.LogDebug("Adding permission (code: {permissionCode}) to role '{roleCode}' (id: {roleId}) skipped because role already owns this permission", rolePermission.Permission.Code, role.Code, role.Id);
+                }
+                else
+                {
+                    logger.LogDebug("Added permission (code: {permissionCode}) to role '{roleCode}' (id: {roleId})", rolePermission.Permission.Code, role.Code, role.Id);
+                }
             }
             else
             {
-                logger.LogWarning(translateService.Translate("Il ruolo '{0}' non implementa la gestione dei permessi", role.Code));
+                logger.LogWarning("The role '{roleCode}' doesn't implement the permissions management", role.Code);
             }
         }
 
@@ -164,36 +175,65 @@ namespace bs.Frmwrk.Security.Services
 
             if (user is IPermissionedUser permissionedUser)
             {
-                IUsersPermissionsModel userPermission = permissionedUser.UsersPermissions?.FirstOrDefault(up => up?.Permission?.Code == permissionCode) ?? typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
-                userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
-                userPermission.User ??= (IUserModel)permissionedUser ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente"));
-                userPermission.Type = permissionType ?? PermissionType.None;
-                await unitOfWork.Session.SaveOrUpdateAsync(userPermission);
-                if (!permissionedUser.UsersPermissions.AddIfNotExists(userPermission, x => x.Permission.Code))
+                IUsersPermissionsModel userPermission = permissionedUser.UsersPermissions?.FirstOrDefault(up => up?.Permission?.Code == permissionCode);
+                if (userPermission != null)
                 {
-                    // User already have the permission so we can delete the just created UserPermission
-                    await unitOfWork.Session.DeleteAsync(userPermission);
+                    userPermission.Type = permissionType ?? PermissionType.None;
+                    await unitOfWork.Session.UpdateAsync(userPermission);
+                    logger.LogDebug("Permission (code: {permissionCode}) for user '{userName}' (id: {userId}) was updated only because user already owns this permission", userPermission.Permission.Code, user.UserName, user.Id);
+                    return;
                 }
+
+                userPermission = typeof(IUsersPermissionsModel).GetImplInstanceFromInterface<IUsersPermissionsModel>();
+                userPermission.Permission ??= await unitOfWork.Session.Query<IPermissionModel>().Where(x => x.Code == permissionCode).FirstOrDefaultAsync() ?? throw new Exception(translateService.Translate("Impossibile trovare il permesso con codice {0}", permissionCode));
+                userPermission.User ??= permissionedUser as IUserModel ?? throw new Exception(translateService.Translate("Impossibile trovare l'utente corrente"));
+                userPermission.Type = permissionType ?? PermissionType.None;
+                await unitOfWork.Session.SaveAsync(userPermission);
+                permissionedUser.UsersPermissions ??= new List<IUsersPermissionsModel>();
+                permissionedUser.UsersPermissions.Add(userPermission);
+                logger.LogDebug("Added permission (code: {permissionCode}) to user '{userName}' (id: {userId})", userPermission.Permission.Code, user.UserName, user.Id);
             }
             else
             {
-                logger.LogWarning(translateService.Translate("L'utente '{0}' non implementa la gestione dei permessi", user.UserName));
+                logger.LogWarning("The user '{userName}' doesn't implement the permissions management", user.UserName);
             }
         }
 
+        //public virtual async Task AddRolesToUser__(string[]? rolesCode, IUserModel? user)
+        //{
+        //    if (rolesCode != null && user is IRoledUser roledUser)
+        //    {
+        //        roledUser.Roles ??= new List<IRoleModel>();
+
+        //        foreach (var code in rolesCode)
+        //        {
+        //            if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r => r.Code == code).FirstOrDefaultAsync(), r => r.Id))
+        //            {
+        //                logger.LogDebug(translateService.Translate("Added role code '{0}' to user '{1}'", code, user.UserName));
+        //            }
+        //        }
+        //    }
+        //}
+
         public virtual async Task AddRolesToUser(string[]? rolesCode, IUserModel? user)
         {
-            if (rolesCode != null && user is IRoledUser roledUser)
+            if (rolesCode == null || user is not IRoledUser roledUser)
             {
-                roledUser.Roles ??= new List<IRoleModel>();
+                return;
+            }
 
-                foreach (var code in rolesCode)
-                {
-                    if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.Query<IRoleModel>().Where(r => r.Code == code).FirstOrDefaultAsync(), r => r.Id))
-                    {
-                        logger.LogDebug(translateService.Translate("Added role code '{0}' to user '{1}'", code, user.UserName));
-                    }
-                }
+            roledUser.Roles ??= new List<IRoleModel>();
+
+            var existingRoles = await unitOfWork.Session.Query<IRoleModel>()
+                .Where(r => rolesCode.Contains(r.Code))
+                .ToListAsync();
+
+            var rolesToAdd = existingRoles.Except(roledUser.Roles, r => r.Id);
+
+            foreach (var role in rolesToAdd)
+            {
+                roledUser.Roles.Add(role);
+                logger.LogDebug("Added role (code: {roleCode}) to user '{username}'", role.Code, user.UserName);
             }
         }
 
@@ -203,11 +243,15 @@ namespace bs.Frmwrk.Security.Services
             {
                 roledUser.Roles ??= new List<IRoleModel>();
 
-                foreach (var roleId in rolesId)
+                var rolesToAdd = await unitOfWork.Session.Query<IRoleModel>()
+                    .Where(r => rolesId.Contains(r.Id))
+                    .ToListAsync();
+
+                foreach (var roleToAdd in rolesToAdd)
                 {
-                    if (roledUser.Roles.AddIfNotExists(await unitOfWork.Session.GetAsync<IRoleModel>(roleId), r => r.Id))
+                    if (roledUser.Roles.AddIfNotExists(roleToAdd, r => r.Id))
                     {
-                        logger.LogDebug(translateService.Translate("Added role id '{0}' to user '{1}'", roleId, user.UserName));
+                        logger.LogDebug("Added role '{roleCode}' (id: {roleId}) to user '{userName}'", roleToAdd.Code, roleToAdd.Id, user.UserName);
                     }
                 }
             }
@@ -570,6 +614,30 @@ namespace bs.Frmwrk.Security.Services
                 {
                     OnTooManyAttemptsEvent(translateService.Translate("Troppi tentativi di accesso falliti dall'ip '{0}", clientIp), SecurityEventSeverity.Danger, username, clientIp);
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'", clientIp?.ToLower() ?? "*"));
+                }
+            }
+        }
+
+        public virtual async Task UpdatePermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType)
+        {
+            if (permissionsId != null && user is IPermissionedUser permissionedUser)
+            {
+                permissionedUser.UsersPermissions ??= new List<IUsersPermissionsModel>();
+
+                var permissionsToUpdate = await unitOfWork.Session.QueryOver<IPermissionModel>().WhereRestrictionOn(p => p.Id).IsIn(permissionsId).ListAsync();
+
+                var usersPermissionsToRemove = permissionedUser.UsersPermissions.Where(up => !permissionsToUpdate.Select(p => p.Id).Contains(up.Permission.Id)).ToList();
+
+                foreach (var usersPermissionToRemove in usersPermissionsToRemove)
+                {
+                    permissionedUser.UsersPermissions.Remove(usersPermissionToRemove);
+                    await unitOfWork.Session.DeleteAsync(usersPermissionToRemove);
+                    logger.LogDebug("Removed permission (code: {permissionCode}) from user '{userName}' (id: {userId})", usersPermissionToRemove.Permission.Code, user.UserName, user.Id);
+                }
+
+                foreach (var permissionToUpdate in permissionsToUpdate)
+                {
+                    await AddPermissionToUserAsync(permissionToUpdate.Code, user, permissionType);
                 }
             }
         }

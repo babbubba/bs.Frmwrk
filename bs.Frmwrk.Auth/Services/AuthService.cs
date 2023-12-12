@@ -405,7 +405,7 @@ namespace bs.Frmwrk.Auth.Services
 
                 if (await unitOfWork.Session.Query<IUserModel>().AnyAsync(p => p.UserName == authRegisterDto.UserName))
                 {
-                    response.ErrorMessage = T("Il nome utente è già registrato");
+                    response.ErrorMessage = T($"Il nome utente '{authRegisterDto.UserName}' è già registrato");
                     response.ErrorCode = 2212211648;
                     response.Success = false;
                     return response;

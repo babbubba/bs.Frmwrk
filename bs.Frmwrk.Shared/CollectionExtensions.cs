@@ -6,6 +6,37 @@ namespace bs.Frmwrk.Shared
     public static class CollectionExtensions
     {
         /// <summary>
+        /// Returns a list with elements contained in first but not in second using the specified field comparartor
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source.</typeparam>
+        /// <typeparam name="FieldType">The type of the ield type.</typeparam>
+        /// <param name="first">The first.</param>
+        /// <param name="second">The second.</param>
+        /// <param name="matchingField">The matching field.</param>
+        /// <returns></returns>
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">
+        /// 2312121228 - The source list is mandatory
+        /// or
+        /// 2312121228 - The list to compare is mandatory
+        /// </exception>
+        public static IEnumerable<TSource> Except<TSource, FieldType>(this IEnumerable<TSource> first, IEnumerable<TSource> second, Func<TSource, FieldType> matchingField)
+        {
+            if (first == null)
+            {
+                throw new BsException(2312121228, "The source list is mandatory");
+            }
+
+            if (second == null)
+            {
+                throw new BsException(2312121228, "The list to compare is mandatory");
+            }
+
+            var secondValuesHashSet = new HashSet<FieldType>(second.Select(matchingField));
+
+            return first.Where(item => !secondValuesHashSet.Contains(matchingField(item)));
+        }
+
+        /// <summary>
         /// Adds if not exists. It comp
         /// </summary>
         /// <typeparam name="ListType">The type of the item of the collection</typeparam>
@@ -18,7 +49,12 @@ namespace bs.Frmwrk.Shared
         {
             if (matchingField == null)
             {
-                throw new BsException(2212211504, "Parameter is mandatory");
+                throw new BsException(2212211504, "The 'collection' parameter is mandatory");
+            }
+
+            if (itemToAdd == null)
+            {
+                throw new BsException(2312121243, "The 'itemToAdd' parameter is mandatory");
             }
 
             collection ??= new List<ListType>();
@@ -44,29 +80,29 @@ namespace bs.Frmwrk.Shared
         {
             if (outputList is null)
             {
-                throw new BsException(2305181635, "Output list is null, cannot update the list");
+                throw new BsException(2305181635, "The parameter 'outputList' is mandatory");
             }
 
+            var inputSet = new HashSet<MatchValueType>(inputList.Select(matchingField));
+
+            // Aggiungi gli elementi che sono in input ma non in output
             foreach (var inputElement in inputList)
             {
-                if (!outputList.Any(g => matchingField(g).Equals(matchingField(inputElement))))
+                var inputFieldValue = matchingField(inputElement);
+                if (!inputSet.Contains(inputFieldValue))
                 {
-                    // if the output list not contains this item we have to add it to output
                     outputList.Add(inputElement);
+                    inputSet.Add(inputFieldValue);  // Aggiungi il valore al set per evitare ricerche inutili successivamente
                 }
             }
 
-            for (var idx = 0; idx < outputList.Count();)
+            // Rimuovi gli elementi che sono in output ma non in input
+            for (var idx = outputList.Count - 1; idx >= 0; idx--)
             {
-                if (!inputList.Any(g => matchingField(g).Equals(matchingField(outputList[idx]))))
+                var outputFieldValue = matchingField(outputList[idx]);
+                if (!inputSet.Contains(outputFieldValue))
                 {
-                    // if the input list not contains this item we have to remove it from output list
-                    outputList.Remove(outputList[idx]);
-                }
-                else
-                {
-                    // increment the index only id item was not removed
-                    idx++;
+                    outputList.RemoveAt(idx);
                 }
             }
         }
