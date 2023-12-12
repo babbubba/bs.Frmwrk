@@ -24,7 +24,7 @@ namespace bs.Frmwrk.Core.Services.Security
         event EventHandler<ISecurityEventDto>? TooManyAttemptsEvent;
 
         /// <summary>
-        /// Adds the permission to the user by permission codes
+        /// Adds the permission to the user by permission codes (it adds permission only if not yet owned by the user)
         /// </summary>
         /// <param name="permissionsCode">The permissions code.</param>
         /// <param name="user">The user.</param>
@@ -32,7 +32,7 @@ namespace bs.Frmwrk.Core.Services.Security
         Task AddPermissionsToUserAsync(string[]? permissionsCode, IUserModel user, PermissionType? permissionType);
 
         /// <summary>
-        /// Adds the permissions to the user by permission ids.
+        /// Adds the permissions to the user by permission ids (it adds permission only if not yet owned by the user).
         /// </summary>
         /// <param name="permissionsId">The permissions identifier.</param>
         /// <param name="user">The user.</param>
@@ -41,7 +41,7 @@ namespace bs.Frmwrk.Core.Services.Security
         Task AddPermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType);
 
         /// <summary>
-        /// Adds the permission to role asynchronous.
+        /// Adds the permission to role asynchronous (it adds permission only if not yet owned by the role).
         /// </summary>
         /// <param name="permissionCode">The permission code.</param>
         /// <param name="role">The role.</param>
@@ -50,7 +50,7 @@ namespace bs.Frmwrk.Core.Services.Security
         Task AddPermissionToRoleAsync(string permissionCode, IRoleModel role, PermissionType? permissionType);
 
         /// <summary>
-        /// Adds the permission to user asynchronous.
+        /// Adds the permission to user (it adds permission only if not yet owned by the user).
         /// </summary>
         /// <param name="permissionCode">The permission code.</param>
         /// <param name="user">The user.</param>
@@ -151,5 +151,14 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="clientIp">The client ip.</param>
         /// <returns></returns>
         Task TrackLoginFailAsync(string username, string? clientIp);
+
+        /// <summary>
+        /// Updates the permissions of the user removing or adding them.
+        /// </summary>
+        /// <param name="permissionsId">The permissions identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="permissionType">Type of the permission.</param>
+        /// <returns></returns>
+        Task UpdatePermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType);
     }
 }

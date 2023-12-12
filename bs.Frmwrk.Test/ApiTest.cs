@@ -14,6 +14,7 @@ using bs.Frmwrk.Security.Services;
 using bs.Frmwrk.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MySqlX.XDevAPI.Relational;
 using NHibernate.Linq;
 
 namespace bs.Frmwrk.Test
@@ -50,16 +51,74 @@ namespace bs.Frmwrk.Test
             //Create user
             log?.LogInformation("Registering new user (user 'test')");
             var newUser = new AuthRegisterDto { UserName = "test", Password = "Passw0rdDiProva@", Email = EMAIL_TEST };
-            var r7 = await authService.RegisterNewUserAsync(newUser, new string[] { PermissionsCodes.USERS_REGISTRY, PermissionsCodes.ROLES_REGISTRY }, new string[] { RolesCodes.ADMINISTRATOR, RolesCodes.USERS });
+            var r7 = await authService.RegisterNewUserAsync(newUser, new string[] { PermissionsCodes.USERS_REGISTRY, PermissionsCodes.ROLES_REGISTRY }, new string[] { RolesCodes.USERS });
 
             Assert.That(r7, Is.Not.Null, "CreateUserAsync doesnt work properly");
             Assert.That(r7.Success, Is.True, $"Cannot create the user: {r7.ErrorMessage} ({r7.ErrorCode})");
 
-            // Try to receive the forgotten password
-            //log?.LogInformation("Registering new user (user 'test')");
-            //var r8 = await authService.RequestRecoveryUserPasswordLinkAsync(new RequestRecoveryUserPasswordLinkDto { UserName = "user", Email = "user@test.com" });
-            //Assert.That(r8, Is.Not.Null, "RequestRecoveryUserPasswordLinkAsync doesnt work properly");
-            //Assert.That(r8.Success, Is.True, $"Cannot recover the user's password: {r8.ErrorMessage} ({r8.ErrorCode})");
+            // Check user permissions
+            var uow = Root.ServiceProvider?.GetRequiredService<IUnitOfWork>();
+            Assert.That(uow, Is.Not.Null, "DI doesnt work properly (IUnitOfWork)");
+
+            var securityService = Root.ServiceProvider?.GetRequiredService<ISecurityService>();
+            Assert.That(securityService, Is.Not.Null, "DI doesnt work properly (ISecurityService)");
+
+            var createdUser = await uow.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.Id == r7.Value.ToGuid());
+            Assert.That(createdUser, Is.Not.Null, "UnitOfWork Session Query doesnt work properly");
+
+            var checkPermission1 = await securityService.CheckUserPermissionAsync(createdUser, PermissionsCodes.USERS_REGISTRY);
+            Assert.That(checkPermission1, Is.True, "CheckUserPermissionAsync doesnt work properly");
+
+            var checkPermission2 = await securityService.CheckUserPermissionAsync(createdUser, PermissionsCodes.ROLES_REGISTRY);
+            Assert.That(checkPermission2, Is.True, "CheckUserPermissionAsync doesnt work properly");
+
+            var checkRole1 = await securityService.CheckUserRolesAsync(createdUser, new string[] { RolesCodes.USERS });
+            Assert.That(checkRole1, Is.True, "CheckUserRolesAsync doesnt work properly");
+
+            // Create some permissions
+            using (var scope = Root.ServiceProvider?.CreateScope())
+            {
+                var uow1 = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var securityService1 = scope.ServiceProvider?.GetRequiredService<ISecurityService>();
+                uow1.BeginTransaction();
+                var createdUser1 = await uow1.Session.Query<IUserModel>().SingleOrDefaultAsync(u => u.Id == r7.Value.ToGuid());
+                var pTestPermission = await securityService1.CreatePermissionIfNotExistsAsync(new CreatePermissionDto("P_TEST", "Test Permission"));
+                Assert.That(pTestPermission, Is.Not.Null, "CreatePermissionIfNotExistsAsync doesnt work properly");
+                await uow1.CommitAsync();
+
+                uow1.BeginTransaction();
+
+                await securityService1.AddPermissionToUserAsync("P_TEST", createdUser1, null);
+                var checkPermission3 = await securityService1.CheckUserPermissionAsync(createdUser1, "P_TEST");
+                Assert.That(checkPermission3, Is.True, "CheckUserPermissionAsync or AddPermissionToUserAsync dont work properly");
+                await uow1.CommitAsync();
+
+                uow1.BeginTransaction();
+
+                var pTest2Permission = await securityService1.CreatePermissionIfNotExistsAsync(new CreatePermissionDto("P_TEST2", "Test Permission"));
+                var pTest3Permission = await securityService1.CreatePermissionIfNotExistsAsync(new CreatePermissionDto("P_TEST3", "Test Permission"));
+                var pTest4Permission = await securityService1.CreatePermissionIfNotExistsAsync(new CreatePermissionDto("P_TEST4", "Test Permission"));
+
+                await uow1.CommitAsync();
+
+                var permissions = await uow1.Session.Query<IPermissionModel>().ToListAsync();
+                var p1 = permissions[0];
+                var p2 = permissions[permissions.Count - 1];
+                var p3 = permissions[permissions.Count - 2];
+
+                uow1.BeginTransaction();
+                await securityService1.UpdatePermissionsToUserAsync(new Guid[] { p1.Id, p2.Id }, createdUser1, null);
+                await uow1.CommitAsync();
+
+                var checkPermission4 = await securityService1.CheckUserPermissionAsync(createdUser1, p1.Code);
+                Assert.That(checkPermission4, Is.True, "CheckUserPermissionAsync or UpdatePermissionsToUserAsync dont work properly");
+
+                var checkPermission5 = await securityService1.CheckUserPermissionAsync(createdUser1, p2.Code);
+                Assert.That(checkPermission5, Is.True, "CheckUserPermissionAsync or UpdatePermissionsToUserAsync dont work properly");
+
+                var checkPermission6 = await securityService1.CheckUserPermissionAsync(createdUser1, p3.Code);
+                Assert.That(checkPermission6, Is.False, "CheckUserPermissionAsync or UpdatePermissionsToUserAsync dont work properly");
+            }
         }
 
         [Test]
