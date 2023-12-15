@@ -30,6 +30,31 @@ namespace bs.Frmwrk.Test
 
             Assert.That(exceptList.Any(el => el.Id == 2), Is.False, "Except extension doesnt work properly");
         }
+
+        [Test]
+        public async Task UpdateLists_Test()
+        {
+            var list1 = new List<ListElement>
+            {
+                new ListElement("Pinco", "Pallino", 1),
+                new ListElement("Mario", "Rossi", 2),
+                new ListElement("Mario", "Verdi", 3),
+                new ListElement("Gigi", "La Trottola", 4)
+            };
+
+            var list2 = new List<ListElement>
+            {
+                new ListElement("Mario", "Rossi", 2),
+                new ListElement("Guido", "La Vespa", 5),
+                new ListElement("Gustavo", "La Torta", 6),
+            };
+
+            list1.UpdateLists(list2, l => l.Id);
+
+            Assert.That(list1.Any(el => el.Id == 1), Is.False, "Except extension doesnt work properly");
+            Assert.That(list1.Any(el => el.Id == 2), Is.True, "Except extension doesnt work properly");
+            Assert.That(list1.Any(el => el.Id == 5), Is.True, "Except extension doesnt work properly");
+        }
     }
 
     internal class ListElement

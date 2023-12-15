@@ -8,7 +8,7 @@ namespace bs.Frmwrk.Shared
         /// <summary>
         /// Returns a list with elements contained in first but not in second using the specified field comparartor
         /// </summary>
-        /// <typeparam name="TSource">The type of the source.</typeparam>
+        /// <typeparam name="FistListType">The type of the source.</typeparam>
         /// <typeparam name="FieldType">The type of the ield type.</typeparam>
         /// <param name="first">The first.</param>
         /// <param name="second">The second.</param>
@@ -19,16 +19,16 @@ namespace bs.Frmwrk.Shared
         /// or
         /// 2312121228 - The list to compare is mandatory
         /// </exception>
-        public static IEnumerable<TSource> Except<TSource, FieldType>(this IEnumerable<TSource> first, IEnumerable<TSource> second, Func<TSource, FieldType> matchingField)
+        public static IEnumerable<FistListType> Except<FistListType, FieldType>(this IEnumerable<FistListType> first, IEnumerable<FistListType> second, Func<FistListType, FieldType> matchingField)
         {
             if (first == null)
             {
-                throw new BsException(2312121228, "The source list is mandatory");
+                throw new BsException(2312121228, "The first list is mandatory");
             }
 
             if (second == null)
             {
-                throw new BsException(2312121228, "The list to compare is mandatory");
+                throw new BsException(2312121228, "The second list to compare is mandatory");
             }
 
             var secondValuesHashSet = new HashSet<FieldType>(second.Select(matchingField));
@@ -68,104 +68,88 @@ namespace bs.Frmwrk.Shared
         }
 
         /// <summary>
-        /// Updates the list with value in second list not present in the list.
+        /// It updates the first list adding element in the second list not present in the first list and removing element present in first list and not present in the second one.
+        /// The comparation is defined by the field in the matchingField parameter.
         /// </summary>
-        /// <typeparam name="ListType">The type of the list type.</typeparam>
-        /// <typeparam name="MatchValueType">The type of the match value type.</typeparam>
-        /// <param name="outputList">The resultant list.</param>
-        /// <param name="inputList">The second list to add to the list.</param>
+        /// <typeparam name="ListType">The type of the lists elements.</typeparam>
+        /// <typeparam name="MatchValueType">The type of the field used to compare elements.</typeparam>
+        /// <param name="firstList">The first list that will be updated.</param>
+        /// <param name="secondList">The second list to add to the first list.</param>
         /// <param name="matchingField">The matching field.</param>
         /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">2305181635 - Output list is null, cannot update the list</exception>
-        public static void UpdateLists<ListType, MatchValueType>(this IList<ListType> outputList, IList<ListType> inputList, Func<ListType, MatchValueType> matchingField) where ListType : class
+        public static void UpdateLists<ListType, MatchValueType>(this ICollection<ListType> firstList, ICollection<ListType> secondList, Func<ListType, MatchValueType> matchingField) where ListType : class
         {
-            if (outputList is null)
+            if (firstList is null)
             {
-                throw new BsException(2305181635, "The parameter 'outputList' is mandatory");
+                throw new BsException(2305181635, "The parameter 'firstList' is mandatory");
             }
 
-            var inputSet = new HashSet<MatchValueType>(inputList.Select(matchingField));
-
-            // Aggiungi gli elementi che sono in input ma non in output
-            foreach (var inputElement in inputList)
+            if (secondList is null)
             {
-                var inputFieldValue = matchingField(inputElement);
-                if (!inputSet.Contains(inputFieldValue))
-                {
-                    outputList.Add(inputElement);
-                    inputSet.Add(inputFieldValue);  // Aggiungi il valore al set per evitare ricerche inutili successivamente
-                }
+                throw new BsException(2305181635, "The parameter 'secondList' is mandatory");
             }
 
-            // Rimuovi gli elementi che sono in output ma non in input
-            for (var idx = outputList.Count - 1; idx >= 0; idx--)
+            // Add elements currently in second list but now in first list
+            foreach (var elementToAdd in secondList.Except(firstList, matchingField))
             {
-                var outputFieldValue = matchingField(outputList[idx]);
-                if (!inputSet.Contains(outputFieldValue))
+                firstList.Add(elementToAdd);
+            }
+
+            // Remove elements in first list that is not present in second list
+            var secondListHashSet = new HashSet<MatchValueType>(secondList.Select(matchingField));
+            foreach (var elementToRemove in firstList.ToList())
+            {
+                var firstListMatchingValue = matchingField(elementToRemove);
+
+                if (!secondListHashSet.Contains(firstListMatchingValue))
                 {
-                    outputList.RemoveAt(idx);
+                    firstList.Remove(elementToRemove);
                 }
             }
         }
 
-        public static void UpdateLists<ListType>(this IList<ListType> outputList, IList<ListType> inputList) where ListType : class
+        /// <summary>
+        /// It updates the first list adding element in the second list not present in the first list and removing element present in first list and not present in the second one.
+        /// The comparation is defined by the default 'ListType' equality comparer.
+        /// </summary>
+        /// <typeparam name="ListType">The type of the ist type.</typeparam>
+        /// <param name="firstList">The first list.</param>
+        /// <param name="secondList">The second list.</param>
+        /// <exception cref="bs.Frmwrk.Core.Exceptions.BsException">
+        /// 2305181635 - The parameter 'firstList' is mandatory
+        /// or
+        /// 2305181635 - The parameter 'secondList' is mandatory
+        /// </exception>
+        public static void UpdateLists<ListType>(this ICollection<ListType> firstList, ICollection<ListType> secondList) where ListType : class
         {
-            if (outputList is null)
+            if (firstList is null)
             {
-                throw new BsException(2305181636, "Output list is null, cannot update the list");
+                throw new BsException(2305181635, "The parameter 'firstList' is mandatory");
             }
 
-            foreach (var inputElement in inputList)
+            if (secondList is null)
             {
-                if (!outputList.Any(g => g.Equals(inputElement)))
-                {
-                    // if the output list not conatins this item we have to add it to output
-                    outputList.Add(inputElement);
-                }
+                throw new BsException(2305181635, "The parameter 'secondList' is mandatory");
             }
-            for (var idx = 0; idx < outputList.Count();)
+
+            secondList.Except(firstList).ToList().ForEach(elementsToAdd => firstList.Add(elementsToAdd));
+
+            foreach (var element in firstList.Except(secondList).ToList())
             {
-                if (!inputList.Any(g => g.Equals(outputList[idx])))
-                {
-                    // if the input list not contains this item we have to remove it from output list
-                    outputList.Remove(outputList[idx]);
-                }
-                else
-                {
-                    // increment the index only id item was not removed
-                    idx++;
-                }
+                firstList.Remove(element);
             }
         }
 
-        public static void UpdateListsById<ListType>(this IList<ListType> outputList, IList<ListType> inputList) where ListType : IIdentified
+        /// <summary>
+        /// It updates the first list adding element in the second list not present in the first list and removing element present in first list and not present in the second one.
+        /// The comparation is defined by the GUID  identifier.
+        /// </summary>
+        /// <typeparam name="ListType">The type of the ist type.</typeparam>
+        /// <param name="firstList">The first list.</param>
+        /// <param name="secondList">The second list.</param>
+        public static void UpdateListsById<ListType>(this ICollection<ListType> firstList, ICollection<ListType> secondList) where ListType : class, IIdentified
         {
-            if (outputList is null)
-            {
-                throw new BsException(2305181635, "Output list is null, cannot update the list");
-            }
-
-            foreach (var inputElement in inputList)
-            {
-                if (!outputList.Any(g => g.Id == inputElement.Id))
-                {
-                    // if the output list not contains this item we have to add it to output
-                    outputList.Add(inputElement);
-                }
-            }
-
-            for (var idx = 0; idx < outputList.Count();)
-            {
-                if (!inputList.Any(g => g.Id == outputList[idx].Id))
-                {
-                    // if the input list not contains this item we have to remove it from output list
-                    outputList.Remove(outputList[idx]);
-                }
-                else
-                {
-                    // increment the index only id item was not removed
-                    idx++;
-                }
-            }
+            firstList.UpdateLists(secondList, e => e.Id);
         }
     }
 }
