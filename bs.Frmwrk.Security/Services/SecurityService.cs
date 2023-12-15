@@ -2,6 +2,7 @@
 using bs.Frmwrk.Core.Dtos.Auth;
 using bs.Frmwrk.Core.Dtos.Security;
 using bs.Frmwrk.Core.Exceptions;
+using bs.Frmwrk.Core.Globals.Auth;
 using bs.Frmwrk.Core.Globals.Security;
 using bs.Frmwrk.Core.Models.Auth;
 using bs.Frmwrk.Core.Models.Configuration;
@@ -616,6 +617,30 @@ namespace bs.Frmwrk.Security.Services
                     logger.LogError(translateService.Translate("Troppi tentativi di accesso falliti per l' ip '{0}'", clientIp?.ToLower() ?? "*"));
                 }
             }
+        }
+
+        public virtual async Task UpdateRolesToUserAsync(Guid[]? rolesId, IUserModel user)
+        {
+            if (rolesId == null || user is not IRoledUser roledUser)
+            {
+                return;
+            }
+
+            roledUser.Roles ??= new List<IRoleModel>();
+
+            var updatedRoles = await unitOfWork.Session.Query<IRoleModel>()
+                .Where(r => rolesId.Contains(r.Id))
+                .ToListAsync();
+
+            roledUser.Roles.UpdateLists(updatedRoles, r => r.Id);
+
+            //var rolesToAdd = updatedRoles.Except(roledUser.Roles, r => r.Id);
+
+            //foreach (var role in rolesToAdd)
+            //{
+            //    roledUser.Roles.Add(role);
+            //    logger.LogDebug("Added role (code: {roleCode}) to user '{username}'", role.Code, user.UserName);
+            //}
         }
 
         public virtual async Task UpdatePermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType)

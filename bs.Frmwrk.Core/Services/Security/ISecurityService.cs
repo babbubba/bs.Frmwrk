@@ -160,5 +160,13 @@ namespace bs.Frmwrk.Core.Services.Security
         /// <param name="permissionType">Type of the permission.</param>
         /// <returns></returns>
         Task UpdatePermissionsToUserAsync(Guid[]? permissionsId, IUserModel user, PermissionType? permissionType);
+
+        /// <summary>
+        /// Updates the roles to user asynchronous.
+        /// </summary>
+        /// <param name="rolesId">The roles identifier.</param>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        Task UpdateRolesToUserAsync(Guid[]? rolesId, IUserModel user);
     }
 }
