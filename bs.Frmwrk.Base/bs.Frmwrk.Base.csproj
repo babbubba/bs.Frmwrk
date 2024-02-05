@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <Title>$(AssemblyName)</Title>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <AssemblyVersion>1.3.6.19</AssemblyVersion>
-    <FileVersion>1.3.6.19</FileVersion>
+    <AssemblyVersion>1.4.0.0</AssemblyVersion>
+    <FileVersion>1.4.0.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <Authors>babbubba</Authors>
     <Company>bSoft</Company>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="bs.Data" Version="4.0.4.4" />
+    <PackageReference Include="bs.Data" Version="4.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
