@@ -10,19 +10,14 @@
     <Company>bSoft</Company>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Remove="configuration.development.json" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="configuration.development.json" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\bs.Frmwrk.Application\bs.Frmwrk.Application.csproj" />
   </ItemGroup>
-
   <ProjectExtensions><VisualStudio><UserProperties configuration_1development_1json__JsonSchema="babb" /></VisualStudio></ProjectExtensions>
-
 </Project>
