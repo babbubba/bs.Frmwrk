@@ -15,7 +15,6 @@ using bs.Frmwrk.Core.Services.Mailing;
 using bs.Frmwrk.Core.Services.Mapping;
 using bs.Frmwrk.Core.Services.Security;
 using bs.Frmwrk.Core.ViewModels.Api;
-using bs.Frmwrk.Locale.Providers;
 using bs.Frmwrk.Locale.Services;
 using bs.Frmwrk.Mailing.Models;
 using bs.Frmwrk.Mailing.Services;
@@ -29,15 +28,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MySqlX.XDevAPI.Common;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Extensions.Logging;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -495,7 +493,7 @@ namespace bs.Frmwrk.Application
             if (!File.Exists(configfilePath))
             {
                 // Cannot init application because config file doesnt exist
-                throw new Exception($"No valid configuration file found at path: {configfilePath}");
+                throw new BsException(2402051158, $"No valid configuration file found at path: {configfilePath}");
             }
 
             builder.Configuration.SetBasePath(contentRootPath);
@@ -520,24 +518,14 @@ namespace bs.Frmwrk.Application
             builder.Services.AddScoped<ITranslateService, TranslateService>();
 
             builder.Services.AddLocalization(); // we dont set the path so Localization assume that resource file is in the same path as 'Languages' shared class (Italcom.TodoStore.Infrastructure project in the Localization folder)
-            builder.Services.Configure<RequestLocalizationOptions>(
-                options =>
-                {
-                    var supportedCultures = new List<CultureInfo>
-                    {
-                        new CultureInfo("it-IT"),
-                        new CultureInfo("en-US")
-                    };
-                    options.DefaultRequestCulture = new RequestCulture("it-IT", "it-IT");
-                    options.SupportedCultures = supportedCultures;
-                    options.SupportedUICultures = supportedCultures;
-                    options.RequestCultureProviders = new[] { new AcceptLanguageHeaderDataRequestCultureProvider() };
-                });
+
+            builder.Services.AddMvc()
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization();
         }
 
         internal static void SetMapper(this WebApplicationBuilder builder)
         {
-            //builder.Services.AddSingleton<IMapperService, MapperService>();
             builder.Services.AddScoped<IMapperService, MapperService>();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
